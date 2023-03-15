@@ -63,7 +63,6 @@ export default class ReplayViewModel extends Vue{
     //     }, 1000)
     // }
 
-
     Replay(){
         this.replayData = index.state.data
         this.startTime = 0
