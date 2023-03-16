@@ -19,10 +19,9 @@
 <script lang="ts">
 import {mixins, Options} from 'vue-class-component';
 import ReplayViewModel from "@/views/ReplayViewModel";
-import {Vue} from "vue-class-component";
 import {DomEventRecord} from "@/record/DomEventRecord";
 import index from "@/store"
-import * as echarts from 'echarts'
+
 @Options({
 
 })
@@ -33,8 +32,6 @@ export default class ReplayView extends mixins(ReplayViewModel) {
   domRecord = new DomEventRecord();
   replayData:any;
   value = '';
-  echartsData: any[] = [];
-  option:any;
   typeNum = 0;
   typeLength = 0;
   startTime = 0;
@@ -50,41 +47,6 @@ export default class ReplayView extends mixins(ReplayViewModel) {
     (window as any).playbackInProgress = false;
     // await this.getReplayData(this.time);
   }
-
-  // onMounted(){
-  //     const myChart = echarts.init(<HTMLElement>document.getElementById('play'));
-  //     this.time = 0
-  //     // 指定图表的配置项和数据
-  //
-  //     this.option = {
-  //         xAxis: {
-  //             type: '时间',
-  //             data: this.time
-  //         },
-  //         yAxis: {
-  //             type: 'value'
-  //         },
-  //         series: [{
-  //             data: this.replayData.value.length,
-  //             type: 'line'
-  //         }]
-  //     };
-  //
-  //     myChart.setOption(this.option);
-  //
-  //
-  //     setInterval(()=>{
-  //         this.time++
-  //         myChart.setOption({
-  //             xAxis: {
-  //                 data: this.time
-  //             },
-  //             series: [{
-  //                 data: this.replayData.value.length
-  //             }]
-  //         });
-  //     }, 1000)
-  // }
 
   Replay(){
     this.replayData = index.state.data
