@@ -14,13 +14,16 @@
     <div class="index">写作总时间:{{time}}</div>
     <div class="index">写作总字数:{{writingLength}}</div>
   </div>
+  <div id="chart" style="width: 100%;height: 300px;"></div>
 </template>
+
 
 <script lang="ts">
 import {mixins, Options} from 'vue-class-component';
 import ReplayViewModel from "@/views/ReplayViewModel";
 import {DomEventRecord} from "@/record/DomEventRecord";
 import index from "@/store"
+import * as echarts from 'echarts';
 
 @Options({
 
@@ -42,6 +45,7 @@ export default class ReplayView extends mixins(ReplayViewModel) {
   writingLength=0;
   flag = 1;
   timing : any;
+  chart: any;
 
   async created() {
     (window as any).playbackInProgress = false;
@@ -142,6 +146,43 @@ export default class ReplayView extends mixins(ReplayViewModel) {
     // 记录一下当前的时间戳和字符长度，以便下一次使用
     this.startTime = data.timeStamp
     this.typeLength = data.value.length
+
+    // echarts
+    if (!this.chart) {
+      this.chart = echarts.init(document.getElementById('chart'));
+      this.chart.setOption({
+        title: {
+          text: '打字速度'
+        },
+        tooltip: {
+          trigger: 'axis'
+        },
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: [this.allTime]
+        },
+        yAxis: {
+          type: 'value',
+          boundaryGap: [0, '100%']
+        },
+        series: [{
+          name: '速度',
+          type: 'line',
+          data: [this.typeSpeed]
+        }]
+      });
+    } else {
+      this.chart.setOption({
+        xAxis: {
+          data: [this.allTime]
+        },
+        series: [{
+          name: '速度',
+          data: [this.typeSpeed]
+        }]
+      });
+    }
   }
 
   // getReplayData(time: number) {
@@ -167,9 +208,10 @@ export default class ReplayView extends mixins(ReplayViewModel) {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  justify-content: flex-end;
+  justify-content: center;
 }
 .index{
   margin-left: 60px;
 }
 </style>
+
