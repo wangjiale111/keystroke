@@ -5,7 +5,6 @@ import {template} from "lodash";
 
 export interface UserViewModel {
     classKey: string;
-
     modelKey: string;
     modelValue: any;
     // 时间戳
@@ -35,9 +34,23 @@ export default class WritingRecordViewModel extends Vue{
     value = '';
     replayData: any[] = [];
     num2 = 0;
+    time = '00分00秒';
+    flag = false;
 
     tostart(){
         console.log("record开始")
+        this.flag = false;
+        let time = 0;
+        const timer = setInterval(()=>{
+            if(this.flag){
+                clearInterval(timer);
+            }
+            time++;
+            const min = Math.floor(time/60);
+            const sec = time%60;
+            this.time = `${min}分${sec}秒`;
+        },1000)
+
         this.domRecord = new DomEventRecord();
         this.domRecord.startRecord((log: any) => {
             console.log(log)
@@ -56,9 +69,11 @@ export default class WritingRecordViewModel extends Vue{
 
     toStop(){
         console.log("点击提交，结束录制")
+        this.flag = true;
         recordData =this.domRecord.stopRecord((log: any) => {
             console.log(log)
         });
         index.setState(JSON.parse(JSON.stringify(this.replayData)))
     }
+
 }

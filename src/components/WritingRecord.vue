@@ -6,6 +6,7 @@
     <div class="button">
       <button @click="tostart">开始写作</button>
       <button @click="toStop" style="margin-left: 400px;">结束写作</button>
+        <div class="index">写作总时间:{{ time }}</div>
     </div>
   </div>
 </template>
@@ -26,14 +27,13 @@ export default class WritingRecord extends mixins(WritingRecordViewModel)  {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
-* {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  color: #2c3e50;
+.text{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 }
+
 .button{
   display: flex;
   flex-direction: row;
@@ -48,16 +48,4 @@ export default class WritingRecord extends mixins(WritingRecordViewModel)  {
   justify-content: flex-start;
 }
 
-nav {
-  padding: 30px;
-}
-
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-nav a.router-link-exact-active {
-  color: #42b983;
-}
 </style>
