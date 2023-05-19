@@ -1,36 +1,31 @@
 <template>
-  <div class="writing">
-      <div class="header">
-          <div>时间:{{ time }}</div>
-          <div style="margin-left: 80px">字数:{{ wordNum }}</div>
-      </div>
-    <div class="text">
-      <textarea cols="100" rows="10" v-model="value" ondrop="return false" onpaste="return false" :disabled="disable"></textarea>
+    <div class="record">
+        <div class="writing">
+            <div class="header">
+                <div>时间:{{ time }}</div>
+                <div style="margin-left: 80px">字数:{{ wordNum }}</div>
+            </div>
+            <el-input
+                type="textarea"
+                :rows="10"
+                v-model="value"
+                :disabled="disable"
+                @input="handleInput"
+            ></el-input>
+            <div class="button">
+                <el-button type="primary" @click="toStart">开始写作</el-button>
+                <el-button type="danger" @click="toStop" style="margin-left: 80px;">结束写作</el-button>
+            </div>
+        </div>
     </div>
-    <div class="button">
-      <button @click="toStart">开始写作</button>
-      <button @click="toStop" style="margin-left: 400px;">结束写作</button>
-    </div>
-  </div>
 </template>
 
 <script lang="ts">
-import {mixins, Options} from 'vue-class-component';
+import { mixins, Options } from 'vue-class-component';
 import ReplayView from '@/views/ReplayView.vue';
-import {Vue} from "vue-class-component";
+import { Vue } from "vue-class-component";
 import index from "@/store"
-import {DomEventRecord} from "@/record/DomEventRecord";
-
-export const CurriculumViewModelClasskey = {
-    CurriculumDisconnectViewModel: 'CurriculumDisconnectViewModel',
-    CooperativeViewModel: 'CooperativeViewModel',
-    ScientificWritingCurriculumViewModel: 'ScientificWritingCurriculumViewModel',
-    PersonalChoiceViewModel: 'PersonalChoiceViewModel',
-    MaterialWithWritingViewModel:'MaterialWithWritingViewModel',
-    WritingViewModel: 'WritingViewModel',
-    ChoiceWithReasonViewModel: 'ChoiceWithReasonViewModel',
-    IMViewModel:'IMViewModel'
-};
+import { DomEventRecord } from "@/record/DomEventRecord";
 
 export interface UserViewModel {
     classKey: string;
@@ -38,55 +33,55 @@ export interface UserViewModel {
     modelValue: any;
     // 时间戳
     timeStamp?: number;
-    index?:number;
+    index?: number;
 }
 
-let recordData:any;
+let recordData: any;
 
 @Options({
-components:{
-  ReplayView
-}
+    components: {
+        ReplayView
+    }
 })
-export default class WritingRecord extends mixins(Vue)  {
+export default class WritingRecord extends mixins(Vue) {
 
     domRecord: any;
     value = '';
     replayData: any[] = [];
     num2 = 0;
-    time = '0分0秒';
+    time =  '0分0秒';
     flag = false;
     wordNum = 0;
     disable = true;
 
+    // ...
 
     /**
      * toStart  开始录制 1.计时器计算时间  2.监听输入框的值 3.调用recordUserViewModel方法 4.将数据存入replayData
-     *
      */
-    toStart(){
+    toStart() {
         console.log("record开始")
         this.disable = false;
         // 计时器计算时间
         this.flag = false;
         this.value = '';
         let time = 0;
-        const timer = setInterval(()=>{
-            if(this.flag){
+        const timer = setInterval(() => {
+            if (this.flag) {
                 clearInterval(timer);
             }
             time++;
-            const min = Math.floor(time/60);
-            const sec = time%60;
+            const min = Math.floor(time / 60);
+            const sec = time % 60;
             this.time = `${min}分${sec}秒`;
-        },1000)
+        }, 1000);
 
         this.domRecord = new DomEventRecord();
         this.domRecord.startRecord((log: any) => {
-            console.log(log)
+            console.log(log);
         });
-        this.$watch('value', (newValue: any,oldValue: any) => {
-            const data :UserViewModel = {
+        this.$watch('value', (newValue: any, oldValue: any) => {
+            const data: UserViewModel = {
                 classKey: 'writing',
                 modelValue: newValue,
                 modelKey: 'writing',
@@ -100,49 +95,71 @@ export default class WritingRecord extends mixins(Vue)  {
 
     /**
      * toStop  结束录制 1.调用stopRecord方法 2.将数据存入recordData
-     *
      */
-    toStop(){
+    toStop() {
         console.log("点击提交，结束录制")
         this.disable = true;
         this.flag = true;
-        recordData =this.domRecord.stopRecord((log: any) => {
-            console.log(log)
+        recordData = this.domRecord.stopRecord((log: any) => {
+            console.log(log);
         });
-        index.setState(JSON.parse(JSON.stringify(this.replayData)))
+        index.setState(JSON.parse(JSON.stringify(this.replayData)));
+    }
+
+    /**
+     * handleInput  监听输入框的值
+     */
+    handleInput() {
+        console.log("监听输入框的值")
     }
 
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.text{
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
+.header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0; /* 添加背景色 */
+    padding: 10px 20px; /* 添加内边距 */
+    font-family: Arial, sans-serif; /* 修改字体 */
+    font-size: 16px; /* 修改字体大小 */
+    color: #333; /* 修改字体颜色 */
+    width: 800px;
 }
 
-.header{
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center
+.button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: stretch;
+    margin-top: 20px;
 }
 
-.button{
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
+.record {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
 }
 
 .writing {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    width: 800px;
 }
 
 </style>
+
+
+

@@ -37,10 +37,6 @@ export class ViewModelPlayBack {
 
             const currentTime = new Date().getTime();
             let userEventLength = (this.userViewModelLog as any).length;
-            // q: 为什么报错：k.ts:43  Uncaught TypeError: Cannot read properties of undefined (reading 'timeStamp') at eval (ViewModelPlayBack.
-            // a: 因为userEventLength为0，所以(this.userViewModelLog as any)[0]为undefined
-            // q: 如何解决？
-            // a: 在userEventLength为0时，不执行下面的代码
 
             // 无回放数据的时候取消loading
             if (userEventLength == 0) {
@@ -52,29 +48,30 @@ export class ViewModelPlayBack {
                 console.debug('Test script playback finished.');
                 (window as any).playbackInProgress = false;
             }
+            if ((this.userViewModelLog as any)[0]){
+                if (currentTime > ((this.userViewModelLog as any)[0].timeStamp + timeStartedPlayback)) {
+                    do {
+                        // 将timetemp为0的处理完后，回调取消loading，开始正常回放
+                        if ((this.userViewModelLog as any)[0].timeStamp >= 1000 && finish && typeof (finish) == 'function') {
+                            finish();
+                            finish = null;
+                        }
+                        const userEvent = (this.userViewModelLog as any).splice(0, 1)[0] as UserViewModel;
+                        userEventLength--;
+                        /**
+                         * 接收类，定义唯一classKey
+                         * emitter.on('foo', e => console.log('foo', e) )
+                         */
 
-            if (currentTime > ((this.userViewModelLog as any)[0].timeStamp + timeStartedPlayback)) {
-                do {
-                    // 将timetemp为0的处理完后，回调取消loading，开始正常回放
-                    if ((this.userViewModelLog as any)[0].timeStamp >= 1000 && finish && typeof (finish) == 'function') {
-                        finish();
-                        finish = null;
-                    }
-                    const userEvent = (this.userViewModelLog as any).splice(0, 1)[0] as UserViewModel;
-                    userEventLength--;
-                    /**
-                     * 接收类，定义唯一classKey
-                     * emitter.on('foo', e => console.log('foo', e) )
-                     */
-
-                    // 发送消息给对应的vue class
-                    (window as any).emitter.emit('Writing', {
-                        key: userEvent.modelKey,
-                        classKey: userEvent.classKey,
-                        value: userEvent.modelValue,
-                        timeStamp: userEvent.timeStamp
-                    });
-                } while (userEventLength > 0 && ((currentTime + 50) > ((this.userViewModelLog as any)[0].timeStamp + timeStartedPlayback)));
+                        // 发送消息给对应的vue class
+                        (window as any).emitter.emit('Writing', {
+                            key: userEvent.modelKey,
+                            classKey: userEvent.classKey,
+                            value: userEvent.modelValue,
+                            timeStamp: userEvent.timeStamp
+                        });
+                    } while (userEventLength > 0 && ((currentTime + 50) > ((this.userViewModelLog as any)[0].timeStamp + timeStartedPlayback)));
+                }
             }
             /* // 当前无回放回放数据取消loading
              if(userEventLength > 0 && ((currentTime + 50) <= ((this.userViewModelLog as any)[0].timeStamp + timeStartedPlayback))){
