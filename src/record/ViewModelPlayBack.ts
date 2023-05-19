@@ -1,6 +1,4 @@
 import {UserViewModel} from './DomEventRecord';
-import {CurriculumViewModelClasskey} from '../components/WritingRecordViewModel';
-
 
 export class ViewModelPlayBack {
 

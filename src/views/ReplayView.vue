@@ -19,15 +19,14 @@
 
 
 <script lang="ts">
-import {mixins, Options} from 'vue-class-component';
-import ReplayViewModel from "@/views/ReplayViewModel";
+import {mixins, Options, Vue} from 'vue-class-component';
 import {DomEventRecord} from "@/record/DomEventRecord";
 import index from "@/store"
 import * as echarts from 'echarts';
 
 @Options({})
 
-export default class ReplayView extends mixins(ReplayViewModel) {
+export default class ReplayView extends mixins(Vue) {
 
     viewModelPlayback: any;
     domRecord = new DomEventRecord();
@@ -47,11 +46,18 @@ export default class ReplayView extends mixins(ReplayViewModel) {
     timeArray: any[] = [];
     speedArray: any[] = [];
 
+    /**
+     * 生命周期 created
+     *
+     */
     async created() {
         (window as any).playbackInProgress = false;
         // await this.getReplayData(this.time);
     }
 
+    /**
+     * 获取回放数据
+     */
     Replay() {
         this.replayData = index.state.data
         this.startTime = 0
@@ -63,12 +69,6 @@ export default class ReplayView extends mixins(ReplayViewModel) {
             }
             this.time = this.formateSeconds(this.allTime)
         }, 1000);
-        // 每隔三秒算一次速度
-        // this.typeNum = this.value.length
-        // setInterval(() => {
-        //     this.typeNum = this.value.length - this.typeNum
-        //     this.typeSpeed =  Math.floor((this.typeNum / 3) * 100) / 100;
-        // }, 3000)
         if ((window as any).emitter) {
             (window as any).emitter.on('Writing', (data: any) => {
                 this.viewModelPlaBackHander(data);
@@ -121,11 +121,18 @@ export default class ReplayView extends mixins(ReplayViewModel) {
         return result;
     }
 
+    /**
+     * 这个函数的功能如下： 1.把值赋给value双向绑定 2.计算当前时间戳内打字数目 3.时间戳的差作为时间 4.计算速度
+     * @param data
+     */
     viewModelPlaBackHander(data: any) {
         // 把值赋给value双向绑定
         this.value = data.value;
         this.writingLength = this.value.length
-        console.log(data);
+        // 当data.value.length为o时，停止计时，保持当前allTime不变
+        // if (data.value.length === 0) {
+        //     this.flag = 0;
+        // }
         // 计算当前时间戳内打字数目
         if (data.value.length > this.typeLength) {
             this.typeNum = data.value.length - this.typeLength
@@ -144,7 +151,6 @@ export default class ReplayView extends mixins(ReplayViewModel) {
         }
         this.speedArray.push(this.typeSpeed);
         this.timeArray.push(this.allTime);
-        // console.log('打字速度：' +this.typeSpeed)
         // 记录一下当前的时间戳和字符长度，以便下一次使用
         this.startTime = data.timeStamp
         this.typeLength = data.value.length
@@ -196,21 +202,6 @@ export default class ReplayView extends mixins(ReplayViewModel) {
             });
         }
     }
-
-    // getReplayData(time: number) {
-    //     this.replayData = index.state.data
-    //     this.replayVMData = [];
-    //     for (let i = 0; i < this.replayData.length; i++){
-    //         const temp = {
-    //             classKey: this.replayData[i].classKey,
-    //             timeStamp: this.replayData[i].timeStamp,
-    //             modelKey: this.replayData[i].modelKey,
-    //             modelValue: this.replayData[i].value
-    //         };
-    //         this.replayVMData.push(temp);
-    //         i += 1;
-    //     }
-    // }
 }
 </script>
 
