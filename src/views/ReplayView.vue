@@ -1,7 +1,7 @@
 <template>
     <div class="record">
         <div class="writing">
-            <textarea id="text" cols="100" rows="10" v-model="value"></textarea>
+            <textarea id="text" cols="100" rows="10" v-model="value" disabled="true"></textarea>
             <br>
         </div>
     </div>

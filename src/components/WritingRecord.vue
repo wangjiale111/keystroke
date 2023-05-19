@@ -5,10 +5,10 @@
           <div style="margin-left: 80px">字数:{{ wordNum }}</div>
       </div>
     <div class="text">
-      <textarea cols="100" rows="10" v-model="value"></textarea>
+      <textarea cols="100" rows="10" v-model="value" ondrop="return false" onpaste="return false" :disabled="disable"></textarea>
     </div>
     <div class="button">
-      <button @click="tostart">开始写作</button>
+      <button @click="toStart">开始写作</button>
       <button @click="toStop" style="margin-left: 400px;">结束写作</button>
     </div>
   </div>
@@ -57,13 +57,16 @@ export default class WritingRecord extends mixins(Vue)  {
     time = '0分0秒';
     flag = false;
     wordNum = 0;
+    disable = true;
+
 
     /**
-     * tostart  开始录制 1.计时器计算时间  2.监听输入框的值 3.调用recordUserViewModel方法 4.将数据存入replayData
+     * toStart  开始录制 1.计时器计算时间  2.监听输入框的值 3.调用recordUserViewModel方法 4.将数据存入replayData
      *
      */
-    tostart(){
+    toStart(){
         console.log("record开始")
+        this.disable = false;
         // 计时器计算时间
         this.flag = false;
         this.value = '';
@@ -101,6 +104,7 @@ export default class WritingRecord extends mixins(Vue)  {
      */
     toStop(){
         console.log("点击提交，结束录制")
+        this.disable = true;
         this.flag = true;
         recordData =this.domRecord.stopRecord((log: any) => {
             console.log(log)
