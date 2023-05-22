@@ -128,7 +128,6 @@ export default class ReplayView extends mixins(Vue) {
         // 把值赋给value双向绑定
         this.value = data.value;
         this.writingLength = this.value.length;
-        // 当data.value.length为0时，停止计时，保持当前allTime不变
         // 计算当前时间戳内打字数目
         if (data.value.length > this.typeLength) {
             this.typeNum = data.value.length - this.typeLength;

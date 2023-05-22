@@ -1,5 +1,7 @@
 import { UserViewModel } from './DomEventRecord';
 import $ from 'jquery';
+import Papa from "papaparse";
+import  {ElMessageBox} from 'element-plus';
 
 export default class EventRecord {
 
@@ -8,8 +10,10 @@ export default class EventRecord {
     ctrlKeyDown = false;
     index = 1;
     count = 1;
-    
+    interval = 10; // 时间间隔为 10 毫秒
+
     startTimeDelay = 0;
+    isPaused=  1;
 
     constructor(progressCall:any) {
         // this.startTimeDelay = new Date().getTime();
@@ -28,7 +32,41 @@ export default class EventRecord {
         //         this.logEvent({ 'target':document.activeElement, 'type':'contains', 'text':selectedText, 'timeStamp':event.timeStamp });
         //     }
         // }, true);
+        // 添加监听器
+        // setInterval(() => {
+        //     if (this.isPaused) {
+        //         this.userEventLog.push(
+        //             // {
+        //             //     'timeStamp':
+        //             //     'inputType': 'pause',
+        //             //     'index': this.index++
+        //             // }
+        //         {
+        //             "selector": "",
+        //             "isTrusted": true,
+        //             "value": this.userEventLog.length ? this.userEventLog[this.userEventLog.length - 1]['value'] : "",
+        //             "data": "",
+        //             "isComposing": false,
+        //             "inputType": "pause",
+        //             "detail": 0,
+        //             "which": 0,
+        //             "type": "input",
+        //             "eventPhase": 1,
+        //             "bubbles": true,
+        //             "cancelable": false,
+        //             "defaultPrevented": false,
+        //             "composed": true,
+        //             "timeStamp":  new Date().getTime() - this.startTimeDelay,
+        //             "returnValue": true,
+        //             "cancelBubble": false
+        //         }
+        //         )
+        //     } else {
+        //         this.isPaused = 1;
+        //     }
+        // }, 10);
         document.addEventListener('input', (event)=> {
+            this.isPaused = 0;
             this.logEvent($.extend(true, event, { 'value':$((event as any).target).val() }));
         }, true);
         // document.addEventListener('focus', (event)=> { this.logEvent(event); }, true);
@@ -139,7 +177,8 @@ export default class EventRecord {
             // Subtract the start time delay from the timestamp so we don't include the dead time (i.e., time between
             // page load and recording started) in our playback JSON log.
             // userEvent.timeStamp = userEvent.timeStamp - this.startTimeDelay;
-            userEvent.timeStamp = new Date().getTime() - this.startTimeDelay;
+            userEvent.timeStamp = Math.floor((new Date().getTime() - this.startTimeDelay) / 10) * 10; // 更改为10毫秒精度
+
             if (userEvent.selector !== null) {
                 if ((window as any).playbackInProgress == false) {
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -148,7 +187,7 @@ export default class EventRecord {
                     if(this.progressCall) {
                         this.progressCall(userEvent);
                     }
-                    console.debug('Logged ' + userEvent.type + ' event.');
+                    // console.debug('Logged ' + userEvent.type + ' event.');
                 }
             } else {
                 console.warn('Null selector');
@@ -156,14 +195,14 @@ export default class EventRecord {
         }
     };
 
-    getUserEventLog = () => {   
+    getUserEventLog = () => {
         return this.userEventLog;
     }
 
     getUserViewModelLog = () => {
         return this.userViewModelLog;
     }
-    
+
     getSelector = (el:any, names?:any) => {
         if (el === document || el === document.documentElement) return 'document';
         if (el === document.body) return 'body';
@@ -190,7 +229,7 @@ export default class EventRecord {
         }
         return names.join(' > ');
     };
- 
+
     start = () => {
         if ((window as any).playbackInProgress == false) {
             this.startTimeDelay = new Date().getTime();
@@ -203,19 +242,40 @@ export default class EventRecord {
             throw new Error('Cannot start recording -- test playback is in progress.');
         }
     }
- 
-    stop = () => {
 
+    stop = () => {
         console.debug('Stop recording.');
 
         (window as any).recordInProgress = false;
 
         const playbackScript = {
-            'window':{ 'width':window.innerWidth, 'height':window.innerHeight }
-            , 'event_log':this.userEventLog
+            'window': { 'width': window.innerWidth, 'height': window.innerHeight },
+            'event_log': this.userEventLog
         };
+        ElMessageBox.confirm("是否生成CSV?", "提示", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+        })
+            .then(() => {
+                // 将数据转换为CSV格式
+                const csv = Papa.unparse(this.userEventLog);
+                const csvData = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                const csvURL = window.URL.createObjectURL(csvData);
+                const tempLink = document.createElement("a");
+                tempLink.href = csvURL;
+                tempLink.setAttribute("download", "writingData.csv");
+                document.body.appendChild(tempLink);
+                tempLink.click();
+                document.body.removeChild(tempLink);
+            })
+            .catch(() => {
+                // 取消
+            });
 
-        console.debug(playbackScript);
+
         return playbackScript;
     }
+
+
 }

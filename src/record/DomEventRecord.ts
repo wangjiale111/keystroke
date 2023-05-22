@@ -1,5 +1,5 @@
 import { ViewModelPlayBack } from './ViewModelPlayBack';
-import { PlayBack } from './PlayBack';
+// import { PlayBack } from './PlayBack';
 import EventRecord from './Record';
 import mitt from '@/record/emmit';
 
@@ -66,7 +66,7 @@ export interface UserViewModel {
 export class DomEventRecord {
 
     record!: EventRecord;
-    playback!: PlayBack;
+    // playback!: PlayBack;
     viewModelPlayBack!: ViewModelPlayBack;
 
     constructor() {
@@ -94,21 +94,21 @@ export class DomEventRecord {
         return this.record.recordViewModel(userData, startTime, orderNo);
     }
 
-    /**
-     * 获取录制log数据  
-     * @returns eventLog
-     */
-    getRecordLog() {
-        return this.record.getUserEventLog();
-    }
+    // /**
+    //  * 获取录制log数据
+    //  * @returns eventLog
+    //  */
+    // getRecordLog() {
+    //     return this.record.getUserEventLog();
+    // }
 
-    /**
-     * 获取用户vm数组 
-     * @returns 返回ViewModal 数据数据
-     */
-    getRecordViewModal() {
-        return this.record.getUserViewModelLog();
-    }
+    // /**
+    //  * 获取用户vm数组
+    //  * @returns 返回ViewModal 数据数据
+    //  */
+    // getRecordViewModal() {
+    //     return this.record.getUserViewModelLog();
+    // }
 
     /**
      * 停止录制并返回录制数据
@@ -122,10 +122,10 @@ export class DomEventRecord {
      * 开始回放
      * @param data 全量EventLog录制的数据
      */
-    startPlayback(data:any) {
-       this.playback = new PlayBack(data);
-       this.playback.start();
-    }
+    // startPlayback(data:any) {
+    //    this.playback = new PlayBack(data);
+    //    this.playback.start();
+    // }
 
     startViewModelPlayback(data:any,  finish?:any) {
         this.viewModelPlayBack = new ViewModelPlayBack(data);

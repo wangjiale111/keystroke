@@ -3,7 +3,7 @@ import {UserViewModel} from './DomEventRecord';
 export class ViewModelPlayBack {
 
     userViewModelLog = null;
-    runSimulator = -1;
+    runSimulator = null;
 
     constructor(userViewModelLog: any) {
         this.userViewModelLog = userViewModelLog;
