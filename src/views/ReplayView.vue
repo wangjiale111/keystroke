@@ -6,13 +6,13 @@
                 <div>写作总时间:{{ time }}</div>
                 <div>写作总字数:{{ writingLength }}</div>
             </div>
-            <el-input
-                    type="textarea"
-                    :rows="10"
-                    v-model="value"
-                    :disabled="true"
-                    class="text-area"
-            ></el-input>
+          <el-input
+              type="textarea"
+              :rows="10"
+              v-model="value"
+              :disabled="true"
+              class="text-area"
+          ></el-input>
             <div class="playButton">
                 <el-button type="primary" @click="Replay">开始回放</el-button>
                 <el-button type="danger" @click="exitReplay" style="margin-left: 80px;">暂停回放</el-button>
@@ -22,7 +22,7 @@
     </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" name = "ReplayView">
 import {mixins, Options, Vue} from 'vue-class-component';
 import {DomEventRecord} from '@/record/DomEventRecord';
 import index from '@/store';
@@ -50,7 +50,6 @@ export default class ReplayView extends mixins(Vue) {
 
     /**
      * 生命周期 created
-     *
      */
     async created() {
         (window as any).playbackInProgress = false;
@@ -83,14 +82,23 @@ export default class ReplayView extends mixins(Vue) {
      * 暂停回放
      */
     exitReplay() {
-        this.flag = 0;
-        clearInterval(this.timing);
-        try {
-            this.domRecord.stopViewModelPlayback(this.viewModelPlayback).then();
-        } catch (e) {
-            console.error(e);
+      this.flag = 0;
+      clearInterval(this.timing);
+      try {
+        if (this.viewModelPlayback) {
+          this.domRecord.stopViewModelPlayback(this.viewModelPlayback).then(() => {
+            // 停止回放成功的回调逻辑
+            console.log("Replay stopped successfully.");
+          }).catch((error: any) => {
+            // 停止回放失败的错误处理逻辑
+            console.error("Failed to stop replay:", error);
+          });
         }
+      } catch (e) {
+        console.error(e);
+      }
     }
+
 
     //将秒转化为时分秒
     formateSeconds(endTime: any) {
@@ -230,12 +238,18 @@ export default class ReplayView extends mixins(Vue) {
     font-family: Arial, sans-serif; /* 修改字体 */
     font-size: 16px; /* 修改字体大小 */
     color: #333; /* 修改字体颜色 */
-    width: 800px;
+    width: 100%;
 }
 
 .text-area {
-    width: 100%;
-    resize: none;
+  width: 100%;
+  resize: none;
+}
+
+@media (max-width: 820px) { /* 自定义屏幕宽度阈值，可以根据需要进行调整 */
+  .text-area {
+    width: 80%;
+  }
 }
 
 .playButton {
