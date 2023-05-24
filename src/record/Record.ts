@@ -14,10 +14,12 @@ export default class EventRecord {
 
     startTimeDelay = 0;
     isPaused=  1;
+    currentInputValue: string;
 
     constructor(progressCall:any) {
         // this.startTimeDelay = new Date().getTime();
         this.progressCall = progressCall;
+        this.currentInputValue = '';
         // document.addEventListener('click', (event) => { this.logEvent(event); }, true);
         // document.addEventListener('mousedown', (event) => { this.logEvent(event); }, true);
         // document.addEventListener('mousemove', (event) => { this.logEvent(event); }, true);
@@ -65,10 +67,16 @@ export default class EventRecord {
         //         this.isPaused = 1;
         //     }
         // }, 10);
-        document.addEventListener('input', (event)=> {
-            this.isPaused = 0;
-            this.logEvent($.extend(true, event, { 'value':$((event as any).target).val() }));
+        let lastEventTimestamp = 0; // 记录上一个事件的时间戳
+
+        document.addEventListener('input', (event) => {
+            const currentTimestamp = event.timeStamp || Date.now(); // 获取当前事件的时间戳
+            if (currentTimestamp - lastEventTimestamp > 10) { // 如果与上一个事件的时间差大于一定值（如10毫秒），则处理事件
+                this.logEvent($.extend(true, event, { 'value':$((event as any).target).val() }));
+                lastEventTimestamp = currentTimestamp; // 更新上一个事件的时间戳
+            }
         }, true);
+
         // document.addEventListener('focus', (event)=> { this.logEvent(event); }, true);
         // document.addEventListener('focusin', (event)=> { this.logEvent(event); }, true);
         // document.addEventListener('focusout', (event)=> { this.logEvent(event); }, true);
@@ -174,11 +182,26 @@ export default class EventRecord {
                 }
             }
 
+            if (event.type === 'input') {
+                const inputValue = event.target.value;
+                // console.log(inputValue, this.currentInputValue);
+                if (inputValue.length < this.currentInputValue.length) {
+                    userEvent.value = inputValue;
+                    userEvent.keyValue = 'delete'; // 最后一个按键的值
+                    this.currentInputValue = inputValue;
+                } else {
+                    if (inputValue !== this.currentInputValue) {
+                        userEvent.value = inputValue;
+                        userEvent.keyValue = inputValue[inputValue.length - 1]; // 最后一个按键的值
+                        this.currentInputValue = inputValue;
+                    }
+                }
+            }
+
             // Subtract the start time delay from the timestamp so we don't include the dead time (i.e., time between
             // page load and recording started) in our playback JSON log.
             // userEvent.timeStamp = userEvent.timeStamp - this.startTimeDelay;
             userEvent.timeStamp = Math.floor((new Date().getTime() - this.startTimeDelay) / 10) * 10; // 更改为10毫秒精度
-
             if (userEvent.selector !== null) {
                 if ((window as any).playbackInProgress == false) {
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -252,6 +275,7 @@ export default class EventRecord {
             'window': { 'width': window.innerWidth, 'height': window.innerHeight },
             'event_log': this.userEventLog
         };
+        console.log(this.userEventLog)
         ElMessageBox.confirm("是否生成CSV?", "提示", {
             confirmButtonText: "确定",
             cancelButtonText: "取消",
