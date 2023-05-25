@@ -1,25 +1,43 @@
-import { UserViewModel } from './DomEventRecord';
+import {UserViewModel} from './DomEventRecord';
 import $ from 'jquery';
 import Papa from "papaparse";
-import  {ElMessageBox} from 'element-plus';
+import {ElMessageBox} from 'element-plus';
 
 export default class EventRecord {
 
     userEventLog = [];
-    userViewModelLog:any[] = [];
+    userViewModelLog: any[] = [];
     ctrlKeyDown = false;
     index = 1;
     count = 1;
     interval = 10; // 时间间隔为 10 毫秒
 
     startTimeDelay = 0;
-    isPaused=  1;
+    isPaused = 1;
     currentInputValue: string;
+    keyCode: any;
+    textIndex = 1;
 
-    constructor(progressCall:any) {
+    constructor(progressCall: any) {
         // this.startTimeDelay = new Date().getTime();
         this.progressCall = progressCall;
         this.currentInputValue = '';
+
+        let lastEventTimestamp = 0; // 记录上一个事件的时间戳
+
+        document.addEventListener('keydown', (event)=> {
+            this.keyCode = event.key; // 记录最近按下的键值
+            // console.log("keydown "+this.keyCode);
+        }, true);
+        document.addEventListener('input', (event) => {
+            // console.log("input "+this.keyCode);
+            const currentTimestamp = event.timeStamp || Date.now(); // 获取当前事件的时间戳
+            if (currentTimestamp - lastEventTimestamp > 10) { // 如果与上一个事件的时间差大于一定值（如10毫秒），则处理事件
+                this.logEvent($.extend(true, event, {'value': $((event as any).target).val()}));
+                lastEventTimestamp = currentTimestamp; // 更新上一个事件的时间戳
+            }
+        }, true);
+
         // document.addEventListener('click', (event) => { this.logEvent(event); }, true);
         // document.addEventListener('mousedown', (event) => { this.logEvent(event); }, true);
         // document.addEventListener('mousemove', (event) => { this.logEvent(event); }, true);
@@ -67,22 +85,15 @@ export default class EventRecord {
         //         this.isPaused = 1;
         //     }
         // }, 10);
-        let lastEventTimestamp = 0; // 记录上一个事件的时间戳
-
-        document.addEventListener('input', (event) => {
-            const currentTimestamp = event.timeStamp || Date.now(); // 获取当前事件的时间戳
-            if (currentTimestamp - lastEventTimestamp > 10) { // 如果与上一个事件的时间差大于一定值（如10毫秒），则处理事件
-                this.logEvent($.extend(true, event, { 'value':$((event as any).target).val() }));
-                lastEventTimestamp = currentTimestamp; // 更新上一个事件的时间戳
-            }
-        }, true);
 
         // document.addEventListener('focus', (event)=> { this.logEvent(event); }, true);
         // document.addEventListener('focusin', (event)=> { this.logEvent(event); }, true);
         // document.addEventListener('focusout', (event)=> { this.logEvent(event); }, true);
         // document.addEventListener('blur', (event)=> { this.logEvent(event);}, true);
         // document.addEventListener('keypress', (event)=> { this.logEvent(event); }, true);
-        // document.addEventListener('keydown', (event)=> { this.logEvent(event); }, true);
+        // document.addEventListener('keydown', (event)=> {
+        //     this.logEvent(event);
+        // }, true);
         // document.addEventListener('keyup', (event)=> { this.logEvent(event); }, true);
         // document.addEventListener('touchstart', (event)=> {  this.logEvent(event); }, true);
         // document.addEventListener('touchend', (event)=> { this.logEvent(event); }, true);
@@ -93,10 +104,10 @@ export default class EventRecord {
     }
 
     // eslint-disable-next-line @typescript-eslint/ban-types
-    progressCall:Function;
+    progressCall: Function;
 
-    recordViewModel(viewModel:UserViewModel, startTime:any, orderNo:any) {
-        if(startTime !== 0 && this.count == 1) {
+    recordViewModel(viewModel: UserViewModel, startTime: any, orderNo: any) {
+        if (startTime !== 0 && this.count == 1) {
             this.startTimeDelay = startTime;
             this.index = orderNo;
             this.count = 0;
@@ -113,7 +124,7 @@ export default class EventRecord {
         const activeElTagName = activeEl ? activeEl.tagName.toLowerCase() : null;
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        if ((activeElTagName == 'textarea') || (activeElTagName == 'input' &&  /^(?:text|search|password|tel|url)$/i.test(activeEl.type)) &&  (typeof activeEl.selectionStart == 'number')
+        if ((activeElTagName == 'textarea') || (activeElTagName == 'input' && /^(?:text|search|password|tel|url)$/i.test(activeEl.type)) && (typeof activeEl.selectionStart == 'number')
         ) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -127,16 +138,32 @@ export default class EventRecord {
         return text;
     };
 
+    // isChineseCharacter = (temp: any) => {
+    //     const re = /[^\u4e00-\u9fa5]/;
+    //     if (re.test(temp)) {
+    //         return false;
+    //     }
+    //     return true;
+    // }
+
     /*	Function: logEvent
             This function will parse the
 
     */
     logEvent = (event: any) => {
 
+        function isChineseCharacter(inputValueElement: any) {
+            const re = /[^\u4e00-\u9fa5]/;
+            if (re.test(inputValueElement)) {
+                return false;
+            }
+            return true;
+        }
+
         // Only record the event if recording is in progress
         if ((window as any).recordInProgress == true) {
 
-            const userEvent = { 'selector': this.getSelector(event.target) } as any;
+            const userEvent = {'selector': this.getSelector(event.target)} as any;
 
             if (event.type === 'scroll') {
                 userEvent.type = 'scroll';
@@ -146,8 +173,7 @@ export default class EventRecord {
             }
             if (event.type === 'keypress' || event.type === 'keyup') {
                 userEvent.value = event.target.value;
-            }
-            else {
+            } else {
                 for (const prop in event) {
                     // We can only record plain such as string, numbers and booleans in JSON. Objects will require special processing.
                     if (['number', 'string', 'boolean'].indexOf(typeof event[prop]) > -1
@@ -162,18 +188,18 @@ export default class EventRecord {
                         for (let i = 0; i < event[prop].length; i++) {
                             const touch = event[prop][i];
                             userEvent[prop].push({
-                                'clientX':touch.clientX
-                                , 'clientY':touch.clientY
-                                , 'force':touch.force
-                                , 'identifier':touch.identifier
-                                , 'pageX':touch.pageX
-                                , 'pageY':touch.pageY
-                                , 'radiusX':touch.radiusX
-                                , 'radiusY':touch.radiusY
-                                , 'rotationAngle':touch.rotationAngle
-                                , 'screenX':touch.screenX
-                                , 'screenY':touch.screenY
-                                , 'selector':this.getSelector(touch.target)
+                                'clientX': touch.clientX
+                                , 'clientY': touch.clientY
+                                , 'force': touch.force
+                                , 'identifier': touch.identifier
+                                , 'pageX': touch.pageX
+                                , 'pageY': touch.pageY
+                                , 'radiusX': touch.radiusX
+                                , 'radiusY': touch.radiusY
+                                , 'rotationAngle': touch.rotationAngle
+                                , 'screenX': touch.screenX
+                                , 'screenY': touch.screenY
+                                , 'selector': this.getSelector(touch.target)
                             });
 
                         }
@@ -182,21 +208,55 @@ export default class EventRecord {
                 }
             }
 
+
             if (event.type === 'input') {
-                const inputValue = event.target.value;
-                // console.log(inputValue, this.currentInputValue);
-                if (inputValue.length < this.currentInputValue.length) {
-                    userEvent.value = inputValue;
-                    userEvent.keyValue = 'delete'; // 最后一个按键的值
-                    this.currentInputValue = inputValue;
-                } else {
-                    if (inputValue !== this.currentInputValue) {
+                userEvent.No = this.textIndex++;
+                if (userEvent.inputType === "insertCompositionText") {
+                    userEvent.inputType = "insertChineseText"
+                } else if(userEvent.inputType === "deleteContentBackward"){
+                    userEvent.inputType = "delete"
+                } else if(userEvent.inputType === "insertLineBreak") {
+                    userEvent.inputType = "insertText"
+                }
+
+                // 获得当前输入法缓冲区的长度
+                userEvent.IMEBuffer_length = event.target.value.replace(/[^a-zA-Z]/g, '').length;
+                // 获取当前中文输入的长度
+                userEvent.ChineseLength = event.target.value.length - userEvent.IMEBuffer_length;
+                // 总长度
+                userEvent.textLength = event.target.value.length;
+                // 添加一个判断，若this.keyCode为Enter或者为空格键则直接赋值给keyValue
+                if (this.keyCode === 'Enter') {
+                    userEvent.keyValue = this.keyCode;
+                } else if (this.keyCode === ' '){
+                    userEvent.keyValue = "Space"
+                } else{
+                    const inputValue = event.target.value;
+                    if ( this.currentInputValue.length - inputValue.length == 1) {
                         userEvent.value = inputValue;
-                        userEvent.keyValue = inputValue[inputValue.length - 1]; // 最后一个按键的值
+                        userEvent.keyValue = 'Backspace';
+                        if(userEvent.IMEBuffer_length >= 0) {
+                            userEvent.inputType = 'deleteIME'
+                        }
                         this.currentInputValue = inputValue;
+                    } else {
+                        if (inputValue !== this.currentInputValue) {
+                            userEvent.value = inputValue;
+                            if (isChineseCharacter(inputValue[inputValue.length - 1]) || isChineseCharacter(userEvent.data[userEvent.data.length - 1])) {
+                                userEvent.keyValue = 'Space';
+                            } else{
+                                if (userEvent.data) {
+                                    userEvent.keyValue = userEvent.data[userEvent.data.length - 1];
+                                } else {
+                                    userEvent.keyValue = inputValue[inputValue.length - 1];
+                                }
+                            }
+                            this.currentInputValue = inputValue;
+                        }
                     }
                 }
             }
+
 
             // Subtract the start time delay from the timestamp so we don't include the dead time (i.e., time between
             // page load and recording started) in our playback JSON log.
@@ -204,17 +264,32 @@ export default class EventRecord {
             userEvent.timeStamp = Math.floor((new Date().getTime() - this.startTimeDelay) / 10) * 10; // 更改为10毫秒精度
             if (userEvent.selector !== null) {
                 if ((window as any).playbackInProgress == false) {
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    this.userEventLog.push(userEvent);
-                    if(this.progressCall) {
-                        this.progressCall(userEvent);
+                    const { No, value, data, ChineseLength, IMEBuffer_length,textLength, keyValue, inputType, timeStamp} = userEvent;
+                    const simplifiedUserEvent = {
+                        No,
+                        text: value,
+                        IMEBuffer: data,
+                        ChineseLength,
+                        IMEBuffer_length,
+                        textLength,
+                        keyValue,
+                        keyAction: inputType,
+                        timeStamp
+                    };
+
+                    // console.log(simplifiedUserEvent);
+                    this.userEventLog.push(simplifiedUserEvent);
+
+                    if (this.progressCall) {
+                        this.progressCall(simplifiedUserEvent);
                     }
+
                     // console.debug('Logged ' + userEvent.type + ' event.');
                 }
             } else {
                 console.warn('Null selector');
             }
+
         }
     };
 
@@ -226,10 +301,10 @@ export default class EventRecord {
         return this.userViewModelLog;
     }
 
-    getSelector = (el:any, names?:any) => {
+    getSelector = (el: any, names?: any) => {
         if (el === document || el === document.documentElement) return 'document';
         if (el === document.body) return 'body';
-        if (typeof names === 'undefined')  names = [];
+        if (typeof names === 'undefined') names = [];
         if (el.id) {
             names.unshift('#' + el.id);
             return names.join(' > ');
@@ -239,12 +314,12 @@ export default class EventRecord {
             if (arrNode.length == 1) {
                 names.unshift(el.tagName.toLowerCase() + '.' + classSelector);
             } else {
-                for (let c = 1, e = el;e.previousElementSibling;e = e.previousElementSibling, c++)
-                names.unshift(el.tagName.toLowerCase() + ':nth-child(' + c + ')');
+                for (let c = 1, e = el; e.previousElementSibling; e = e.previousElementSibling, c++)
+                    names.unshift(el.tagName.toLowerCase() + ':nth-child(' + c + ')');
             }
         } else {
-            for (let c = 1, e = el;e.previousElementSibling;e = e.previousElementSibling, c++)
-            names.unshift(el.tagName.toLowerCase() + ':nth-child(' + c + ')');
+            for (let c = 1, e = el; e.previousElementSibling; e = e.previousElementSibling, c++)
+                names.unshift(el.tagName.toLowerCase() + ':nth-child(' + c + ')');
         }
 
         if (el.parentNode !== document.body) {
@@ -272,7 +347,7 @@ export default class EventRecord {
         (window as any).recordInProgress = false;
 
         const playbackScript = {
-            'window': { 'width': window.innerWidth, 'height': window.innerHeight },
+            'window': {'width': window.innerWidth, 'height': window.innerHeight},
             'event_log': this.userEventLog
         };
         console.log(this.userEventLog)
@@ -284,7 +359,7 @@ export default class EventRecord {
             .then(() => {
                 // 将数据转换为CSV格式
                 const csv = Papa.unparse(this.userEventLog);
-                const csvData = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                const csvData = new Blob([csv], {type: "text/csv;charset=utf-8;"});
                 const csvURL = window.URL.createObjectURL(csvData);
                 const tempLink = document.createElement("a");
                 tempLink.href = csvURL;

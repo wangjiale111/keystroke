@@ -1,6 +1,6 @@
 <template>
     <nav>
-        <router-link to="/record">写作</router-link> |
+        <router-link to="/record">在线写作</router-link> ||
         <router-link to="/replay">回放</router-link>
     </nav>
     <router-view></router-view>
