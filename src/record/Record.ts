@@ -113,7 +113,7 @@ export default class EventRecord {
             this.count = 0;
         }
         viewModel.timeStamp = new Date().getTime() - this.startTimeDelay;
-        viewModel.index = ++this.index;
+        viewModel.index = this.index++;
         this.userViewModelLog.push(viewModel);
         return viewModel;
     }
@@ -211,20 +211,22 @@ export default class EventRecord {
 
             if (event.type === 'input') {
                 userEvent.No = this.textIndex++;
-                if (userEvent.inputType === "insertCompositionText") {
-                    userEvent.inputType = "insertChineseText"
-                } else if(userEvent.inputType === "deleteContentBackward"){
+                 if(userEvent.inputType === "deleteContentBackward"){
                     userEvent.inputType = "delete"
                 } else if(userEvent.inputType === "insertLineBreak") {
                     userEvent.inputType = "insertText"
                 }
 
+                // 去除标点符号replace(/[^\w\s]/g, "");
+                userEvent.data = userEvent.data.replace(/[^\w\s]/g, "");
                 // 获得当前输入法缓冲区的长度
                 userEvent.IMEBuffer_length = event.target.value.replace(/[^a-zA-Z]/g, '').length;
                 // 获取当前中文输入的长度
                 userEvent.ChineseLength = event.target.value.length - userEvent.IMEBuffer_length;
                 // 总长度
                 userEvent.textLength = event.target.value.length;
+                // 获取中文文本
+                userEvent.ChineseText = event.target.value.replace(/[a-zA-Z]/g, "");
                 // 添加一个判断，若this.keyCode为Enter或者为空格键则直接赋值给keyValue
                 if (this.keyCode === 'Enter') {
                     userEvent.keyValue = this.keyCode;
@@ -232,10 +234,10 @@ export default class EventRecord {
                     userEvent.keyValue = "Space"
                 } else{
                     const inputValue = event.target.value;
-                    if ( this.currentInputValue.length - inputValue.length == 1) {
+                    if ( this.currentInputValue.length - inputValue.length == 1 && !isChineseCharacter(userEvent. data)) {
                         userEvent.value = inputValue;
                         userEvent.keyValue = 'Backspace';
-                        if(userEvent.IMEBuffer_length >= 0) {
+                        if(userEvent.IMEBuffer_length >= 0 && userEvent.inputType != "delete") {
                             userEvent.inputType = 'deleteIME'
                         }
                         this.currentInputValue = inputValue;
@@ -255,19 +257,27 @@ export default class EventRecord {
                         }
                     }
                 }
+                if (userEvent.inputType === "insertCompositionText") {
+                    if (/^[a-zA-Z]$/.test(userEvent.keyValue)) {
+                        userEvent.inputType = "insertChineseText"
+                    } else {
+                        userEvent.inputType = "insertText"
+                    }
+                }
             }
 
 
             // Subtract the start time delay from the timestamp so we don't include the dead time (i.e., time between
             // page load and recording started) in our playback JSON log.
             // userEvent.timeStamp = userEvent.timeStamp - this.startTimeDelay;
-            userEvent.timeStamp = Math.floor((new Date().getTime() - this.startTimeDelay) / 10) * 10; // 更改为10毫秒精度
+            userEvent.timeStamp = Math.floor((new Date().getTime() - this.startTimeDelay) / 10) / 100; // 更改为10毫秒精度
             if (userEvent.selector !== null) {
                 if ((window as any).playbackInProgress == false) {
-                    const { No, value, data, ChineseLength, IMEBuffer_length,textLength, keyValue, inputType, timeStamp} = userEvent;
+                    const { No, value, ChineseText, data, ChineseLength, IMEBuffer_length,textLength, keyValue, inputType, timeStamp} = userEvent;
                     const simplifiedUserEvent = {
                         No,
                         text: value,
+                        ChineseText,
                         IMEBuffer: data,
                         ChineseLength,
                         IMEBuffer_length,

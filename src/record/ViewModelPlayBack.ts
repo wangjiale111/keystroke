@@ -65,7 +65,6 @@ export class ViewModelPlayBack {
 
                         // 发送消息给对应的vue class
                         (window as any).emitter.emit('Writing', {
-                            key: userEvent.modelKey,
                             classKey: userEvent.classKey,
                             value: userEvent.modelValue,
                             timeStamp: userEvent.timeStamp

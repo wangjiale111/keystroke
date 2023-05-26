@@ -33,7 +33,6 @@ import { DomEventRecord } from "@/record/DomEventRecord";
 import  {ElMessageBox, Message } from 'element-plus';
 export interface UserViewModel {
     classKey: string;
-    modelKey: string;
     modelValue: any;
     // 时间戳
     timeStamp?: number;
@@ -102,7 +101,6 @@ export default class WritingRecord extends mixins(Vue) {
             const data: UserViewModel = {
                 classKey: 'writing',
                 modelValue: newValue,
-                modelKey: 'writing',
                 timeStamp: 0
             };
             const temp = this.domRecord.recordUserViewModel(data, 0, 1);
@@ -150,6 +148,7 @@ export default class WritingRecord extends mixins(Vue) {
             console.log(log);
         });
         index.setState(JSON.parse(JSON.stringify(this.replayData)));
+        console.log(this.replayData);
         // 将数据导出为 CSV 文件
         // const csv = Papa.unparse(this.writingData);
         // const csvData = new Blob([csv], { type: "text/csv;charset=utf-8;" });

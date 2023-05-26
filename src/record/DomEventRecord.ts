@@ -56,7 +56,6 @@ export interface UserEvent{
 export interface UserViewModel {
     classKey: string;
 
-    modelKey: string;
     modelValue: any;
     // 时间戳
     timeStamp?: number;
