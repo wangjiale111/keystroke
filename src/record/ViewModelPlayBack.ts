@@ -66,7 +66,7 @@ export class ViewModelPlayBack {
                         // 发送消息给对应的vue class
                         (window as any).emitter.emit('Writing', {
                             classKey: userEvent.classKey,
-                            value: userEvent.modelValue,
+                            value: userEvent.text,
                             timeStamp: userEvent.timeStamp
                         });
                     } while (userEventLength > 0 && ((currentTime + 50) > ((this.userViewModelLog as any)[0].timeStamp + timeStartedPlayback)));

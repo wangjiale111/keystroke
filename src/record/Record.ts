@@ -2,6 +2,7 @@ import {UserViewModel} from './DomEventRecord';
 import $ from 'jquery';
 import Papa from "papaparse";
 import {ElMessageBox} from 'element-plus';
+import index from "@/store";
 
 export default class EventRecord {
 
@@ -25,7 +26,7 @@ export default class EventRecord {
 
         let lastEventTimestamp = 0; // 记录上一个事件的时间戳
 
-        document.addEventListener('keydown', (event)=> {
+        document.addEventListener('keydown', (event) => {
             this.keyCode = event.key; // 记录最近按下的键值
             // console.log("keydown "+this.keyCode);
         }, true);
@@ -211,14 +212,15 @@ export default class EventRecord {
 
             if (event.type === 'input') {
                 userEvent.No = this.textIndex++;
-                 if(userEvent.inputType === "deleteContentBackward"){
-                    userEvent.inputType = "delete"
-                } else if(userEvent.inputType === "insertLineBreak") {
+
+                if (userEvent.inputType === "deleteContentBackward") {
+                    userEvent.inputType = "delete";
+                } else if (userEvent.inputType === "insertLineBreak") {
                     userEvent.inputType = "insertText"
                 }
 
-                // 去除标点符号replace(/[^\w\s]/g, "");
-                userEvent.data = userEvent.data.replace(/[^\w\s]/g, "");
+                // 去除缓冲区标点符号replace(/[^\w\s]/g, "");
+                userEvent.data = userEvent.data?userEvent.data.replace(/[^\w\s]/g, ""):null;
                 // 获得当前输入法缓冲区的长度
                 userEvent.IMEBuffer_length = event.target.value.replace(/[^a-zA-Z]/g, '').length;
                 // 获取当前中文输入的长度
@@ -230,14 +232,14 @@ export default class EventRecord {
                 // 添加一个判断，若this.keyCode为Enter或者为空格键则直接赋值给keyValue
                 if (this.keyCode === 'Enter') {
                     userEvent.keyValue = this.keyCode;
-                } else if (this.keyCode === ' '){
+                } else if (this.keyCode === ' ') {
                     userEvent.keyValue = "Space"
-                } else{
+                } else {
                     const inputValue = event.target.value;
-                    if ( this.currentInputValue.length - inputValue.length == 1 && !isChineseCharacter(userEvent. data)) {
+                    if (this.currentInputValue.length - inputValue.length == 1 && !isChineseCharacter(userEvent.data)) {
                         userEvent.value = inputValue;
                         userEvent.keyValue = 'Backspace';
-                        if(userEvent.IMEBuffer_length >= 0 && userEvent.inputType != "delete") {
+                        if (userEvent.IMEBuffer_length >= 0 && userEvent.inputType != "delete") {
                             userEvent.inputType = 'deleteIME'
                         }
                         this.currentInputValue = inputValue;
@@ -246,7 +248,7 @@ export default class EventRecord {
                             userEvent.value = inputValue;
                             if (isChineseCharacter(inputValue[inputValue.length - 1]) || isChineseCharacter(userEvent.data[userEvent.data.length - 1])) {
                                 userEvent.keyValue = 'Space';
-                            } else{
+                            } else {
                                 if (userEvent.data) {
                                     userEvent.keyValue = userEvent.data[userEvent.data.length - 1];
                                 } else {
@@ -269,13 +271,25 @@ export default class EventRecord {
 
             // Subtract the start time delay from the timestamp so we don't include the dead time (i.e., time between
             // page load and recording started) in our playback JSON log.
-            // userEvent.timeStamp = userEvent.timeStamp - this.startTimeDelay;
-            userEvent.timeStamp = Math.floor((new Date().getTime() - this.startTimeDelay) / 10) / 100; // 更改为10毫秒精度
+            // userEvent.timeStamp = new Date().getTime() - this.startTimeDelay;
+            userEvent.timeStamp = Math.floor((new Date().getTime() - this.startTimeDelay) / 10) * 10; // 更改为10毫秒精度
             if (userEvent.selector !== null) {
                 if ((window as any).playbackInProgress == false) {
-                    const { No, value, ChineseText, data, ChineseLength, IMEBuffer_length,textLength, keyValue, inputType, timeStamp} = userEvent;
-                    const simplifiedUserEvent = {
+                    const {
                         No,
+                        value,
+                        ChineseText,
+                        data,
+                        ChineseLength,
+                        IMEBuffer_length,
+                        textLength,
+                        keyValue,
+                        inputType,
+                        timeStamp
+                    } = userEvent;
+                    const simplifiedUserEvent = {
+                        index: No,
+                        classKey: 'writing',
                         text: value,
                         ChineseText,
                         IMEBuffer: data,
@@ -284,7 +298,7 @@ export default class EventRecord {
                         textLength,
                         keyValue,
                         keyAction: inputType,
-                        timeStamp
+                        timeStamp,
                     };
 
                     // console.log(simplifiedUserEvent);
@@ -355,7 +369,7 @@ export default class EventRecord {
         console.debug('Stop recording.');
 
         (window as any).recordInProgress = false;
-
+        index.setState(JSON.parse(JSON.stringify(this.userEventLog)));
         const playbackScript = {
             'window': {'width': window.innerWidth, 'height': window.innerHeight},
             'event_log': this.userEventLog

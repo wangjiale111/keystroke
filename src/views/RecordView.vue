@@ -14,6 +14,7 @@
                     v-model="value"
                     :disabled="disable"
                     @input="handleInput"
+                    @keydown="handleKeyDown"
             ></el-input>
             <div class="button">
                 <el-button type="primary" @click="confirmStartWriting" :disabled="disable2">开始写作</el-button>
@@ -24,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { mixins, Options } from 'vue-class-component';
+import { Options } from 'vue-class-component';
 import ReplayView from '@/views/ReplayView.vue';
 import { Vue } from "vue-class-component";
 import index from "@/store"
@@ -33,7 +34,7 @@ import { DomEventRecord } from "@/record/DomEventRecord";
 import  {ElMessageBox, Message } from 'element-plus';
 export interface UserViewModel {
     classKey: string;
-    modelValue: any;
+    text: any;
     // 时间戳
     timeStamp?: number;
     index?: number;
@@ -46,7 +47,7 @@ let recordData: any;
         ReplayView
     }
 })
-export default class WritingRecord extends mixins(Vue) {
+export default class WritingRecord extends Vue {
 
     domRecord: any;
     value = '';
@@ -62,7 +63,7 @@ export default class WritingRecord extends mixins(Vue) {
     writingData: any[] = [];
 
     /**
-     * toStart  开始录制 1.计时器计算时间  2.监听输入框的值 3.调用recordUserViewModel方法 4.将数据存入replayData
+     * toStart  开始录制 1.计时器计算时间  2.监听输入框的值 3.调用recordUserViewModel方法
      */
     toStart() {
         console.log("record开始")
@@ -100,7 +101,7 @@ export default class WritingRecord extends mixins(Vue) {
         this.$watch('value', (newValue: any, oldValue: any) => {
             const data: UserViewModel = {
                 classKey: 'writing',
-                modelValue: newValue,
+                text: newValue,
                 timeStamp: 0
             };
             const temp = this.domRecord.recordUserViewModel(data, 0, 1);
@@ -147,7 +148,7 @@ export default class WritingRecord extends mixins(Vue) {
         recordData = this.domRecord.stopRecord((log: any) => {
             console.log(log);
         });
-        index.setState(JSON.parse(JSON.stringify(this.replayData)));
+        // index.setState(JSON.parse(JSON.stringify(this.replayData)));
         console.log(this.replayData);
         // 将数据导出为 CSV 文件
         // const csv = Papa.unparse(this.writingData);
@@ -166,6 +167,18 @@ export default class WritingRecord extends mixins(Vue) {
      */
     handleInput() {
         // console.log()
+    }
+
+    /**
+     * handleKeyDown  监听按键Tab
+     */
+    handleKeyDown(event) {
+        if (event.key === 'Tab') {
+            event.preventDefault(); // 阻止默认的焦点切换行为
+            const inputValue = this.value;
+            const tabCharacter = '\t';
+            this.value = inputValue + tabCharacter;
+        }
     }
 
 }
