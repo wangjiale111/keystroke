@@ -3,6 +3,7 @@ import $ from 'jquery';
 import Papa from "papaparse";
 import {ElMessageBox} from 'element-plus';
 import index from "@/store";
+import axios from "axios";
 
 export default class EventRecord {
 
@@ -369,7 +370,16 @@ export default class EventRecord {
         console.debug('Stop recording.');
 
         (window as any).recordInProgress = false;
-        index.setState(JSON.parse(JSON.stringify(this.userEventLog)));
+        // index.setState(JSON.parse(JSON.stringify(this.userEventLog)));
+        // 将用户事件日志发送给后端保存到数据库
+        axios.post('http://127.0.0.1:5000/api/save_event_logs', this.userEventLog)
+            .then(response => {
+                console.log(response.data);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
         const playbackScript = {
             'window': {'width': window.innerWidth, 'height': window.innerHeight},
             'event_log': this.userEventLog
