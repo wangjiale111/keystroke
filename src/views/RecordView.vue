@@ -10,7 +10,7 @@
       </div>
       <el-form label-width="100px" style="margin-top: 10px">
         <el-form-item label="用户名" prop="userName">
-          <el-input v-model="form.userName" placeholder="请输入用户名" :disabled="disable3"></el-input>
+          <el-input v-model="form.userName" placeholder="请输入用户名：" :disabled="disable3"  @input="checkUserName"></el-input>
         </el-form-item>
       </el-form>
       <el-input
@@ -64,7 +64,7 @@ export default class WritingRecord extends Vue {
   disable = true;
   // 设置时间,与timeFormat同步
   time = 1200;
-  disable2 = false;
+  disable2 = true;
   writingData: any[] = [];
   form = {
     userName: '',
@@ -176,6 +176,12 @@ export default class WritingRecord extends Vue {
   handleInput() {
     // console.log()
   }
+
+ checkUserName() {
+    if (this.form.userName){
+      this.disable2 = false;
+    }
+ }
 
   /**
    * handleKeyDown  监听按键Tab

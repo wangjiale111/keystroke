@@ -2,15 +2,11 @@
   <div class="replay">
     <div class="writing">
       <div class="header">
+        <div>用户名:{{userName}}</div>
         <div>写作速度:{{ typeSpeed }}字/秒</div>
         <div>写作总时间:{{ time }}</div>
         <div>写作总字数:{{ writingLength }}</div>
       </div>
-      <el-form label-width="100px" style="margin-top: 10px">
-        <el-form-item label="用户名" prop="userName">
-          <el-input v-model="form.userName" placeholder="请输入用户名"></el-input>
-        </el-form-item>
-      </el-form>
       <el-input
           type="textarea"
           :rows="10"
@@ -20,9 +16,10 @@
       ></el-input>
       <div class="playButton">
         <el-button type="primary" @click="Replay">开始回放</el-button>
-        <el-button type="danger" @click="exitReplay" style="margin-left: 80px;">暂停回放</el-button>
+        <el-button type="danger" @click="exitReplay">暂停回放</el-button>
+        <el-button @click="returnBack" style="margin-left: 50px;">返回</el-button>
       </div>
-      <div id="chart" style="width: 500px;height: 300px; margin-top: 50px;"></div>
+      <div id="chart" style="width: 600px;height: 300px; margin-top: 50px;"></div>
     </div>
   </div>
 </template>
@@ -32,7 +29,6 @@ import {mixins, Options, Vue} from 'vue-class-component';
 import {DomEventRecord} from '@/record/DomEventRecord';
 import * as echarts from 'echarts';
 import axios from 'axios';
-import index from '@/store/index';
 
 @Options({})
 export default class ReplayView extends mixins(Vue) {
@@ -53,22 +49,21 @@ export default class ReplayView extends mixins(Vue) {
   chart: any;
   timeArray: any[] = [];
   speedArray: any[] = [];
-  form = {
-    userName: '',
-  };
+  userName: any
 
   /**
    * 生命周期 created
    */
   async created() {
     (window as any).playbackInProgress = false;
+    this.userName = this.$route.query.userName;
     // await this.getReplayData(this.time);
   }
 
-  async fetchEventLogs(userName) {
+  async fetchEventLogs() {
     try {
       const response = await axios.get('http://127.0.0.1:5000/api/get_event_logs', {
-        params: { userName: userName }
+        params: { userName: this.userName }
       });
       return response.data;
     } catch (error) {
@@ -81,20 +76,19 @@ export default class ReplayView extends mixins(Vue) {
    * 获取回放数据
    */
   async Replay() {
-    await this.fetchEventLogs(this.form.userName).then((replayData) => {
-      this.replayData = replayData.eventLogs
-      ;
+    await this.fetchEventLogs().then((replayData) => {
+      this.replayData = replayData.eventLogs;
     });
     this.startTime = 0;
     this.flag = 1;
     // 计时器
-    this.timing = setInterval(() => {
+    this.timing =await setInterval(() => {
       this.allTime++;
       this.time = this.formateSeconds(this.allTime);
     }, 1000);
     if ((window as any).emitter && this.flag == 1) {
-      (window as any).emitter.on('Writing', (data: any) => {
-        this.viewModelPlaBackHander(data);
+      (window as any).emitter.on('Writing', async (data: any) => {
+        await this.viewModelPlaBackHander(data);
       });
     }
     if (this.replayData.length) {
@@ -123,6 +117,9 @@ export default class ReplayView extends mixins(Vue) {
     }
   }
 
+  returnBack() {
+    this.$router.push('/login'); // 跳转到"/login"组件
+  }
 
   //将秒转化为时分秒
   formateSeconds(endTime: any) {
@@ -275,13 +272,16 @@ export default class ReplayView extends mixins(Vue) {
   .text-area {
     width: 80%;
   }
+  .header{
+    width: 80%;
+  }
 }
 
 .playButton {
   display: flex;
   flex-direction: row;
-  align-items: center;
-  justify-content: stretch;
+  align-items: flex-start;
+  justify-content: flex-end;
   margin-top: 20px;
 }
 

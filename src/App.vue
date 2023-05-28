@@ -1,6 +1,6 @@
 <template>
     <div class="admin-login">
-      <el-button class="admin-icon" @click="showLoginDialog">管理员登录</el-button>
+      <el-button class="admin-icon" @click="showLoginDialog" v-show="showRecord">管理员登录</el-button>
     </div>
   <router-view></router-view>
   <LoginDialog v-if="showLogin" @close="closeLoginDialog" @login="handleLogin" />
@@ -58,8 +58,9 @@ export default class AppPage extends mixins(AppViewModel) {
 .admin-login {
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
+  margin-right: 250px;
 }
 
 .admin-login a {

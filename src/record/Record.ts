@@ -385,26 +385,26 @@ export default class EventRecord {
             'event_log': this.userEventLog
         };
         // console.log(this.userEventLog)
-        ElMessageBox.confirm("是否生成CSV?", "提示", {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning"
-        })
-            .then(() => {
-                // 将数据转换为CSV格式
-                const csv = Papa.unparse(this.userEventLog);
-                const csvData = new Blob([csv], {type: "text/csv;charset=utf-8;"});
-                const csvURL = window.URL.createObjectURL(csvData);
-                const tempLink = document.createElement("a");
-                tempLink.href = csvURL;
-                tempLink.setAttribute("download", "writingData.csv");
-                document.body.appendChild(tempLink);
-                tempLink.click();
-                document.body.removeChild(tempLink);
-            })
-            .catch(() => {
-                // 取消
-            });
+        // ElMessageBox.confirm("是否生成CSV?", "提示", {
+        //     confirmButtonText: "确定",
+        //     cancelButtonText: "取消",
+        //     type: "warning"
+        // })
+        //     .then(() => {
+        //         // 将数据转换为CSV格式
+        //         const csv = Papa.unparse(this.userEventLog);
+        //         const csvData = new Blob([csv], {type: "text/csv;charset=utf-8;"});
+        //         const csvURL = window.URL.createObjectURL(csvData);
+        //         const tempLink = document.createElement("a");
+        //         tempLink.href = csvURL;
+        //         tempLink.setAttribute("download", "writingData.csv");
+        //         document.body.appendChild(tempLink);
+        //         tempLink.click();
+        //         document.body.removeChild(tempLink);
+        //     })
+        //     .catch(() => {
+        //         // 取消
+        //     });
 
 
         return playbackScript;
