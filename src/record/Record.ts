@@ -371,20 +371,20 @@ export default class EventRecord {
 
         (window as any).recordInProgress = false;
         // index.setState(JSON.parse(JSON.stringify(this.userEventLog)));
-        // 将用户事件日志发送给后端保存到数据库
-        axios.post('http://127.0.0.1:5000/api/save_event_logs', this.userEventLog)
-            .then(response => {
-                console.log(response.data);
-            })
-            .catch(error => {
-                console.error(error);
-            });
+        // // 将用户事件日志发送给后端保存到数据库
+        // axios.post('http://127.0.0.1:5000/api/save_event_logs', this.userEventLog)
+        //     .then(response => {
+        //         console.log(response.data);
+        //     })
+        //     .catch(error => {
+        //         console.error(error);
+        //     });
 
         const playbackScript = {
             'window': {'width': window.innerWidth, 'height': window.innerHeight},
             'event_log': this.userEventLog
         };
-        console.log(this.userEventLog)
+        // console.log(this.userEventLog)
         ElMessageBox.confirm("是否生成CSV?", "提示", {
             confirmButtonText: "确定",
             cancelButtonText: "取消",

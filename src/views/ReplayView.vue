@@ -6,6 +6,11 @@
         <div>写作总时间:{{ time }}</div>
         <div>写作总字数:{{ writingLength }}</div>
       </div>
+      <el-form label-width="100px" style="margin-top: 10px">
+        <el-form-item label="用户名" prop="userName">
+          <el-input v-model="form.userName" placeholder="请输入用户名"></el-input>
+        </el-form-item>
+      </el-form>
       <el-input
           type="textarea"
           :rows="10"
@@ -48,6 +53,9 @@ export default class ReplayView extends mixins(Vue) {
   chart: any;
   timeArray: any[] = [];
   speedArray: any[] = [];
+  form = {
+    userName: '',
+  };
 
   /**
    * 生命周期 created
@@ -57,21 +65,25 @@ export default class ReplayView extends mixins(Vue) {
     // await this.getReplayData(this.time);
   }
 
-  async fetchEventLogs() {
+  async fetchEventLogs(userName) {
     try {
-      const response = await axios.get('http://127.0.0.1:5000/api/get_event_logs');
+      const response = await axios.get('http://127.0.0.1:5000/api/get_event_logs', {
+        params: { userName: userName }
+      });
       return response.data;
     } catch (error) {
       console.error(error);
     }
   }
 
+
   /**
    * 获取回放数据
    */
   async Replay() {
-    await this.fetchEventLogs().then((replayData) => {
-      this.replayData = replayData;
+    await this.fetchEventLogs(this.form.userName).then((replayData) => {
+      this.replayData = replayData.eventLogs
+      ;
     });
     this.startTime = 0;
     this.flag = 1;
