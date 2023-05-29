@@ -7,7 +7,10 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/record',
         name: 'record',
-        component: RecordView
+        component: RecordView,
+        meta: {
+            reload: true // 设置 meta 字段为 reload:true
+        }
     },
     {
         path: '/replay',

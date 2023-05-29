@@ -225,7 +225,7 @@ export default class EventRecord {
                 // 获得当前输入法缓冲区的长度
                 userEvent.IMEBuffer_length = event.target.value.replace(/[^a-zA-Z]/g, '').length;
                 // 获取当前中文输入的长度
-                userEvent.ChineseLength = event.target.value.match(/[\u4e00-\u9fff]/g).length;
+                userEvent.ChineseLength = event.target.value.match(/[\u4e00-\u9fff]/g)?event.target.value.match(/[\u4e00-\u9fff]/g).length:0;
                 // 总长度
                 userEvent.textLength = event.target.value.length;
                 // 获取中文文本

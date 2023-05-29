@@ -112,16 +112,19 @@ export default class WritingRecord extends Vue {
             this.writingData.push(log);
             // console.log(log);
         });
-        // this.$watch('value', (newValue: any, oldValue: any) => {
-        //     const data: UserViewModel = {
-        //         classKey: 'writing',
-        //         text: newValue,
-        //         timeStamp: 0
-        //     };
-        //     const temp = this.domRecord.recordUserViewModel(data, 0, 1);
-        //     this.replayData.push(temp);
-        //     this.wordNum = newValue.length;
-        // }, { deep: true, immediate: true });
+        this.$watch('value', (newValue: any, oldValue: any) => {
+            // const data: UserViewModel = {
+            //     classKey: 'writing',
+            //     text: newValue,
+            //     timeStamp: 0
+            // };
+            // const temp = this.domRecord.recordUserViewModel(data, 0, 1);
+            // this.replayData.push(temp);
+          if (newValue !== null) {
+            console.log(newValue.length);
+            this.wordNum = newValue.length;
+          }
+        }, { deep: true, immediate: true });
     }
 
     confirmStartWriting() {

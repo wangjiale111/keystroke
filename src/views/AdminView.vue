@@ -10,6 +10,9 @@
                     <el-button type="success" @click="viewReplay(scope.row.userName)">
                         查看回放
                     </el-button>
+                  <el-button @click="deleteUser(scope.row.userName)">
+                    删除
+                  </el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -54,28 +57,67 @@ export default class AdminView extends Vue {
         })
             .then(() => {
                 // 查找匹配的对象
-                const userEvent = this.userEvents.find(event => event.userName === userName);
-                if (userEvent) {
-                    // 将eventLogs转换为CSV格式
-                    const csv = Papa.unparse(userEvent.eventLogs);
-                    const csvData = new Blob([csv], {type: "text/csv;charset=utf-8;"});
-                    const csvURL = window.URL.createObjectURL(csvData);
-                    const tempLink = document.createElement("a");
-                    tempLink.href = csvURL;
-                    tempLink.setAttribute("download", userName);
-                    document.body.appendChild(tempLink);
-                    tempLink.click();
-                    document.body.removeChild(tempLink);
-                } else {
-                    console.error("User event not found");
-                }
+              const userEvent = this.userEvents.find(event => event.userName === userName);
+              if (userEvent) {
+                // 获取与 eventLogs 顺序一致的数据
+                const orderedEventLogs = userEvent.eventLogs.map(log => ({
+                  index: log.index || "", // 如果 index 属性不存在，则使用空字符串代替
+                  classKey: log.classKey || "",
+                  text: log.text || "",
+                  ChineseText: log.ChineseText || "",
+                  IMEBuffer: log.IMEBuffer || "",
+                  ChineseLength: log.ChineseText ? log.ChineseText.length : 0, // 计算 ChineseText 的长度
+                  IMEBuffer_length: log.IMEBuffer ? log.IMEBuffer.length : 0, // 计算 IMEBuffer 的长度
+                  textLength: log.text ? log.text.length : 0, // 计算 text 的长度
+                  keyValue: log.keyValue || "",
+                  keyAction: log.keyAction || "",
+                  timeStamp: log.timeStamp || ""
+                }));
+
+                // 将 orderedEventLogs 转换为 CSV 格式
+                const csv = Papa.unparse(orderedEventLogs);
+                const csvData = new Blob([csv], {type: "text/csv;charset=utf-8;"});
+                const csvURL = window.URL.createObjectURL(csvData);
+                const tempLink = document.createElement("a");
+                tempLink.href = csvURL;
+                tempLink.setAttribute("download", userName);
+                document.body.appendChild(tempLink);
+                tempLink.click();
+                document.body.removeChild(tempLink);
+              } else {
+                console.error("User event not found");
+              }
+
             })
             .catch(() => {
                 // 取消
             });
     }
 
-    viewReplay(userName: string) {
+  async deleteUser(userName: string) {
+    ElMessageBox.confirm("是否删除用户数据?", "提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning"
+    })
+        .then(async () => {
+          try {
+            const response = await axios.post('http://127.0.0.1:5000/api/delete_user_events', { userName });
+            // 在删除成功后刷新用户事件列表
+            if (response.status === 200) {
+              this.getUserEvents();
+            }
+          } catch (error) {
+            console.error('Failed to delete user events', error);
+          }
+        })
+        .catch(() => {
+          // 取消
+        });
+  }
+
+
+  viewReplay(userName: string) {
         this.$router.push({path: "/replay", query: {userName}});
     }
 

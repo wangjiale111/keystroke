@@ -22,7 +22,11 @@ export default class AppPage extends mixins(AppViewModel) {
     showLogin = false; // 控制登录弹窗显示/隐藏的状态
     showRecord = true;
 
-    showLoginDialog(): void {
+    mounted() {
+      this.showRecord = true;
+    }
+
+  showLoginDialog(): void {
         this.showLogin = true; // 显示登录弹窗
     }
 
