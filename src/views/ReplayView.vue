@@ -3,8 +3,8 @@
         <div class="writing">
             <div class="header">
                 <div>用户名:{{ userName }}</div>
-                <div>写作速度:{{ typeSpeed }}字/秒</div>
                 <div>写作总时间:{{ time }}</div>
+                <div>写作速度:{{ typeSpeed }}字/秒</div>
                 <div>写作总字数:{{ writingLength }}</div>
             </div>
             <div class="content">
@@ -51,7 +51,8 @@ export default class ReplayView extends mixins(Vue) {
     chart: any;
     timeArray: any[] = [];
     speedArray: any[] = [];
-    userName: any
+    userName: any;
+    numSecond = 0;
 
     /**
      * 生命周期 created
@@ -83,16 +84,88 @@ export default class ReplayView extends mixins(Vue) {
         });
         this.startTime = 0;
         this.flag = 1;
-        // 计时器
-        this.timing = await setInterval(() => {
-            this.allTime++;
-            this.time = this.formateSeconds(this.allTime);
-        }, 1000);
         if ((window as any).emitter && this.flag == 1) {
             (window as any).emitter.on('Writing', async (data: any) => {
                 await this.viewModelPlaBackHander(data);
             });
         }
+        // 计时器
+        this.timing = setInterval(async () => {
+            // 如果allTime小于60，则this.typeSpeed为等比例的每分钟打字速度
+            if (this.allTime <= 60) {
+                if (this.numSecond == this.writingLength){
+                    this.speedArray.push(0);
+                } else {
+                    let sum = 0;
+                    for (let i = 0; i < this.allTime; i++) {
+                        sum = sum +  this.speedArray[i];
+                    }
+                    this.typeSpeed = Math.round(sum / this.allTime * 60);
+                    this.speedArray.push(this.typeSpeed);
+                }
+                this.typeSpeed = Math.round(this.writingLength / this.allTime * 60);
+            } else {
+                if (this.numSecond == this.writingLength) {
+                    this.speedArray.push(0);
+                } else {
+                    let sum = 0;
+                    for (let i = this.allTime - 60; i < this.allTime; i++) {
+                        sum = sum +  this.speedArray[i];
+                    }
+                    this.typeSpeed = Math.round(sum / 60);
+                    this.speedArray.push(this.typeSpeed);
+                }
+
+            }
+            this.timeArray.push(this.allTime);
+            if (!this.chart) {
+                this.chart = echarts.init(document.getElementById('chart'));
+                await this.chart.setOption({
+                    title: {
+                        text: '写作速度',
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                    },
+                    xAxis: {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: this.timeArray,
+                        axisLabel: {
+                            formatter: '{value} 秒',
+                        },
+                    },
+                    yAxis: {
+                        type: 'value',
+                        axisLabel: {
+                            formatter: '{value} 字/分钟',
+                        },
+                    },
+                    series: [
+                        {
+                            name: '速度',
+                            type: 'line',
+                            data: this.speedArray,
+                        },
+                    ],
+                });
+            } else {
+                this.chart.setOption({
+                    xAxis: {
+                        data: this.timeArray,
+                    },
+                    series: [
+                        {
+                            name: '速度',
+                            data: this.speedArray,
+                        },
+                    ],
+                });
+            }
+            this.allTime++;
+            this.time =this.formateSeconds(this.allTime);
+            this.numSecond = this.writingLength;
+        }, 1000);
         if (this.replayData.length) {
             this.viewModelPlayback = await this.domRecord.startViewModelPlayback(this.replayData);
         }
@@ -147,85 +220,33 @@ export default class ReplayView extends mixins(Vue) {
         return result;
     }
 
-    /**
-     * 这个函数的功能如下：
-     * 1. 把值赋给value双向绑定
-     * 2. 计算当前时间戳内打字数目
-     * 3. 时间戳的差作为时间
-     * 4. 计算速度
-     * @param data
-     */
     viewModelPlaBackHander(data: any) {
         // 把值赋给value双向绑定
         this.value = data.value;
-        this.writingLength = this.value.length;
+        this.writingLength = data.ChineseLength as number;
         // 计算当前时间戳内打字数目
-        if (data.value.length > this.typeLength) {
-            this.typeNum = data.value.length - this.typeLength;
-            // console.log('打字数：' + this.typeNum)
-        } else {
-            this.typeNum = 0;
-        }
-        // 时间戳的差作为时间
-        this.typeTime = (data.timeStamp - this.startTime) / 1000;
+        // if (data.value.length > this.typeLength) {
+        //     this.typeNum = data.value.length - this.typeLength;
+        //     // console.log('打字数：' + this.typeNum)
+        // } else {
+        //     this.typeNum = 0;
+        // }
+        // // 时间戳的差作为时间
+        // this.typeTime = (data.timeStamp - this.startTime) / 1000;
         // console.log(this.typeTime)
         // 计算速度
-        if (this.typeNum === 0) {
-            this.typeSpeed = 0;
-        } else {
-            this.typeSpeed = Math.floor((this.typeNum / this.typeTime) * 100) / 100;
-        }
-        this.speedArray.push(this.typeSpeed);
-        this.timeArray.push(this.allTime);
+        // if (this.typeNum === 0) {
+        //     this.typeSpeed = 0;
+        // } else {
+        //     this.typeSpeed = Math.floor((this.typeNum / this.typeTime) * 100) / 100;
+        // }
+        // this.speedArray.push(this.typeSpeed);
         // 记录一下当前的时间戳和字符长度，以便下一次使用
-        this.startTime = data.timeStamp;
-        this.typeLength = data.value.length;
+        // this.startTime = data.timeStamp;
+        // this.typeLength = data.value.length;
 
-        if (!this.chart) {
-            this.chart = echarts.init(document.getElementById('chart'));
-            this.chart.setOption({
-                title: {
-                    text: '打字速度',
-                },
-                tooltip: {
-                    trigger: 'axis',
-                },
-                xAxis: {
-                    type: 'category',
-                    boundaryGap: false,
-                    data: this.timeArray,
-                    axisLabel: {
-                        formatter: '{value} 秒',
-                    },
-                },
-                yAxis: {
-                    type: 'value',
-                    axisLabel: {
-                        formatter: '{value} 字/秒',
-                    },
-                },
-                series: [
-                    {
-                        name: '速度',
-                        type: 'line',
-                        data: this.speedArray,
-                    },
-                ],
-            });
-        } else {
-            this.chart.setOption({
-                xAxis: {
-                    data: this.timeArray,
-                },
-                series: [
-                    {
-                        name: '速度',
-                        data: this.speedArray,
-                    },
-                ],
-            });
-        }
     }
+
 }
 </script>
 
@@ -245,7 +266,6 @@ export default class ReplayView extends mixins(Vue) {
     align-items: center;
     justify-content: center;
     padding: 40px;
-    border: 1px solid #ccc;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     background-color: #fff;

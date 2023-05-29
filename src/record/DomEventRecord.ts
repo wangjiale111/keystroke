@@ -58,6 +58,7 @@ export interface UserViewModel {
     text: any;
     // 时间戳
     timeStamp?: number;
+    ChineseLength?: number;
     index?:number;
 }
 

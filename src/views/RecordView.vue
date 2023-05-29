@@ -45,6 +45,7 @@ export interface UserViewModel {
     text: any;
     // 时间戳
     timeStamp?: number;
+    ChineseLength?: number;
     index?: number;
 }
 
@@ -256,7 +257,6 @@ export default class WritingRecord extends Vue {
     align-items: center;
     justify-content: center;
     padding: 40px;
-    border: 1px solid #ccc;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     background-color: #fff;

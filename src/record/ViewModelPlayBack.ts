@@ -67,7 +67,8 @@ export class ViewModelPlayBack {
                         (window as any).emitter.emit('Writing', {
                             classKey: userEvent.classKey,
                             value: userEvent.text,
-                            timeStamp: userEvent.timeStamp
+                            timeStamp: userEvent.timeStamp,
+                            ChineseLength: userEvent.ChineseLength
                         });
                     } while (userEventLength > 0 && ((currentTime + 50) > ((this.userViewModelLog as any)[0].timeStamp + timeStartedPlayback)));
                 }
