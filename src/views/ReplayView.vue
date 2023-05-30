@@ -67,9 +67,14 @@ export default class ReplayView extends mixins(Vue) {
 
     async fetchEventLogs() {
         try {
-            const response = await axios.get('http://127.0.0.1:5000/api/get_event_logs', {
+            const token = localStorage.getItem('adminToken'); // 从本地存储获取JWT令牌
+            const config = {
+                headers: {
+                    'Authorization': token // 将JWT令牌添加到请求头
+                },
                 params: {userName: this.userName}
-            });
+            };
+            const response = await axios.get('http://127.0.0.1:5000/api/get_event_logs', config);
             return response.data;
         } catch (error) {
             console.error(error);

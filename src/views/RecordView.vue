@@ -9,6 +9,7 @@
                 <div style="margin-left: 80px">字数:{{ wordNum }}</div>
             </div>
            <div class="content">
+               <h3>调查问卷</h3>
                <el-form label-width="100px" style="margin-top: 10px">
                    <el-form-item label="用户名" prop="userName">
                        <el-input v-model="form.userName" placeholder="请输入用户名：" :disabled="disable3"
@@ -26,7 +27,7 @@
            </div>
             <div class="button">
                 <el-button type="primary" @click="confirmStartWriting" :disabled="disable2">开始写作</el-button>
-                <el-button type="danger" @click="confirmEndWriting" style="margin-left: 80px;">结束写作</el-button>
+                <el-button type="danger" @click="confirmEndWriting" style="margin-left: 80px;" :disabled="disable4">结束写作</el-button>
             </div>
         </div>
     </div>
@@ -39,6 +40,7 @@ import {DomEventRecord} from "@/record/DomEventRecord";
 // import Papa from "papaparse";
 import {ElMessageBox} from 'element-plus';
 import axios from "axios";
+import { Message } from 'element-plus';
 
 export interface UserViewModel {
     classKey: string;
@@ -73,7 +75,9 @@ export default class WritingRecord extends Vue {
     form = {
         userName: '',
     };
-    disable3 = false;
+    disable3 = false
+    disable4 = false
+    $message: Message;
 
     /**
      * toStart  开始录制 1.计时器计算时间  2.监听输入框的值 3.调用recordUserViewModel方法
@@ -121,7 +125,7 @@ export default class WritingRecord extends Vue {
             // const temp = this.domRecord.recordUserViewModel(data, 0, 1);
             // this.replayData.push(temp);
           if (newValue !== null) {
-            console.log(newValue.length);
+            // console.log(newValue.length);
             this.wordNum = newValue.length;
           }
         }, { deep: true, immediate: true });
@@ -165,18 +169,31 @@ export default class WritingRecord extends Vue {
         recordData = this.domRecord.stopRecord((log: any) => {
             console.log(log);
         });
-        // 将用户事件日志发送给后端保存到数据库
-        //     console.log({ userName: 'yourUserName', eventLogs: this.writingData })
-        axios.post('http://127.0.0.1:5000/api/save_event_logs', {
-            userName: this.form.userName,
-            eventLogs: this.writingData
-        })
-            .then(response => {
-                console.log(response.data);
+        try {
+            // 将用户事件日志发送给后端保存到数据库
+            axios.post('http://127.0.0.1:5000/api/save_event_logs', {
+                userName: this.form.userName,
+                eventLogs: this.writingData
             })
-            .catch(error => {
-                console.error(error);
+                .then(response => {
+                    console.log(response.data);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+            this.disable4 = true;
+            console.log(this.disable4)
+            this.$message({
+                message: '提交成功',
+                type: 'success'
             });
+        } catch (error) {
+            this.$message({
+                message: '提交失败,请检查网络连接',
+                type: 'error'
+            });
+            console.log(error);
+        }
 
     }
 
