@@ -37,7 +37,7 @@ export default class AppPage extends mixins(AppViewModel) {
     async handleLogin(adminName: string, password: string): Promise<void> {
         console.log(adminName, password);
         try {
-            const response = await axios.post('http://127.0.0.1:5000/api/login', {
+            const response = await axios.post('http://127.0.0.1:5000/api/admin', {
                 adminName,
                 password
             });
@@ -46,7 +46,7 @@ export default class AppPage extends mixins(AppViewModel) {
                 console.log('登录成功');
                 this.showRecord = false;
                 this.showLogin = false;
-                this.$router.push('/login');
+                this.$router.push('/admin');
             } else {
                 // 登录失败的操作，例如显示错误信息
                 console.log('登录失败');

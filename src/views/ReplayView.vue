@@ -4,7 +4,7 @@
             <div class="header">
                 <div>用户名:{{ userName }}</div>
                 <div>写作总时间:{{ time }}</div>
-                <div>写作速度:{{ typeSpeed }}字/秒</div>
+                <div>写作速度:{{ typeSpeed }}字/分钟、{{typeSpeedSecond}}字/秒</div>
                 <div>写作总字数:{{ writingLength }}</div>
             </div>
             <div class="content">
@@ -43,6 +43,7 @@ export default class ReplayView extends mixins(Vue) {
     startTime = 0;
     typeTime = 0;
     typeSpeed = 0;
+    typeSpeedSecond = 0;
     allTime = 0;
     time = '00分00秒';
     writingLength = 0;
@@ -51,6 +52,7 @@ export default class ReplayView extends mixins(Vue) {
     chart: any;
     timeArray: any[] = [];
     speedArray: any[] = [];
+    lengthArray: any[] = [];
     userName: any;
     numSecond = 0;
 
@@ -89,34 +91,45 @@ export default class ReplayView extends mixins(Vue) {
                 await this.viewModelPlaBackHander(data);
             });
         }
+        this.$watch('writingLength', (newValue: any, oldValue: any) => {
+            if (newValue > oldValue) {
+                this.typeSpeedSecond = newValue - oldValue;
+            } else {
+                this.typeSpeedSecond = 0;
+            }
+        }, { deep: true, immediate: true });
         // 计时器
         this.timing = setInterval(async () => {
+            if (this.numSecond >= this.writingLength){
+                this.typeSpeedSecond = 0;
+                // 若此刻的打字长度小于等于上一刻的打字长度，则这一秒内打字数为0
+                this.lengthArray.push(0);
+            } else {
+                // 若此刻的打字长度大于上一刻的打字长度，则这一秒内打字数为此刻的打字长度减去上一刻的打字长度
+                this.lengthArray.push(this.writingLength - this.numSecond);
+            }
             // 如果allTime小于60，则this.typeSpeed为等比例的每分钟打字速度
             if (this.allTime <= 60) {
-                if (this.numSecond == this.writingLength){
-                    this.speedArray.push(0);
+                // 对这一秒内的打字数求和，除以60，得到每秒的打字数
+                let sum = 0;
+                for (let i = 0; i < this.allTime; i++) {
+                    sum = sum + this.lengthArray[i];
+                }
+                // 每秒的打字数乘以60，得到每分钟的打字数, 首先判断this.allTime是否为0，若为0，则this.typeSpeed为0
+                if (this.allTime == 0) {
+                    this.typeSpeed = 0;
                 } else {
-                    let sum = 0;
-                    for (let i = 0; i < this.allTime; i++) {
-                        sum = sum +  this.speedArray[i];
-                    }
                     this.typeSpeed = Math.round(sum / this.allTime * 60);
-                    this.speedArray.push(this.typeSpeed);
                 }
-                this.typeSpeed = Math.round(this.writingLength / this.allTime * 60);
             } else {
-                if (this.numSecond == this.writingLength) {
-                    this.speedArray.push(0);
-                } else {
-                    let sum = 0;
-                    for (let i = this.allTime - 60; i < this.allTime; i++) {
-                        sum = sum +  this.speedArray[i];
-                    }
-                    this.typeSpeed = Math.round(sum / 60);
-                    this.speedArray.push(this.typeSpeed);
+                // 对这一秒内的打字数求和，除以60，得到每秒的打字数
+                let sum = 0;
+                for (let i = this.allTime - 60; i < this.allTime; i++) {
+                    sum = sum + this.lengthArray[i];
                 }
-
+                this.typeSpeed = Math.round(sum);
             }
+            this.speedArray.push(this.typeSpeed);
             this.timeArray.push(this.allTime);
             if (!this.chart) {
                 this.chart = echarts.init(document.getElementById('chart'));
@@ -164,6 +177,7 @@ export default class ReplayView extends mixins(Vue) {
             }
             this.allTime++;
             this.time =this.formateSeconds(this.allTime);
+            // 记录此刻的打字长度
             this.numSecond = this.writingLength;
         }, 1000);
         if (this.replayData.length) {
@@ -193,7 +207,7 @@ export default class ReplayView extends mixins(Vue) {
     }
 
     returnBack() {
-        this.$router.push('/login'); // 跳转到"/login"组件
+        this.$router.push('/admin'); // 跳转到"/admin"组件
     }
 
     //将秒转化为时分秒

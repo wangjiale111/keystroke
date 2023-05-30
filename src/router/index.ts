@@ -18,8 +18,8 @@ const routes: Array<RouteRecordRaw> = [
         component: ReplayView
     },
     {
-        path: '/login',
-        name: 'login',
+        path: '/admin',
+        name: 'admin',
         component: AdminView
     },
     {
