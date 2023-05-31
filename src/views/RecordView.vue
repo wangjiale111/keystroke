@@ -10,8 +10,9 @@
             </div>
             <div class="content">
                 <h3>调查问卷</h3>
-                <el-form ref="formRef"
-                         label-width="100px"
+                <el-form ref="myForm"
+                         :model="form"
+                         label-width="120px"
                          style="margin-top: 10px"
                          :rules="formRules">
                     <el-form-item label="用户名" prop="userName">
@@ -49,7 +50,7 @@
                     </el-form-item>
                 </el-form>
                 <div class="button">
-                    <el-button type="primary" @click="confirmSubmit">提交调查问卷</el-button>
+                    <el-button type="primary" @click="confirmSubmit" :disabled="disable3">提交调查问卷</el-button>
                 </div>
                 <el-input
                         type="textarea"
@@ -75,7 +76,7 @@ import {Options, Vue} from 'vue-class-component';
 import ReplayView from '@/views/ReplayView.vue';
 import {DomEventRecord} from "@/record/DomEventRecord";
 // import Papa from "papaparse";
-import {ElMessage, ElMessageBox} from 'element-plus';
+import {ElMessage, ElMessageBox, ElForm} from 'element-plus';
 import axios from "axios";
 import {Message} from 'element-plus';
 import {FormRules} from "element-plus/lib/components";
@@ -111,16 +112,16 @@ export default class WritingRecord extends Vue {
     disable3 = false
     disable4 = false
     $message: Message;
-    formRules : FormRules = {
+    formRules = {
         userName: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
         gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
         age: [
-            { required: true, message: '请输入年龄', trigger: 'blur' },
-            { type: 'number', message: '年龄必须为数字', trigger: 'blur' }
+            { required: true, message: '请输入年龄', trigger: 'blur' }
         ],
         writingProblem: [{ required: true, message: '请输入写作时会遇到的问题', trigger: 'blur' }],
         writingLevel: [{ required: true, message: '请进行写作水平自评', trigger: 'change' }]
     };
+
 
     /**
      * toStart  开始录制 1.计时器计算时间  2.监听输入框的值 3.调用recordUserViewModel方法
@@ -174,32 +175,26 @@ export default class WritingRecord extends Vue {
         }, {deep: true, immediate: true});
     }
 
-    confirmSubmit = () => {
-        (this.$refs.formRef as any).validate((valid) => {
-            if (valid) {
-                ElMessageBox.confirm('确认提交调查问卷吗？', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
-                    // 提交调查问卷
-                    this.submitSurveyForm();
-                }).catch(() => {
-                    // 取消提交
-                    ElMessage.info('已取消提交');
-                });
-            } else {
-                return false;
-            }
+    confirmSubmit () {
+      (this.$refs.myForm as typeof ElForm).validate((valid: any) => {
+        if (valid) {
+          ElMessageBox.confirm('提交后不可更改，是否提交？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            // 提交调查问卷
+            ElMessage.success('已成功提交，请点击开始写作');
+            this.disable2 = false;
+            this.disable3 = true;
+          }).catch(() => {
+            // 取消提交
+            ElMessage.info('已取消提交');
+          });
+        } else {
+          return false;
+        }
         });
-    }
-
-
-    submitSurveyForm() {
-        // 提交调查问卷
-        ElMessage.success('调查问卷已提交，请开始写作');
-        this.disable2 = false;
-        this.disable3 = true;
     }
 
     confirmStartWriting() {
