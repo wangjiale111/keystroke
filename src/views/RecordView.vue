@@ -8,26 +8,63 @@
                 <div>时间:{{ timeFormat }}</div>
                 <div style="margin-left: 80px">字数:{{ wordNum }}</div>
             </div>
-           <div class="content">
-               <h3>调查问卷</h3>
-               <el-form label-width="100px" style="margin-top: 10px">
-                   <el-form-item label="用户名" prop="userName">
-                       <el-input v-model="form.userName" placeholder="请输入用户名：" :disabled="disable3"
-                                 @input="checkUserName"></el-input>
-                   </el-form-item>
-               </el-form>
-               <el-input
-                   type="textarea"
-                   :rows="10"
-                   v-model="value"
-                   :disabled="disable"
-                   @input="handleInput"
-                   @keydown="handleKeyDown"
-               ></el-input>
-           </div>
+            <div class="content">
+                <h3>调查问卷</h3>
+                <el-form ref="formRef"
+                         label-width="100px"
+                         style="margin-top: 10px"
+                         :rules="formRules">
+                    <el-form-item label="用户名" prop="userName">
+                        <el-input
+                                v-model="form.userName"
+                                placeholder="请输入用户名："
+                                :disabled="disable3"
+                                @input="checkUserName"
+                        ></el-input>
+                    </el-form-item>
+                    <el-form-item label="性别" prop="gender">
+                        <el-select v-model="form.gender" placeholder="请选择性别" :disabled="disable3">
+                            <el-option label="男" value="male"></el-option>
+                            <el-option label="女" value="female"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="年龄" prop="age">
+                        <el-input
+                                v-model="form.age"
+                                placeholder="请输入年龄"
+                                :disabled="disable3"
+                                type="number"
+                                min="16"
+                        ></el-input>
+                    </el-form-item>
+                    <el-form-item label="写作困难" prop="writingProblem">
+                        <el-input
+                                v-model="form.writingProblem"
+                                placeholder="请描述你在写作时会遇到的困难"
+                                :disabled="disable3"
+                        ></el-input>
+                    </el-form-item>
+                    <el-form-item label="写作水平自评" prop="writingLevel">
+                        <el-rate v-model="form.writingLevel" :disabled="disable3"></el-rate>
+                    </el-form-item>
+                </el-form>
+                <div class="button">
+                    <el-button type="primary" @click="confirmSubmit">提交调查问卷</el-button>
+                </div>
+                <el-input
+                        type="textarea"
+                        :rows="10"
+                        v-model="value"
+                        :disabled="disable"
+                        @input="handleInput"
+                        @keydown="handleKeyDown"
+                ></el-input>
+            </div>
             <div class="button">
                 <el-button type="primary" @click="confirmStartWriting" :disabled="disable2">开始写作</el-button>
-                <el-button type="danger" @click="confirmEndWriting" style="margin-left: 80px;" :disabled="disable4">结束写作</el-button>
+                <el-button type="danger" @click="confirmEndWriting" style="margin-left: 80px;" :disabled="disable4">
+                    结束写作
+                </el-button>
             </div>
         </div>
     </div>
@@ -38,18 +75,10 @@ import {Options, Vue} from 'vue-class-component';
 import ReplayView from '@/views/ReplayView.vue';
 import {DomEventRecord} from "@/record/DomEventRecord";
 // import Papa from "papaparse";
-import {ElMessageBox} from 'element-plus';
+import {ElMessage, ElMessageBox} from 'element-plus';
 import axios from "axios";
-import { Message } from 'element-plus';
-
-export interface UserViewModel {
-    classKey: string;
-    text: any;
-    // 时间戳
-    timeStamp?: number;
-    ChineseLength?: number;
-    index?: number;
-}
+import {Message} from 'element-plus';
+import {FormRules} from "element-plus/lib/components";
 
 let recordData: any;
 
@@ -74,10 +103,24 @@ export default class WritingRecord extends Vue {
     writingData: any[] = [];
     form = {
         userName: '',
+        gender: '',
+        age: '',
+        writingProblem: '',
+        writingLevel: null
     };
     disable3 = false
     disable4 = false
     $message: Message;
+    formRules : FormRules = {
+        userName: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+        gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
+        age: [
+            { required: true, message: '请输入年龄', trigger: 'blur' },
+            { type: 'number', message: '年龄必须为数字', trigger: 'blur' }
+        ],
+        writingProblem: [{ required: true, message: '请输入写作时会遇到的问题', trigger: 'blur' }],
+        writingLevel: [{ required: true, message: '请进行写作水平自评', trigger: 'change' }]
+    };
 
     /**
      * toStart  开始录制 1.计时器计算时间  2.监听输入框的值 3.调用recordUserViewModel方法
@@ -124,11 +167,39 @@ export default class WritingRecord extends Vue {
             // };
             // const temp = this.domRecord.recordUserViewModel(data, 0, 1);
             // this.replayData.push(temp);
-          if (newValue !== null) {
-            // console.log(newValue.length);
-            this.wordNum = newValue.length;
-          }
-        }, { deep: true, immediate: true });
+            if (newValue !== null) {
+                // console.log(newValue.length);
+                this.wordNum = newValue.length;
+            }
+        }, {deep: true, immediate: true});
+    }
+
+    confirmSubmit = () => {
+        (this.$refs.formRef as any).validate((valid) => {
+            if (valid) {
+                ElMessageBox.confirm('确认提交调查问卷吗？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    // 提交调查问卷
+                    this.submitSurveyForm();
+                }).catch(() => {
+                    // 取消提交
+                    ElMessage.info('已取消提交');
+                });
+            } else {
+                return false;
+            }
+        });
+    }
+
+
+    submitSurveyForm() {
+        // 提交调查问卷
+        ElMessage.success('调查问卷已提交，请开始写作');
+        this.disable2 = false;
+        this.disable3 = true;
     }
 
     confirmStartWriting() {
@@ -163,7 +234,7 @@ export default class WritingRecord extends Vue {
      * toStop  结束录制 1.调用stopRecord方法 2.将数据存入recordData
      */
     toStop() {
-        console.log("点击提交，结束录制")
+        console.log("点击提交，结束录制");
         this.disable = true;
         this.flag = true;
         recordData = this.domRecord.stopRecord((log: any) => {
@@ -171,31 +242,40 @@ export default class WritingRecord extends Vue {
         });
         try {
             // 将用户事件日志发送给后端保存到数据库
-            axios.post('http://127.0.0.1:5000/api/save_event_logs', {
-                userName: this.form.userName,
-                eventLogs: this.writingData
-            })
+            axios
+                .post('http://127.0.0.1:5000/api/save_event_logs', {
+                    userName: this.form.userName,
+                    eventLogs: this.writingData,
+                    gender: this.form.gender,  // 添加调查问卷相关字段
+                    writingProblem: this.form.writingProblem,
+                    age: this.form.age,
+                    writingLevel: this.form.writingLevel
+                })
                 .then(response => {
                     console.log(response.data);
+                    this.disable4 = true;
+                    console.log(this.disable4);
+                    this.$message({
+                        message: '提交成功',
+                        type: 'success'
+                    });
                 })
                 .catch(error => {
                     console.error(error);
+                    this.$message({
+                        message: '提交失败，请检查网络连接',
+                        type: 'error'
+                    });
                 });
-            this.disable4 = true;
-            console.log(this.disable4)
-            this.$message({
-                message: '提交成功',
-                type: 'success'
-            });
         } catch (error) {
             this.$message({
-                message: '提交失败,请检查网络连接',
+                message: '提交失败，请检查网络连接',
                 type: 'error'
             });
             console.log(error);
         }
-
     }
+
 
     /**
      * handleInput  监听输入框的值
@@ -226,7 +306,7 @@ export default class WritingRecord extends Vue {
 </script>
 
 <style scoped>
-.content{
+.content {
     width: 80%;
     overflow: auto;
     display: flex;
@@ -257,8 +337,9 @@ export default class WritingRecord extends Vue {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: stretch;
-    margin-top: 20px;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 20px;
 }
 
 .record {

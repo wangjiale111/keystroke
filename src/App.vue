@@ -15,7 +15,6 @@ import LoginDialog from "@/components/LoginDialog.vue";
 import RecordView from "@/views/RecordView.vue";
 import { AppViewModel } from "@/AppViewModel";
 import { Message } from "element-plus";
-
 @Options({
     components: {
         LoginDialog,
