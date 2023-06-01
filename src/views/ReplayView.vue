@@ -55,6 +55,7 @@ export default class ReplayView extends mixins(Vue) {
     lengthArray: any[] = [];
     userName: any;
     numSecond = 0;
+    writingTime = 120;
 
     /**
      * 生命周期 created
@@ -89,7 +90,7 @@ export default class ReplayView extends mixins(Vue) {
         await this.fetchEventLogs().then((replayData) => {
             this.replayData = replayData.eventLogs;
         });
-        this.startTime = 0;
+        // this.startTime = 0;
         this.flag = 1;
         if ((window as any).emitter && this.flag == 1) {
             (window as any).emitter.on('Writing', async (data: any) => {

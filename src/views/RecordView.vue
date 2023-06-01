@@ -8,48 +8,50 @@
                 <div>时间:{{ timeFormat }}</div>
                 <div style="margin-left: 80px">字数:{{ wordNum }}</div>
             </div>
-            <div class="content">
-                <h3>调查问卷</h3>
-                <el-form ref="myForm"
-                         :model="form"
-                         label-width="120px"
-                         style="margin-top: 10px"
-                         :rules="formRules">
-                    <el-form-item label="用户名" prop="userName">
-                        <el-input
+            <div class="content" >
+                <div class="form" v-show="!disable3">
+                    <h3>调查问卷</h3>
+                    <el-form ref="myForm"
+                             :model="form"
+                             label-width="120px"
+                             style="margin-top: 10px"
+                             :rules="formRules">
+                        <el-form-item label="用户名" prop="userName">
+                            <el-input
                                 v-model="form.userName"
-                                placeholder="请输入用户名："
+                                placeholder="请输入用户名"
                                 :disabled="disable3"
                                 @input="checkUserName"
-                        ></el-input>
-                    </el-form-item>
-                    <el-form-item label="性别" prop="gender">
-                        <el-select v-model="form.gender" placeholder="请选择性别" :disabled="disable3">
-                            <el-option label="男" value="male"></el-option>
-                            <el-option label="女" value="female"></el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label="年龄" prop="age">
-                        <el-input
+                            ></el-input>
+                        </el-form-item>
+                        <el-form-item label="性别" prop="gender">
+                            <el-select v-model="form.gender" placeholder="请选择性别" :disabled="disable3">
+                                <el-option label="男" value="male"></el-option>
+                                <el-option label="女" value="female"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="年龄" prop="age">
+                            <el-input
                                 v-model="form.age"
                                 placeholder="请输入年龄"
                                 :disabled="disable3"
                                 type="number"
                                 min="16"
-                        ></el-input>
-                    </el-form-item>
-                    <el-form-item label="写作困难" prop="writingProblem">
-                        <el-input
+                            ></el-input>
+                        </el-form-item>
+                        <el-form-item label="写作困难" prop="writingProblem">
+                            <el-input
                                 v-model="form.writingProblem"
                                 placeholder="请描述你在写作时会遇到的困难"
                                 :disabled="disable3"
-                        ></el-input>
-                    </el-form-item>
-                    <el-form-item label="写作水平自评" prop="writingLevel">
-                        <el-rate v-model="form.writingLevel" :disabled="disable3"></el-rate>
-                    </el-form-item>
-                </el-form>
-                <div class="button">
+                            ></el-input>
+                        </el-form-item>
+                        <el-form-item label="写作水平自评" prop="writingLevel">
+                            <el-rate v-model="form.writingLevel" :disabled="disable3"></el-rate>
+                        </el-form-item>
+                    </el-form>
+                </div>
+                <div class="button" v-show="!disable3">
                     <el-button type="primary" @click="confirmSubmit" :disabled="disable3">提交调查问卷</el-button>
                 </div>
                 <el-input
