@@ -23,6 +23,12 @@
       </div>
       <div id="chart" style="width: 80%;height: 300px; margin-top: 50px;"></div>
     </div>
+    <el-table :data="result" style="width: 80%; margin-top: 20px;">
+      <el-table-column label="列1" prop="column1"></el-table-column>
+      <el-table-column label="列2" prop="column2"></el-table-column>
+      <el-table-column label="列3" prop="column3"></el-table-column>
+      <el-table-column label="列4" prop="column4"></el-table-column>
+    </el-table>
   </div>
 </template>
 
@@ -57,9 +63,8 @@ export default class ReplayView extends mixins(Vue) {
   numSecond = 0;
   mistake: any[] = [];
   index = 0;
-  original_text = '';
-  corrected_text = '';
   writingTime = 120;
+  result: any[] = [];
 
   /**
    * 生命周期 created
@@ -270,18 +275,19 @@ export default class ReplayView extends mixins(Vue) {
 
     for (let i = 0; i < arr.length; i++) {
       const str = arr[i];
-      const trimmed = str.trim(); // 去除首尾空格
-      const withoutQuotes = trimmed.replace(/'/g, ''); // 去除引号
-      const withoutBrackets = withoutQuotes.replace(/[()]/g, ''); // 去除括号
+      const trimmed = str.trim();
+      const withoutQuotes = trimmed.replace(/'/g, '');
+      const withoutBrackets = withoutQuotes.replace(/[()]/g, '');
 
       if (i % 4 === 0) {
-        // 每4个元素为一组，创建一个新的临时数组
         tempArr = [];
         result.push(tempArr);
       }
 
-      tempArr.push(withoutBrackets);
+      tempArr.push({ column: withoutBrackets });
     }
+
+    this.result = result;
 
     console.log(result);
     this.value = data.value;
