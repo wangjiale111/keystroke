@@ -1,6 +1,6 @@
 <template>
   <div class="replay">
-    <div class="writing">
+    <div class="writingReplay">
       <div class="header">
         <div>用户名:{{ userName }}</div>
         <div>写作总时间:{{ time }}</div>
@@ -21,14 +21,16 @@
         <el-button type="danger" @click="exitReplay">暂停回放</el-button>
         <el-button @click="returnBack" style="margin-left: 50px;">返回</el-button>
       </div>
-      <div id="chart" style="width: 80%;height: 300px; margin-top: 50px;"></div>
     </div>
-    <el-table :data="result" style="width: 80%; margin-top: 20px;">
-      <el-table-column label="列1" prop="column1"></el-table-column>
-      <el-table-column label="列2" prop="column2"></el-table-column>
-      <el-table-column label="列3" prop="column3"></el-table-column>
-      <el-table-column label="列4" prop="column4"></el-table-column>
-    </el-table>
+    <div class="composition">
+        <pre v-html="getHighlightedText()"></pre>
+      <el-button @click="showMistake">错别字显示</el-button>
+      <el-table :data="mistakes" v-show="showMistakeFlag">
+        <el-table-column prop="mistake" label="错误" />
+        <el-table-column prop="correct" label="正确" />
+      </el-table>
+    </div>
+    <div id="chart" style="width: 80%;height: 300px; margin-top: 50px;"></div>
   </div>
 </template>
 
@@ -61,10 +63,13 @@ export default class ReplayView extends mixins(Vue) {
   lengthArray: any[] = [];
   userName: any;
   numSecond = 0;
-  mistake: any[] = [];
   index = 0;
   writingTime = 120;
   result: any[] = [];
+  finalText = '';
+  mistakeStr: '';
+  mistakes: any[] = [];
+  showMistakeFlag = false;
 
   /**
    * 生命周期 created
@@ -72,6 +77,7 @@ export default class ReplayView extends mixins(Vue) {
   async created() {
     (window as any).playbackInProgress = false;
     this.userName = this.$route.query.userName;
+    this.fetchMistake();
     // await this.getReplayData(this.time);
   }
 
@@ -101,7 +107,27 @@ export default class ReplayView extends mixins(Vue) {
         params: {userName: this.userName}
       };
       const response = await axios.get('http://127.0.0.1:5000/api/get_mistake_data', config);
-      this.mistake = response.data.mistakeData;
+      this.finalText = response.data[0].finalText
+      this.mistakeStr = response.data[0].mistakes;
+
+      // 去除字符串中的外层括号以及引号
+      const formattedData = this.mistakeStr.replace(/^\[|\]$/g, '').replace(/'/g, '"');
+
+      // 使用正则表达式匹配每个元组字符串
+      const regex = /\("(.*?)", "(.*?)", (\d+), (\d+)\)/g;
+      let match;
+
+      while ((match = regex.exec(formattedData)) !== null) {
+        const [, mistake, correct, startIndex, endIndex] = match;
+        this.mistakes.push({
+          mistake,
+          correct,
+          startIndex: parseInt(startIndex),
+          endIndex: parseInt(endIndex),
+        });
+      }
+
+      console.log(this.mistakes);  // 打印转换后的 JSON 数组
       return response.data;
     } catch (error) {
       console.error(error);
@@ -116,7 +142,6 @@ export default class ReplayView extends mixins(Vue) {
     await this.fetchEventLogs().then((replayData) => {
       this.replayData = replayData.eventLogs;
     });
-    this.fetchMistake();
     // this.startTime = 0;
     this.flag = 1;
     if ((window as any).emitter && this.flag == 1) {
@@ -218,6 +243,31 @@ export default class ReplayView extends mixins(Vue) {
     }
   }
 
+  getHighlightedText() {
+    let result = this.finalText;
+    this.mistakes.forEach(item => {
+      const { startIndex, endIndex } = item;
+      const highlightedText = this.finalText.slice(startIndex, endIndex).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      if (this.showMistakeFlag){
+        result = result.replace(
+            this.finalText.slice(startIndex, endIndex),
+            `<span style="color: red;">${highlightedText}</span>`
+        );
+      } else {
+        result = result.replace(
+            this.finalText.slice(startIndex, endIndex),
+            `<span style="color: black;">${highlightedText}</span>`
+        );
+      }
+
+    });
+    return result;
+  }
+
+  showMistake () {
+    this.showMistakeFlag = !this.showMistakeFlag;
+    this.getHighlightedText();
+  }
   /**
    * 暂停回放
    */
@@ -268,51 +318,8 @@ export default class ReplayView extends mixins(Vue) {
   }
 
   viewModelPlaBackHander(data: any) {
-    // 把值赋给value双向绑定
-    let arr = this.mistake[this.index++].slice(1, -1).split(',')
-    const result = [];
-    let tempArr = [];
-
-    for (let i = 0; i < arr.length; i++) {
-      const str = arr[i];
-      const trimmed = str.trim();
-      const withoutQuotes = trimmed.replace(/'/g, '');
-      const withoutBrackets = withoutQuotes.replace(/[()]/g, '');
-
-      if (i % 4 === 0) {
-        tempArr = [];
-        result.push(tempArr);
-      }
-
-      tempArr.push({ column: withoutBrackets });
-    }
-
-    this.result = result;
-
-    console.log(result);
     this.value = data.value;
     this.writingLength = data.ChineseLength as number;
-    // 计算当前时间戳内打字数目
-    // if (data.value.length > this.typeLength) {
-    //     this.typeNum = data.value.length - this.typeLength;
-    //     // console.log('打字数：' + this.typeNum)
-    // } else {
-    //     this.typeNum = 0;
-    // }
-    // // 时间戳的差作为时间
-    // this.typeTime = (data.timeStamp - this.startTime) / 1000;
-    // console.log(this.typeTime)
-    // 计算速度
-    // if (this.typeNum === 0) {
-    //     this.typeSpeed = 0;
-    // } else {
-    //     this.typeSpeed = Math.floor((this.typeNum / this.typeTime) * 100) / 100;
-    // }
-    // this.speedArray.push(this.typeSpeed);
-    // 记录一下当前的时间戳和字符长度，以便下一次使用
-    // this.startTime = data.timeStamp;
-    // this.typeLength = data.value.length;
-
   }
 
 }
@@ -328,7 +335,12 @@ export default class ReplayView extends mixins(Vue) {
   width: 100%;
 }
 
-.writing {
+p {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.writingReplay {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -376,5 +388,13 @@ export default class ReplayView extends mixins(Vue) {
   width: 80%;
 }
 
+.composition {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  width: 80%;
+}
 </style>
 

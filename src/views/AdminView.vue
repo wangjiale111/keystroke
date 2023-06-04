@@ -131,7 +131,7 @@ export default class AdminView extends Vue {
                         timeStamp: log.timeStamp || ""
                     }));
 
-                    console.log(orderedEventLogs)
+                    // console.log(orderedEventLogs)
                     const csv = Papa.unparse(orderedEventLogs);
                     const csvData = new Blob([csv], { type: "text/csv;charset=utf-8;" });
                     const csvURL = window.URL.createObjectURL(csvData);
