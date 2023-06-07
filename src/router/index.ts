@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 import RecordView from '@/views/RecordView.vue'
 import ReplayView from "@/views/ReplayView.vue";
 import AdminView from "@/views/AdminView.vue";
+import UserView from "@/views/UserView.vue";
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -24,6 +25,14 @@ const routes: Array<RouteRecordRaw> = [
         path: '/admin',
         name: 'admin',
         component: AdminView,
+        meta: {
+            requiresAuth: true // 需要登录才能访问的页面
+        }
+    },
+    {
+        path: '/user',
+        name: 'user',
+        component: UserView,
         meta: {
             requiresAuth: true // 需要登录才能访问的页面
         }

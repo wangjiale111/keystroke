@@ -42,6 +42,7 @@ import {DomEventRecord} from '@/record/DomEventRecord';
 import * as echarts from 'echarts';
 import axios from 'axios';
 import {keystrokeUrl} from "@/assets/config";
+import { ElRow, ElCol, ElMenu, ElMenuItem } from "element-plus";
 
 @Options({})
 export default class ReplayView extends mixins(Vue) {
