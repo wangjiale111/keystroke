@@ -15,6 +15,7 @@ import LoginDialog from "@/components/LoginDialog.vue";
 import RecordView from "@/views/RecordView.vue";
 import { AppViewModel } from "@/AppViewModel";
 import { Message } from "element-plus";
+import {keystrokeUrl} from "@/assets/config";
 @Options({
     components: {
         LoginDialog,
@@ -40,9 +41,8 @@ export default class AppPage extends mixins(AppViewModel) {
     }
 
     async handleLogin(adminName: string, password: string): Promise<void> {
-        console.log(adminName, password);
         try {
-            const response = await axios.post("http://127.0.0.1:5000/api/admin", {
+            const response = await axios.post(keystrokeUrl + "/admin", {
                 adminName,
                 password,
             });

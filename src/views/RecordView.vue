@@ -82,6 +82,7 @@ import {ElMessage, ElMessageBox, ElForm} from 'element-plus';
 import axios from "axios";
 import {Message} from 'element-plus';
 import {FormRules} from "element-plus/lib/components";
+import {keystrokeUrl} from "@/assets/config";
 
 let recordData: any;
 
@@ -240,7 +241,7 @@ export default class WritingRecord extends Vue {
         try {
             // 将用户事件日志发送给后端保存到数据库
             axios
-                .post('http://127.0.0.1:5000/api/save_event_logs', {
+                .post(keystrokeUrl + '/save_event_logs', {
                     userName: this.form.userName,
                     eventLogs: this.writingData,
                     gender: this.form.gender,  // 添加调查问卷相关字段

@@ -21,16 +21,18 @@
         <el-button type="danger" @click="exitReplay">暂停回放</el-button>
         <el-button @click="returnBack" style="margin-left: 50px;">返回</el-button>
       </div>
+      <div id="chart" style="width: 80%;height: 300px; margin-top: 50px;"></div>
     </div>
     <div class="composition">
         <pre v-html="getHighlightedText()"></pre>
-      <el-button @click="showMistake">错别字显示</el-button>
-      <el-table :data="mistakes" v-show="showMistakeFlag">
-        <el-table-column prop="mistake" label="错误" />
-        <el-table-column prop="correct" label="正确" />
-      </el-table>
+      <el-button @click="showMistake">纠错</el-button>
+      <div class="mistakeTable">
+        <el-table :data="mistakes" v-show="showMistakeFlag">
+          <el-table-column prop="mistake" label="错误" />
+          <el-table-column prop="correct" label="正确" />
+        </el-table>
+      </div>
     </div>
-    <div id="chart" style="width: 80%;height: 300px; margin-top: 50px;"></div>
   </div>
 </template>
 
@@ -39,6 +41,7 @@ import {mixins, Options, Vue} from 'vue-class-component';
 import {DomEventRecord} from '@/record/DomEventRecord';
 import * as echarts from 'echarts';
 import axios from 'axios';
+import {keystrokeUrl} from "@/assets/config";
 
 @Options({})
 export default class ReplayView extends mixins(Vue) {
@@ -77,7 +80,7 @@ export default class ReplayView extends mixins(Vue) {
   async created() {
     (window as any).playbackInProgress = false;
     this.userName = this.$route.query.userName;
-    this.fetchMistake();
+    await this.fetchMistake();
     // await this.getReplayData(this.time);
   }
 
@@ -90,7 +93,7 @@ export default class ReplayView extends mixins(Vue) {
         },
         params: {userName: this.userName}
       };
-      const response = await axios.get('http://127.0.0.1:5000/api/get_event_logs', config);
+      const response = await axios.get(keystrokeUrl + '/get_event_logs', config);
       return response.data;
     } catch (error) {
       console.error(error);
@@ -106,7 +109,7 @@ export default class ReplayView extends mixins(Vue) {
         },
         params: {userName: this.userName}
       };
-      const response = await axios.get('http://127.0.0.1:5000/api/get_mistake_data', config);
+      const response = await axios.get(keystrokeUrl + '/get_mistake_data', config);
       this.finalText = response.data[0].finalText
       this.mistakeStr = response.data[0].mistakes;
 
@@ -328,8 +331,8 @@ export default class ReplayView extends mixins(Vue) {
 <style scoped>
 .replay {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  align-items: flex-start;
   justify-content: center;
   margin-bottom: 20px;
   width: 100%;
@@ -345,11 +348,11 @@ p {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: 10px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background-color: #fff;
-  width: 100%;
+  width: 50%;
 }
 
 .content {
@@ -371,7 +374,7 @@ p {
   font-family: Arial, sans-serif; /* 修改字体 */
   font-size: 16px; /* 修改字体大小 */
   color: #333; /* 修改字体颜色 */
-  width: 80%;
+  width: 90%;
 }
 
 .text-area {
@@ -392,9 +395,26 @@ p {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
+  margin-top: 40px;
+  width: 50%;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+
+}
+
+#chart{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  margin-top: 20px;
-  width: 80%;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 50%;
+  padding: 20px;
+  height: 400px; /* 设置合适的高度 */
 }
 </style>
 

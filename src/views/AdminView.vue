@@ -28,6 +28,7 @@ import { Options, Vue } from 'vue-class-component';
 import axios from 'axios';
 import { ElMessageBox, Message } from "element-plus";
 import Papa from "papaparse";
+import {keystrokeUrl} from "@/assets/config";
 
 @Options({
     name: 'AdminView',
@@ -40,7 +41,7 @@ export default class AdminView extends Vue {
     }
 
     returnBack() {
-        this.$router.push('/record');
+        // this.$router.push('/record');
     }
 
     async getUserEvents() {
@@ -51,7 +52,7 @@ export default class AdminView extends Vue {
                     'Authorization': token // 将JWT令牌添加到请求头
                 }
             };
-            const response = await axios.get('http://127.0.0.1:5000/api/get_all_user_events', config);
+            const response = await axios.get(keystrokeUrl + '/get_all_user_events', config);
             this.userEvents = response.data;
         } catch (error) {
             this.$message.error('获取用户信息失败');
@@ -67,7 +68,7 @@ export default class AdminView extends Vue {
                     'Authorization': token // 将JWT令牌添加到请求头
                 }
             };
-            const response = await axios.get(`http://127.0.0.1:5000/api/get_form?userName=${userName}`, config);
+            const response = await axios.get(keystrokeUrl + `/get_form?userName=${userName}`, config);
             return response.data;
         } catch (error) {
             this.$message.error('获取调查问卷失败');
@@ -165,7 +166,7 @@ export default class AdminView extends Vue {
                             'Authorization': token // 将JWT令牌添加到请求头
                         }
                     };
-                    const response = await axios.post('http://127.0.0.1:5000/api/delete_user_events', { userName }, config);
+                    const response = await axios.post(keystrokeUrl+'/delete_user_events', { userName }, config);
                     if (response.status === 200) {
                         await this.getUserEvents();
                     }
