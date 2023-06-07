@@ -1,3 +1,28 @@
+<template>
+  <div class="main">
+    <el-table :data="userEvents" border>
+      <el-table-column prop="userName" label="姓名"></el-table-column>
+      <el-table-column label="操作">
+        <template v-slot="scope">
+          <el-button type="primary" @click="downloadEventLogs(scope.row.userName)">
+            下载写作过程数据
+          </el-button>
+          <el-button type="primary" @click="downloadForm(scope.row.userName)">
+            下载调查问卷
+          </el-button>
+          <el-button type="success" @click="viewReplay(scope.row.userName)">
+            查看回放
+          </el-button>
+          <el-button @click="deleteUser(scope.row.userName)">
+            删除
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
+</template>
+
+
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import axios from 'axios';
@@ -13,10 +38,6 @@ export default class AdminView extends Vue {
   $message: Message;
   mounted() {
     this.getUserEvents();
-  }
-
-  returnBack() {
-    // this.$router.push('/record');
   }
 
   async getUserEvents() {
@@ -162,31 +183,6 @@ export default class AdminView extends Vue {
 
 }
 </script>
-
-<template>
-  <div class="main">
-    <el-table :data="userEvents" border>
-      <el-table-column prop="userName" label="姓名"></el-table-column>
-      <el-table-column label="操作">
-        <template v-slot="scope">
-          <el-button type="primary" @click="downloadEventLogs(scope.row.userName)">
-            下载写作过程数据
-          </el-button>
-          <el-button type="primary" @click="downloadForm(scope.row.userName)">
-            下载调查问卷
-          </el-button>
-          <el-button type="success" @click="viewReplay(scope.row.userName)">
-            查看回放
-          </el-button>
-          <el-button @click="deleteUser(scope.row.userName)">
-            删除
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <el-button @click="returnBack" style="margin-rigth: 50px;">返回</el-button>
-  </div>
-</template>
 
 <style scoped>
 .main{

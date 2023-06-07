@@ -14,6 +14,11 @@ import "element-plus/theme-chalk/dark/css-vars.css";
 const pinia = createPinia();
 
 const app = createApp(App)
+Object.keys(Icons).forEach(key => {
+    app.component(key, Icons[key as keyof typeof Icons]);
+});
+
+
 app.use(router)
 app.use(pinia)
 app.use(ElementPlus)

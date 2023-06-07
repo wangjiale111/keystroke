@@ -1,55 +1,64 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
-import RecordView from '@/views/RecordView.vue'
+import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
+import RecordView from "@/views/RecordView.vue";
 import ReplayView from "@/views/ReplayView.vue";
 import AdminView from "@/views/AdminView.vue";
 import UserView from "@/views/UserView.vue";
+import dashBoard from "@/views/dashBoard.vue";
 
 const routes: Array<RouteRecordRaw> = [
     {
-        path: '/record',
-        name: 'record',
+        path: "/record",
+        name: "record",
         component: RecordView,
         meta: {
-            requiresAuth: false // 不需要登录即可访问的页面
-        }
+            requiresAuth: false, // 不需要登录即可访问的页面
+        },
     },
     {
-        path: '/replay',
-        name: 'replay',
+        path: "/replay",
+        name: "replay",
         component: ReplayView,
         meta: {
-            requiresAuth: true // 需要登录才能访问的页面
-        }
+            requiresAuth: true, // 需要登录才能访问的页面
+        },
     },
     {
-        path: '/admin',
-        name: 'admin',
+        path: "/admin",
         component: AdminView,
         meta: {
-            requiresAuth: true // 需要登录才能访问的页面
-        }
+            requiresAuth: true, // 需要登录才能访问的页面
+        },
+        children: [
+            {
+                path: "", // 子路径为空时，为默认路由
+                name: "admin",
+                component: UserView,
+            },
+            {
+                path: "/user",
+                name: "user",
+                component: UserView,
+            },
+            {
+                path: "/dashBoard",
+                name: "dashBoard",
+                component: dashBoard
+            }
+        ],
     },
     {
-        path: '/user',
-        name: 'user',
-        component: UserView,
-        meta: {
-            requiresAuth: true // 需要登录才能访问的页面
-        }
+        path: "/",
+        redirect: "/record",
     },
-    {
-        path: '/',
-        redirect: '/record'
-    }
-]
+];
 
 const router = createRouter({
     history: createWebHashHistory(),
-    routes
-})
+    routes,
+});
 
 router.beforeEach((to, from, next) => {
-    const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+    const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
 
     // 检查是否需要登录权限
     if (requiresAuth) {
@@ -61,8 +70,8 @@ router.beforeEach((to, from, next) => {
             next();
         } else {
             // 未登录，重定向到登录页或其他处理
-            console.log('未登录');
-            next('/record'); // 重定向到登录页
+            console.log("未登录");
+            next("/record"); // 重定向到登录页
         }
     } else {
         // 不需要登录权限，直接导航到目标路由
@@ -70,5 +79,4 @@ router.beforeEach((to, from, next) => {
     }
 });
 
-
-export default router
+export default router;
