@@ -1,42 +1,46 @@
 <template>
-  <div class="sidebar-header">写作过程
-    <el-button @click="toggleSidebar" circle="true" style="width: 2.5em; height: 2.5em;">
-      <el-tooltip content="收起菜单" placement="right">
-        <Menu style="width: 2em; height: 2em;" />
-      </el-tooltip>
-    </el-button>
+  <div class="layout-container">
+    <div class="header">
+      <div class="sidebar-header" :style="{ width: asideWidth + 'px' }">
+        <h1>写作过程</h1>
+      </div>
+      <div class="right-header" :style="{ width: mainWidth + 'px' }">
+        <el-button @click="toggleSidebar" style="width: 2.5em; height: 2.5em;">
+          <el-tooltip content="收起菜单" placement="right">
+            <Menu style="width: 2em; height: 2em;" />
+          </el-tooltip>
+        </el-button>
+      </div>
+    </div>
+    <div class="app-layout">
+      <el-container>
+        <el-aside :style="{display: sidebarVisible ? 'block' : 'none'}" class="aside">
+          <el-menu>
+            <el-menu-item index="1">
+                <router-link to="/user">
+                  用户列表
+                </router-link>
+            </el-menu-item>
+            <router-link to="/dashBoard">
+              <el-menu-item index="2">
+                数据分析
+              </el-menu-item>
+            </router-link>
+            <router-link to="/record">
+              <el-menu-item index="3">
+                写作记录
+              </el-menu-item>
+            </router-link>
+          </el-menu>
+        </el-aside>
+        <el-container>
+          <el-main>
+            <router-view></router-view>
+          </el-main>
+        </el-container>
+      </el-container>
+    </div>
   </div>
-  <el-container class="app-layout">
-    <el-aside :style="{display: sidebarVisible ? 'block' : 'none'}" class="aside">
-      <el-menu>
-        <router-link to="/user">
-          <el-menu-item index="1">
-            用户列表
-          </el-menu-item>
-        </router-link>
-        <router-link to="/dashBoard">
-          <el-menu-item index="2">
-            数据分析
-          </el-menu-item>
-        </router-link>
-        <el-menu-item index="3" @click="returnBack">
-          返回
-        </el-menu-item>
-      </el-menu>
-    </el-aside>
-    <el-container>
-      <el-header class="el-header" :style="{ marginLeft: sidebarVisible ? sidebarWidth : '0' }">
-        <el-row type="flex" justify="start" align="middle">
-          <el-col :span="18">
-按钮
-          </el-col>
-        </el-row>
-      </el-header>
-      <el-main>
-        <router-view></router-view>
-      </el-main>
-    </el-container>
-  </el-container>
 </template>
 
 <script lang="ts">
@@ -71,39 +75,55 @@ import {
 })
 export default class AppLayout extends Vue {
   sidebarVisible = true;
-  sidebarWidth = "240px"; // 设置侧边栏的宽度
+  asideWidth = 0;
+  mainWidth = 0;
+
+  mounted() {
+    this.calculateWidths();
+    window.addEventListener("resize", this.calculateWidths);
+  }
+
+  beforeUnmount() {
+    window.removeEventListener("resize", this.calculateWidths);
+  }
+
+  calculateWidths() {
+    const asideElement = document.querySelector(".aside");
+    const mainElement = document.querySelector(".el-main");
+    if (asideElement && mainElement) {
+      const asideWidth = asideElement.getBoundingClientRect().width;
+      const mainWidth = mainElement.getBoundingClientRect().width;
+      this.asideWidth = Math.floor(asideWidth);
+      this.mainWidth = Math.floor(mainWidth);
+    }
+  }
+
 
   toggleSidebar() {
     this.sidebarVisible = !this.sidebarVisible;
   }
 
-  returnBack() {
-    this.$router.push("/record");
-  }
 }
 </script>
 
 <style>
-.app-layout {
-  height: 100vh;
-}
-
-.el-header {
-  padding: 16px 24px;
-  background-color: #f0f2f5;
-  color: white;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  position: fixed;
-  top: 0;
-  left: 200px;
+.layout-container {
+  height: 100%;
   width: 100%;
-  z-index: 1;
-  transition: margin-left 0.3s; /* 添加过渡效果 */
+  display: flex;
+  flex-direction: column;
 }
 
-h1 {
-  margin: 0;
-  font-size: 24px;
+.header{
+  display:flex;
+  flex-direction: row;
+  height: 80px;
+  width: 100%;
+}
+
+.app-layout {
+  flex: 1;
+  display: flex;
 }
 
 .aside {
@@ -111,9 +131,26 @@ h1 {
 }
 
 .sidebar-header {
-  font-size: 18px;
-  padding: 16px 24px;
-  font-weight: bold;
-  margin-bottom: 16px;
+  width: 20%;
+  height: 100%;
+  display:flex;
+  align-content: center;
+  justify-content: center;
+}
+
+.right-header{
+  width: 80%;
+  height: 100%;
+}
+
+.aside {
+  width: 20%;
+  height: 80%;
+}
+
+
+h1 {
+  margin: 0;
+  font-size: 24px;
 }
 </style>
