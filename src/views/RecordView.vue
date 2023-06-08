@@ -97,12 +97,12 @@ export default class WritingRecord extends Vue {
     value = '';
     replayData: any[] = [];
     // 设置时间
-    timeFormat = '20分00秒';
+    timeFormat = '1分00秒';
     flag = false;
     wordNum = 0;
     disable = true;
     // 设置时间,与timeFormat同步
-    time = 1200;
+    time = 60;
     disable2 = true;
     writingData: any[] = [];
     form = {

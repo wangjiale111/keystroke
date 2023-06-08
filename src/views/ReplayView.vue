@@ -1,5 +1,17 @@
 <template>
   <div class="replay">
+    <div class="composition">
+      <div class="text">
+        <pre v-html="getHighlightedText()"></pre>
+      </div>
+      <el-button @click="showMistake">纠错</el-button>
+      <div class="mistakeTable">
+        <el-table :data="mistakes" v-show="showMistakeFlag">
+          <el-table-column prop="mistake" label="错误" />
+          <el-table-column prop="correct" label="正确" />
+        </el-table>
+      </div>
+    </div>
     <div class="writingReplay">
       <div class="header">
         <div>用户名:{{ userName }}</div>
@@ -22,16 +34,6 @@
         <el-button @click="returnBack" style="margin-left: 50px;">返回</el-button>
       </div>
       <div id="chart" style="width: 80%;height: 300px; margin-top: 50px;"></div>
-    </div>
-    <div class="composition">
-        <pre v-html="getHighlightedText()"></pre>
-      <el-button @click="showMistake">纠错</el-button>
-      <div class="mistakeTable">
-        <el-table :data="mistakes" v-show="showMistakeFlag">
-          <el-table-column prop="mistake" label="错误" />
-          <el-table-column prop="correct" label="正确" />
-        </el-table>
-      </div>
     </div>
   </div>
 </template>
@@ -111,6 +113,7 @@ export default class ReplayView extends mixins(Vue) {
         params: {userName: this.userName}
       };
       const response = await axios.get(keystrokeUrl + '/get_mistake_data', config);
+      console.log(response.data)
       this.finalText = response.data[0].finalText
       this.mistakeStr = response.data[0].mistakes;
 
@@ -332,8 +335,8 @@ export default class ReplayView extends mixins(Vue) {
 <style scoped>
 .replay {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   margin-bottom: 20px;
   width: 100%;
@@ -398,12 +401,22 @@ p {
   align-items: center;
   justify-content: flex-start;
   margin-top: 40px;
-  width: 50%;
+  width: 80%;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
+}
 
+.text{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 300px;
+  overflow: auto;
+  padding: 10px;
 }
 
 #chart{
