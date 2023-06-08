@@ -6,26 +6,27 @@
     <div ref="probabilityDistributionChart" style="width: 700px;height:400px;"></div>
     <div ref="clusteringResultChart" style="width: 700px;height:400px;"></div>
     <div ref="heatMapChart" style="width: 800px;height:500px;"></div>
+
     <div>
       <div>
         <h2>条形图：不同隐含状态下键盘动作的概率分布</h2>
-        <vue-echarts :options="barChartOptions" autoresize style="width: 800px;height:500px;"></vue-echarts>
+        <div ref="barChart" style="width: 800px;height:500px;"></div>
       </div>
       <div>
         <h2>散点图：显示时间段内各状态的混合比例隐含变量φ</h2>
-        <vue-echarts :options="scatterChartOptions" autoresize style="width: 800px;height:500px;"></vue-echarts>
+        <div ref="scatterChart" style="width: 800px;height:500px;"></div>
       </div>
       <div>
         <h2>饼图：展示高斯混合模型聚类分析的结果</h2>
-        <vue-echarts :options="pieChartOptions" autoresize style="width: 800px;height:500px;"></vue-echarts>
+        <div ref="pieChart" style="width: 800px;height:500px;"></div>
       </div>
       <div>
         <h2>折线图：展示不同学生之间的写作行为差异</h2>
-        <vue-echarts :options="lineChartOptions" autoresize style="width: 800px;height:500px;"></vue-echarts>
+        <div ref="lineChart" style="width: 800px;height:500px;"></div>
       </div>
       <div>
         <h2>热力图：展示键盘动作在不同时间段和隐含状态下的分布</h2>
-        <vue-echarts :options="heatmapChartOptions" autoresize style="width: 800px;height:500px;"></vue-echarts>
+        <div ref="heatmapChart" style="width: 800px;height:500px;"></div>
       </div>
     </div>
   </div>
@@ -35,43 +36,35 @@
 import * as echarts from 'echarts'
 import {Options, Vue} from 'vue-class-component';
 import {generateData} from "@/utils/studentData";
-import {barChart, heatmapChart, lineChart, pieChart, scatterChart} from "@/utils/studentData";
 import VueECharts from 'vue-echarts';
-
 
 @Options({
   components: {
     'vue-echarts': VueECharts
   }
 })
+
 export default class dashBoard extends Vue {
 
-  data = [];
-
-  barChartOptions = {};
-  scatterChartOptions = {};
-  pieChartOptions = {};
-  lineChartOptions = {};
-  heatmapChartOptions = {};
+  dataArray: any[] = [];
 
   mounted() {
-    this.data = generateData(500);
-
-    this.barChartOptions = barChart(this.data);
-    this.scatterChartOptions = scatterChart(this.data);
-    this.pieChartOptions = pieChart(this.data);
-    this.lineChartOptions = lineChart(this.data);
-    this.heatmapChartOptions = heatmapChart(this.data);
+    this.dataArray = generateData(500);
     this.drawTimeSeriesChart()
     this.drawTransitionGraphChart()
     this.drawProbabilityDistributionChart()
     this.drawClusteringResultChart()
     this.drawHeatMapChart()
+    this.drawBarChart()
+    this.drawScatterChart()
+    this.drawPieChart()
+    this.drawLineChart()
+    this.drawHeatmapChart2()
   }
 
 
   drawTimeSeriesChart() {
-    const chart = echarts.init(this.$refs.timeSeriesChart)
+    const chart = echarts.init(this.$refs.timeSeriesChart as HTMLElement)
 
     const option = {
       title: {
@@ -110,7 +103,7 @@ export default class dashBoard extends Vue {
   }
 
   drawTransitionGraphChart() {
-    const chart = echarts.init(this.$refs.transitionGraphChart)
+    const chart = echarts.init(this.$refs.transitionGraphChart as HTMLElement)
 
     const option = {
       title: {
@@ -127,9 +120,8 @@ export default class dashBoard extends Vue {
         edgeSymbolSize: [4, 10],
         label: {
           show: true,
-          textStyle: {
-            fontSize: 14,
-          },
+          fontSize: 14,
+
         },
         data: [
           {
@@ -185,7 +177,7 @@ export default class dashBoard extends Vue {
   }
 
   drawProbabilityDistributionChart() {
-    const chart = echarts.init(this.$refs.probabilityDistributionChart)
+    const chart = echarts.init(this.$refs.probabilityDistributionChart as HTMLElement)
 
     const option = {
       title: {
@@ -220,7 +212,7 @@ export default class dashBoard extends Vue {
   }
 
   drawClusteringResultChart() {
-    const chart = echarts.init(this.$refs.clusteringResultChart)
+    const chart = echarts.init(this.$refs.clusteringResultChart as HTMLElement)
 
     const option = {
       title: {
@@ -249,13 +241,13 @@ export default class dashBoard extends Vue {
           }, () => [Math.random() * 100, Math.random() * 100]),
           type: "scatter",
           symbolSize: 20,
-          label: {
-            emphasis: {
+          emphasis: {
+            label: {
               show: true,
-              formatter: function (param) {
-                return param.data[0] + ', ' + param.data[1];
+              formatter: function (params) {
+                return params.data[0] + ', ' + params.data[1];
               },
-              position: "top",
+              position: 'top',
             },
           },
         },
@@ -266,8 +258,8 @@ export default class dashBoard extends Vue {
           }, () => [100 + Math.random() * 100, Math.random() * 100]),
           type: "scatter",
           symbolSize: 20,
-          label: {
-            emphasis: {
+          emphasis: {
+            label: {
               show: true,
               formatter: function (param) {
                 return param.data[0] + ', ' + param.data[1];
@@ -279,10 +271,14 @@ export default class dashBoard extends Vue {
       ],
     }
     chart.setOption(option)
+
+    chart.getZr().on('mousewheel', () => {
+      //
+    }, { passive: true })
   }
 
   drawHeatMapChart() {
-    const chart = echarts.init(this.$refs.heatMapChart)
+    const chart = echarts.init(this.$refs.heatMapChart as HTMLElement)
 
     const option = {
       title: {
@@ -345,6 +341,182 @@ export default class dashBoard extends Vue {
     chart.setOption(option)
   }
 
+  drawBarChart(){
+    const chart = echarts.init(this.$refs.barChart as HTMLElement)
+    const timeDurationData = this.dataArray.map(d => d.timeDuration);
+    const colors = ['red', 'blue', 'green'];
+    const actions = ['删除', '插入', '暂停'];
+    const option = {
+      color: colors,
+      tooltip: {},
+      legend: {
+        data: actions,
+      },
+      xAxis: {
+        type: 'category',
+        axisLabel: {
+          interval: 0,
+          rotate: 30,
+        },
+        data: timeDurationData.reduce((arr, curr) => arr.concat(curr), []),
+      },
+      yAxis: {
+        type: 'value',
+        boundaryGap: [0, '100%'],
+      },
+      series: actions.map((a, j) => {
+        return {
+          name: a,
+          type: 'bar',
+          label: {
+            show: true,
+            position: 'top',
+          },
+          data: this.dataArray.map(d => d.actionProbabilities.map(p => p[j])).reduce((arr2, curr2) => arr2.concat(curr2), []),
+        };
+      }),
+    };
+    chart.setOption(option)
+  }
+
+  drawScatterChart() {
+    const chart = echarts.init(this.$refs.scatterChart as HTMLElement)
+    const option = {
+      xAxis: {
+        type: 'value',
+      },
+      yAxis: {
+        type: 'value',
+        boundaryGap: [0, '100%'],
+      },
+      series: [
+        {
+          symbolSize: 20,
+          data: this.dataArray.map((d, i) => [i, d.meanLatentVariable]),
+          type: 'scatter',
+        },
+      ],
+    };
+    console.log(option)
+    chart.setOption(option)
+  }
+
+  drawPieChart(){
+    const chart = echarts.init(this.$refs.pieChart as HTMLElement)
+    const clusterCounts = Array.from({ length: 3 }, () => 0);
+    this.dataArray.forEach(d => clusterCounts[d.cluster]++);
+    const option = {
+      tooltip: {
+        trigger: 'item',
+      },
+      legend: {
+        data: Array.from({ length: 3 }, (_, i) => `Cluster ${i + 1}`),
+      },
+      series: [
+        {
+          name: 'Clusters',
+          type: 'pie',
+          radius: '70%',
+          data: clusterCounts.map((c, i) => ({
+            value: c,
+            name: `Cluster ${i + 1}`,
+          })),
+        },
+      ],
+    };
+    chart.setOption(option)
+  }
+
+  drawLineChart(){
+    const chart = echarts.init(this.$refs.lineChart as HTMLElement)
+    const option = {
+      tooltip: {
+        trigger: 'axis',
+      },
+      legend: {
+        data: this.dataArray.map((_, i) => `Student ${i + 1}`),
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true,
+      },
+      xAxis: [
+        {
+          type: 'category',
+          boundaryGap: false,
+          data: this.dataArray[0].timeDuration.map((_, i) => `Time ${i + 1}`),
+        },
+      ],
+      yAxis: [
+        {
+          type: 'value',
+        },
+      ],
+      series: this.dataArray.map((d, i) => {
+        return {
+          name: `Student ${i + 1}`,
+          type: 'line',
+          data: d.meanLatentVariable,
+        };
+      }),
+    };
+    chart.setOption(option)
+  }
+
+  drawHeatmapChart2(){
+    const chart = echarts.init(this.$refs.heatmapChart as HTMLElement)
+    const actions = ['删除', '插入', '暂停'];
+    const option = {
+      tooltip: {
+        position: 'top',
+      },
+      animation: false,
+      grid: {
+        height: '50%',
+        top: '10%',
+      },
+      xAxis: {
+        type: 'category',
+        data: this.dataArray[0].timeDuration.map((_, i) => `Time ${i + 1}`),
+        splitArea: {
+          show: true,
+        },
+      },
+      yAxis: {
+        type: 'category',
+        data: actions,
+        splitArea: {
+          show: true,
+        },
+      },
+      visualMap: {
+        min: 0,
+        max: 1,
+        show: false,
+      },
+      series: [
+        {
+          name: 'Heatmap',
+          type: 'heatmap',
+          data: this.dataArray
+              .map(d => d.actionProbabilities)
+              .reduce((arr, curr) => arr.concat(curr), [])
+              .map((ap, i) => [i % 5, Math.floor(i / 5), ap[0]]),
+          itemStyle: {
+            emphasis: {
+              borderColor: '#333',
+              borderWidth: 1,
+            },
+          },
+          progressive: 1000,
+          animation: false,
+        },
+      ],
+    };
+    chart.setOption(option)
+  }
 }
 </script>
 <style>
