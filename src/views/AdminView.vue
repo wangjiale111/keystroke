@@ -17,9 +17,9 @@
         <el-aside :style="{display: sidebarVisible ? 'block' : 'none'}" class="aside">
           <el-menu>
             <el-menu-item index="1">
-                <router-link to="/user">
-                  用户列表
-                </router-link>
+              <router-link to="/user">
+                用户列表
+              </router-link>
             </el-menu-item>
             <router-link to="/dashBoard">
               <el-menu-item index="2">
@@ -34,7 +34,7 @@
           </el-menu>
         </el-aside>
         <el-container>
-          <el-main>
+          <el-main class="main-content">
             <router-view></router-view>
           </el-main>
         </el-container>
@@ -89,7 +89,7 @@ export default class AppLayout extends Vue {
 
   calculateWidths() {
     const asideElement = document.querySelector(".aside");
-    const mainElement = document.querySelector(".el-main");
+    const mainElement = document.querySelector(".main-content");
     if (asideElement && mainElement) {
       const asideWidth = asideElement.getBoundingClientRect().width;
       const mainWidth = mainElement.getBoundingClientRect().width;
@@ -98,11 +98,9 @@ export default class AppLayout extends Vue {
     }
   }
 
-
   toggleSidebar() {
     this.sidebarVisible = !this.sidebarVisible;
   }
-
 }
 </script>
 
@@ -119,6 +117,8 @@ export default class AppLayout extends Vue {
   flex-direction: row;
   height: 80px;
   width: 100%;
+  border-bottom: 1px solid #ccc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .app-layout {
@@ -128,14 +128,17 @@ export default class AppLayout extends Vue {
 
 .aside {
   background-color: #f0f2f5;
+  border-right: 1px solid #ccc;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
 }
 
 .sidebar-header {
   width: 20%;
   height: 100%;
   display:flex;
-  align-content: center;
+  align-items: center;
   justify-content: center;
+  border-right: 1px solid #ccc;
 }
 
 .right-header{
@@ -146,11 +149,17 @@ export default class AppLayout extends Vue {
 .aside {
   width: 20%;
   height: 80%;
+  transition: width 0.3s ease-in-out;
 }
 
+.main-content {
+  height: calc(100vh - 80px); /* 设置内容区域的高度 */
+  overflow-y: auto; /* 添加垂直滚动条 */
+}
 
 h1 {
   margin: 0;
   font-size: 24px;
+  color: #333;
 }
 </style>

@@ -1,32 +1,37 @@
 <template>
-  <div class="main">
-    <el-table :data="userEvents" border>
-      <el-table-column prop="userName" label="姓名"></el-table-column>
-      <el-table-column label="操作">
-        <template v-slot="scope">
-          <el-button type="primary" @click="downloadEventLogs(scope.row.userName)">
-            下载写作过程数据
-          </el-button>
-          <el-button type="primary" @click="downloadForm(scope.row.userName)">
-            下载调查问卷
-          </el-button>
-          <el-button type="success" @click="viewReplay(scope.row.userName)">
-            查看回放
-          </el-button>
-          <el-button @click="deleteUser(scope.row.userName)">
-            删除
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+  <div class="user">
+    <div class="main">
+      <el-table :data="userEvents" border>
+        <el-table-column prop="userName" label="姓名"></el-table-column>
+        <el-table-column label="操作">
+          <template v-slot="scope">
+            <el-button type="primary" @click="downloadEventLogs(scope.row.userName)">
+              下载写作过程数据
+            </el-button>
+            <el-button type="primary" @click="downloadForm(scope.row.userName)">
+              下载调查问卷
+            </el-button>
+            <el-button type="success" @click="viewReplay(scope.row.userName)">
+              查看回放
+            </el-button>
+            <el-button @click="deleteUser(scope.row.userName)">
+              删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
   </div>
 </template>
 
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+import {Options, Vue} from 'vue-class-component';
 import axios from 'axios';
-import { ElMessageBox, Message } from "element-plus";
+import {ElMessageBox, Message} from "element-plus";
 import Papa from "papaparse";
 import {keystrokeUrl} from "@/assets/config";
 
@@ -36,6 +41,8 @@ import {keystrokeUrl} from "@/assets/config";
 export default class AdminView extends Vue {
   userEvents: any[] = [];
   $message: Message;
+  isLoading = true;
+
   mounted() {
     this.getUserEvents();
   }
@@ -50,6 +57,7 @@ export default class AdminView extends Vue {
       };
       const response = await axios.get(keystrokeUrl + '/get_all_user_events', config);
       this.userEvents = response.data;
+      this.isLoading = false;
     } catch (error) {
       this.$message.error('获取用户信息失败');
       console.error('Failed to fetch user events', error);
@@ -84,7 +92,7 @@ export default class AdminView extends Vue {
             if (userForm) {
               console.log(JSON.parse(JSON.stringify(userForm)))
               const csv = Papa.unparse(JSON.parse(JSON.stringify(userForm)));
-              const csvData = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+              const csvData = new Blob([csv], {type: "text/csv;charset=utf-8;"});
               const csvURL = window.URL.createObjectURL(csvData);
               const tempLink = document.createElement("a");
               tempLink.href = csvURL;
@@ -130,7 +138,7 @@ export default class AdminView extends Vue {
 
             // console.log(orderedEventLogs)
             const csv = Papa.unparse(orderedEventLogs);
-            const csvData = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const csvData = new Blob([csv], {type: "text/csv;charset=utf-8;"});
             const csvURL = window.URL.createObjectURL(csvData);
             const tempLink = document.createElement("a");
             tempLink.href = csvURL;
@@ -162,7 +170,7 @@ export default class AdminView extends Vue {
                 'Authorization': token // 将JWT令牌添加到请求头
               }
             };
-            const response = await axios.post(keystrokeUrl+'/delete_user_events', { userName }, config);
+            const response = await axios.post(keystrokeUrl + '/delete_user_events', {userName}, config);
             if (response.status === 200) {
               await this.getUserEvents();
             }
@@ -178,17 +186,45 @@ export default class AdminView extends Vue {
   }
 
   viewReplay(userName: string) {
-    this.$router.push({ path: "/replay", query: { userName } });
+    this.$router.push({path: "/replay", query: {userName}});
   }
 
 }
 </script>
 
 <style scoped>
-.main{
+.main {
+  position: relative;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

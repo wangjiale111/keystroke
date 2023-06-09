@@ -1,15 +1,20 @@
 <template>
     <div class="record">
-        <div class="writing">
-            <div class="title">
+      <div class="admin-login">
+        <el-button class="admin-icon" @click="showLoginDialog" v-show="showRecord">
+          管理员登录
+        </el-button>
+      </div>
+      <div class="writing">
+            <div class="title" v-show="!showForm">
                 <span>题目：作文题目</span>
             </div>
-            <div class="header">
+            <div class="header" v-show="!showForm">
                 <div>时间:{{ timeFormat }}</div>
                 <div style="margin-left: 80px">字数:{{ wordNum }}</div>
             </div>
             <div class="content" >
-                <div class="form" v-show="!disable3">
+                <div class="form" v-show="showForm">
                     <h3>调查问卷</h3>
                     <el-form ref="myForm"
                              :model="form"
@@ -21,7 +26,6 @@
                                 v-model="form.userName"
                                 placeholder="请输入用户名"
                                 :disabled="disable3"
-                                @input="checkUserName"
                             ></el-input>
                         </el-form-item>
                         <el-form-item label="性别" prop="gender">
@@ -39,19 +43,27 @@
                                 min="16"
                             ></el-input>
                         </el-form-item>
-                        <el-form-item label="写作困难" prop="writingProblem">
+                        <el-form-item label="写作过程回顾" prop="writingProblem">
                             <el-input
+                                type="textarea"
                                 v-model="form.writingProblem"
-                                placeholder="请描述你在写作时会遇到的困难"
+                                placeholder="请回顾你的整个写作过程"
                                 :disabled="disable3"
                             ></el-input>
                         </el-form-item>
                         <el-form-item label="写作水平自评" prop="writingLevel">
-                            <el-rate v-model="form.writingLevel" :disabled="disable3"></el-rate>
+                          <el-input
+                              v-model="form.writingLevel"
+                              placeholder="请进行分数自评(0-10分)"
+                              :disabled="disable3"
+                              type="number"
+                              min="0"
+                              max="10"
+                          ></el-input>
                         </el-form-item>
                     </el-form>
                 </div>
-                <div class="button" v-show="!disable3">
+                <div class="button" v-show="showForm">
                     <el-button type="primary" @click="confirmSubmit" :disabled="disable3">提交调查问卷</el-button>
                 </div>
                 <el-input
@@ -61,15 +73,17 @@
                         :disabled="disable"
                         @input="handleInput"
                         @keydown="handleKeyDown"
+                        v-show="showWriting"
                 ></el-input>
             </div>
             <div class="button">
-                <el-button type="primary" @click="confirmStartWriting" :disabled="disable2">开始写作</el-button>
+                <el-button type="primary" @click="confirmStartWriting" v-show="showStart">开始写作</el-button>
                 <el-button type="danger" @click="confirmEndWriting" style="margin-left: 80px;" :disabled="disable4">
                     结束写作
                 </el-button>
             </div>
         </div>
+      <LoginDialog v-if="showLogin" @close="closeLoginDialog" @login="handleLogin" />
     </div>
 </template>
 
@@ -79,16 +93,19 @@ import ReplayView from '@/views/ReplayView.vue';
 import {DomEventRecord} from "@/record/DomEventRecord";
 // import Papa from "papaparse";
 import {ElMessage, ElMessageBox, ElForm} from 'element-plus';
-import axios from "axios";
 import {Message} from 'element-plus';
 import {FormRules} from "element-plus/lib/components";
 import {keystrokeUrl} from "@/assets/config";
+import axios from "axios";
+import LoginDialog from "@/components/LoginDialog.vue";
+import { AppViewModel } from "@/AppViewModel";
+
 
 let recordData: any;
 
 @Options({
     components: {
-        ReplayView
+        ReplayView,LoginDialog
     }
 })
 export default class WritingRecord extends Vue {
@@ -103,7 +120,6 @@ export default class WritingRecord extends Vue {
     disable = true;
     // 设置时间,与timeFormat同步
     time = 60;
-    disable2 = true;
     writingData: any[] = [];
     form = {
         userName: '',
@@ -124,7 +140,48 @@ export default class WritingRecord extends Vue {
         writingProblem: [{ required: true, message: '请输入写作时会遇到的问题', trigger: 'blur' }],
         writingLevel: [{ required: true, message: '请进行写作水平自评', trigger: 'change' }]
     };
+    showWriting = true;
+    showStart = true;
+    showForm = false;
 
+  showLogin = false; // 控制登录弹窗显示/隐藏的状态
+  showRecord = true;
+
+
+  mounted() {
+    this.showRecord = true;
+  }
+
+  showLoginDialog(): void {
+    this.showLogin = true; // 显示登录弹窗
+  }
+
+  closeLoginDialog(): void {
+    this.showLogin = false; // 关闭登录弹窗
+  }
+
+  async handleLogin(adminName: string, password: string): Promise<void> {
+    try {
+      const response = await axios.post(keystrokeUrl + "/admin", {
+        adminName,
+        password,
+      });
+      if (response.status === 200 && response.data.token !== undefined) {
+        // 登录成功的操作，例如保存登录状态、跳转页面等
+        console.log("登录成功");
+        const token = response.data.token;
+        // 将 token 存储到 localStorage
+        localStorage.setItem("adminToken", token);
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        this.$router.push({ name: "user" }); // 修改为跳转到默认子路由
+      } else {
+        console.log("登录失败");
+      }
+    } catch (error) {
+      console.error("登录请求出错", error);
+      this.$message.error(error.response.data);
+    }
+  }
 
     /**
      * toStart  开始录制 1.计时器计算时间  2.监听输入框的值 3.调用recordUserViewModel方法
@@ -132,8 +189,7 @@ export default class WritingRecord extends Vue {
     toStart() {
         console.log("record开始")
         this.disable = false;
-        this.disable2 = true;
-        this.disable3 = true;
+        this.showStart = false;
         // 计时器计算时间
         this.flag = false;
         this.value = '';
@@ -146,6 +202,7 @@ export default class WritingRecord extends Vue {
                         confirmButtonText: "确定",
                         type: "warning",
                         callback: () => {
+                            this.showWriting = false;
                             this.toStop();
                         }
                     });
@@ -186,10 +243,42 @@ export default class WritingRecord extends Vue {
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-            // 提交调查问卷
-            ElMessage.success('已成功提交，请点击开始写作');
-            this.disable2 = false;
             this.disable3 = true;
+            // 提交所有数据
+            try {
+              // 将用户事件日志发送给后端保存到数据库
+              axios
+                  .post(keystrokeUrl + '/save_event_logs', {
+                    userName: this.form.userName,
+                    eventLogs: this.writingData,
+                    gender: this.form.gender,  // 添加调查问卷相关字段
+                    writingProblem: this.form.writingProblem,
+                    age: this.form.age,
+                    writingLevel: this.form.writingLevel
+                  })
+                  .then(response => {
+                    console.log(response.data);
+                    this.disable4 = true;
+                    console.log(this.disable4);
+                    this.$message({
+                      message: '提交成功',
+                      type: 'success'
+                    });
+                  })
+                  .catch(error => {
+                    console.error(error);
+                    this.$message({
+                      message: '提交失败，请检查网络连接',
+                      type: 'error'
+                    });
+                  });
+            } catch (error) {
+              this.$message({
+                message: '提交失败，请联系管理员',
+                type: 'error'
+              });
+              console.log(error);
+            }
           }).catch(() => {
             // 取消提交
             ElMessage.info('已取消提交');
@@ -236,42 +325,9 @@ export default class WritingRecord extends Vue {
         this.disable = true;
         this.flag = true;
         recordData = this.domRecord.stopRecord((log: any) => {
-            console.log(log);
-        });
-        try {
-            // 将用户事件日志发送给后端保存到数据库
-            axios
-                .post(keystrokeUrl + '/save_event_logs', {
-                    userName: this.form.userName,
-                    eventLogs: this.writingData,
-                    gender: this.form.gender,  // 添加调查问卷相关字段
-                    writingProblem: this.form.writingProblem,
-                    age: this.form.age,
-                    writingLevel: this.form.writingLevel
-                })
-                .then(response => {
-                    console.log(response.data);
-                    this.disable4 = true;
-                    console.log(this.disable4);
-                    this.$message({
-                        message: '提交成功',
-                        type: 'success'
-                    });
-                })
-                .catch(error => {
-                    console.error(error);
-                    this.$message({
-                        message: '提交失败，请检查网络连接',
-                        type: 'error'
-                    });
-                });
-        } catch (error) {
-            this.$message({
-                message: '提交失败，请检查网络连接',
-                type: 'error'
-            });
-            console.log(error);
-        }
+          console.log(log);
+      });
+        this.showForm = true;
     }
 
 
@@ -282,11 +338,6 @@ export default class WritingRecord extends Vue {
         // console.log()
     }
 
-    checkUserName() {
-        if (this.form.userName) {
-            this.disable2 = false;
-        }
-    }
 
     /**
      * handleKeyDown  监听按键Tab

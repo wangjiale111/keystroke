@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
+import {createRouter, createWebHashHistory, RouteRecordRaw} from "vue-router";
 import RecordView from "@/views/RecordView.vue";
 import ReplayView from "@/views/ReplayView.vue";
 import AdminView from "@/views/AdminView.vue";
@@ -26,12 +26,12 @@ const routes: Array<RouteRecordRaw> = [
         path: "/admin",
         component: AdminView,
         meta: {
-            requiresAuth: true, // 需要登录才能访问的页面
+            requiresAuth: false, // 需要登录才能访问的页面
         },
         children: [
             {
                 path: "", // 子路径为空时，为默认路由
-                name: "admin",
+                name: "user",
                 component: UserView,
             },
             {
@@ -47,8 +47,8 @@ const routes: Array<RouteRecordRaw> = [
         ],
     },
     {
-        path: "/",
-        redirect: "/record",
+        path: "/", // 根路径重定向
+        redirect: "/record"
     },
 ];
 
