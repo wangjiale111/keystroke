@@ -1,4 +1,4 @@
-import {createRouter, createWebHashHistory, RouteRecordRaw} from "vue-router";
+import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import RecordView from "@/views/RecordView.vue";
 import ReplayView from "@/views/ReplayView.vue";
 import AdminView from "@/views/AdminView.vue";
@@ -26,29 +26,31 @@ const routes: Array<RouteRecordRaw> = [
         path: "/admin",
         component: AdminView,
         meta: {
-            requiresAuth: false, // 需要登录才能访问的页面
+            requiresAuth: true, // 需要登录才能访问的页面
         },
         children: [
             {
                 path: "", // 子路径为空时，为默认路由
+                name: "admin",
+                component: UserView,
+            },
+            {
+                path: "user",
                 name: "user",
                 component: UserView,
             },
             {
-                path: "/user",
-                name: "user",
-                component: UserView,
-            },
-            {
-                path: "/dashBoard",
+                path: "dashBoard",
                 name: "dashBoard",
-                component: dashBoard
-            }
+                component: dashBoard,
+            },
         ],
     },
     {
-        path: "/", // 根路径重定向
-        redirect: "/record"
+        path: "/:pathMatch(.*)*", // 匹配所有路径
+        redirect: () => {
+            return "/record";
+        }
     },
 ];
 
@@ -60,23 +62,25 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
     const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
 
-    // 检查是否需要登录权限
     if (requiresAuth) {
         // 检查登录状态
         const token = localStorage.getItem("adminToken");
-        const isAuthenticated = !!token; // 检查 token 是否存在
-        if (isAuthenticated) {
-            // 已登录，允许导航到目标路由
+        if (token) {
             next();
         } else {
-            // 未登录，重定向到登录页或其他处理
             console.log("未登录");
-            next("/record"); // 重定向到登录页
+            next('/record');
         }
     } else {
-        // 不需要登录权限，直接导航到目标路由
         next();
     }
 });
 
+router.afterEach((to, from) => {
+    const token = localStorage.getItem("adminToken");
+    if (token) {
+        // 更新浏览器中的token
+        localStorage.setItem("adminToken", token);
+    }
+});
 export default router;

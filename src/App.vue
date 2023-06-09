@@ -20,26 +20,4 @@ export default class AppPage extends mixins(AppViewModel) {
 </script>
 
 <style>
-.admin-login {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-    margin-right: 250px;
-}
-
-.admin-login a {
-    display: flex;
-    align-items: center;
-    color: #2c3e50;
-    text-decoration: none;
-    margin-left: 10px;
-}
-
-.admin-icon {
-    position: absolute;
-    top: 10px;
-    right: 0;
-    z-index: 999;
-}
 </style>

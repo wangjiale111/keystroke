@@ -20,6 +20,8 @@
 
 <script>
 import { Options, Vue } from 'vue-class-component';
+import axios from "axios";
+import {keystrokeUrl} from "@/assets/config";
 
 @Options({})
 export default class LoginDialog extends Vue {
@@ -28,12 +30,34 @@ export default class LoginDialog extends Vue {
     password: ''
   };
 
+  loginFlag = false;
+
   login() {
-    this.$refs.loginForm.validate(valid => {
+    this.$refs.loginForm.validate(async valid => {
       if (valid) {
         // 在这里实现登录逻辑
         // 可以使用 this.form.adminName 和 this.form.password 获取输入的账号和密码
-        this.$emit('login', this.form.adminName, this.form.password); // 触发登录事件，传递管理员名字和密码
+        try {
+          const response = await axios.post(keystrokeUrl + "/admin", {
+            adminName: this.form.adminName,
+            password: this.form.password
+          });
+          if (response.status === 200 && response.data.token !== undefined) {
+            // 登录成功的操作，例如保存登录状态、跳转页面等
+            console.log("登录成功");
+            this.loginFlag = true;
+            const token = response.data.token;
+            // 将 token 存储到 localStorage
+            localStorage.setItem("adminToken", token);
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            this.$emit('login', this.loginFlag); // 触发登录事件
+          } else {
+            this.$message.error("登录失败")
+          }
+        } catch (error) {
+          console.error("登录请求出错", error);
+          this.$message.error(error.response.data);
+        }
       } else {
         // 表单验证不通过的处理逻辑
       }

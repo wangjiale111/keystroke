@@ -74,13 +74,14 @@
                         @input="handleInput"
                         @keydown="handleKeyDown"
                         v-show="showWriting"
+                        @paste="handlePaste"
                 ></el-input>
             </div>
             <div class="button">
                 <el-button type="primary" @click="confirmStartWriting" v-show="showStart">开始写作</el-button>
-                <el-button type="danger" @click="confirmEndWriting" style="margin-left: 80px;" :disabled="disable4">
-                    结束写作
-                </el-button>
+<!--                <el-button type="danger" @click="confirmEndWriting" style="margin-left: 80px;" :disabled="disable4">-->
+<!--                    结束写作-->
+<!--                </el-button>-->
             </div>
         </div>
       <LoginDialog v-if="showLogin" @close="closeLoginDialog" @login="handleLogin" />
@@ -160,26 +161,9 @@ export default class WritingRecord extends Vue {
     this.showLogin = false; // 关闭登录弹窗
   }
 
-  async handleLogin(adminName: string, password: string): Promise<void> {
-    try {
-      const response = await axios.post(keystrokeUrl + "/admin", {
-        adminName,
-        password,
-      });
-      if (response.status === 200 && response.data.token !== undefined) {
-        // 登录成功的操作，例如保存登录状态、跳转页面等
-        console.log("登录成功");
-        const token = response.data.token;
-        // 将 token 存储到 localStorage
-        localStorage.setItem("adminToken", token);
-        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        this.$router.push({ name: "user" }); // 修改为跳转到默认子路由
-      } else {
-        console.log("登录失败");
-      }
-    } catch (error) {
-      console.error("登录请求出错", error);
-      this.$message.error(error.response.data);
+  async handleLogin(loginFlag: string): Promise<void> {
+    if (loginFlag) {
+      this.$router.push({ name: "user" }); // 修改为跳转到默认子路由
     }
   }
 
@@ -318,7 +302,7 @@ export default class WritingRecord extends Vue {
     }
 
     /**
-     * toStop  结束录制 1.调用stopRecord方法 2.将数据存入recordData
+     * toStop  结束录制
      */
     toStop() {
         console.log("点击提交，结束录制");
@@ -350,6 +334,10 @@ export default class WritingRecord extends Vue {
             this.value = inputValue + tabCharacter;
         }
     }
+
+  handlePaste(event) {
+    event.preventDefault(); // 阻止默认粘贴行为
+  }
 
 }
 </script>
@@ -413,6 +401,29 @@ export default class WritingRecord extends Vue {
     width: 100%;
     height: 100%;
     margin-top: 0;
+}
+
+.admin-login {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  margin-right: 250px;
+}
+
+.admin-login a {
+  display: flex;
+  align-items: center;
+  color: #2c3e50;
+  text-decoration: none;
+  margin-left: 10px;
+}
+
+.admin-icon {
+  position: absolute;
+  top: 10px;
+  right: 0;
+  z-index: 999;
 }
 
 </style>

@@ -17,11 +17,11 @@
         <el-aside :style="{display: sidebarVisible ? 'block' : 'none'}" class="aside">
           <el-menu>
             <el-menu-item index="1">
-              <router-link to="/user">
+              <router-link to="/admin/user">
                 用户列表
               </router-link>
             </el-menu-item>
-            <router-link to="/dashBoard">
+            <router-link to="/admin/dashBoard">
               <el-menu-item index="2">
                 数据分析
               </el-menu-item>
