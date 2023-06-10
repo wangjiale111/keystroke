@@ -79,9 +79,9 @@
             </div>
             <div class="button">
                 <el-button type="primary" @click="confirmStartWriting" v-show="showStart">开始写作</el-button>
-<!--                <el-button type="danger" @click="confirmEndWriting" style="margin-left: 80px;" :disabled="disable4">-->
-<!--                    结束写作-->
-<!--                </el-button>-->
+                <el-button type="danger" @click="confirmEndWriting" style="margin-left: 80px;" :disabled="disable4">
+                    结束写作
+                </el-button>
             </div>
         </div>
       <LoginDialog v-if="showLogin" @close="closeLoginDialog" @login="handleLogin" />

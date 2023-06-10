@@ -1,8 +1,15 @@
 <template>
   <div class="user">
     <div class="main">
+      <el-input
+          class="search-input"
+          v-model="searchQuery"
+          placeholder="搜索姓名"
+          @keyup.enter="searchUserEvents"
+      ></el-input>
       <el-table :data="userEvents" border>
-        <el-table-column prop="userName" label="姓名"></el-table-column>
+        <el-table-column prop="userName" label="姓名" min-width="30"></el-table-column>
+        <el-table-column prop="saveTime" label="提交时间" min-width="50"></el-table-column>
         <el-table-column label="操作">
           <template v-slot="scope">
             <el-button type="primary" @click="downloadEventLogs(scope.row.userName)">
@@ -20,6 +27,16 @@
           </template>
         </el-table-column>
       </el-table>
+      <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-size="perPage"
+          layout="total, sizes, prev, pager, next, jumper"
+          :page-sizes="[10, 20, 50, 100]"
+          :total="total"
+      >
+      </el-pagination>
     </div>
     <div v-if="isLoading" class="loading-overlay">
       <div class="loading-spinner"></div>
@@ -42,12 +59,17 @@ export default class AdminView extends Vue {
   userEvents: any[] = [];
   $message: Message;
   isLoading = true;
+  submitTime = "";
+  currentPage = 1;
+  perPage = 10;
+  total = 0;
+  searchQuery = "";
 
   mounted() {
     this.getUserEvents();
   }
 
-  async getUserEvents() {
+  async getUserEvents(page = this.currentPage, perPage = this.perPage, query = this.searchQuery) {
     try {
       const token = localStorage.getItem('adminToken'); // 从本地存储获取JWT令牌
       const config = {
@@ -55,8 +77,9 @@ export default class AdminView extends Vue {
           'Authorization': token // 将JWT令牌添加到请求头
         }
       };
-      const response = await axios.get(keystrokeUrl + '/get_all_user_events', config);
-      this.userEvents = response.data;
+      const response = await axios.get(keystrokeUrl + '/get_all_user_events', { ...config, params: { page, perPage, query } });
+      this.userEvents = response.data.data;
+      this.total = response.data.total;
       this.isLoading = false;
     } catch (error) {
       this.$message.error('获取用户信息失败');
@@ -90,7 +113,9 @@ export default class AdminView extends Vue {
           .then(async () => {
             const userForm = await this.getUserForm(userName);
             if (userForm) {
-              console.log(JSON.parse(JSON.stringify(userForm)))
+              // console.log(JSON.parse(JSON.stringify(userForm)))
+              this.submitTime = userForm.saveTime;
+              console.log(this.submitTime)
               const csv = Papa.unparse(JSON.parse(JSON.stringify(userForm)));
               const csvData = new Blob([csv], {type: "text/csv;charset=utf-8;"});
               const csvURL = window.URL.createObjectURL(csvData);
@@ -113,14 +138,31 @@ export default class AdminView extends Vue {
     }
   }
 
+
+  async fetchEventLogs(userName: string){
+    try {
+      const token = localStorage.getItem('adminToken'); // 从本地存储获取JWT令牌
+      const config = {
+        headers: {
+          'Authorization': token // 将JWT令牌添加到请求头
+        },
+        params: {userName}
+      };
+      const response = await axios.get(keystrokeUrl + '/get_event_logs', config);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   async downloadEventLogs(userName: string) {
-    ElMessageBox.confirm("是否下载击键记录数据?", "提示", {
+    await ElMessageBox.confirm("是否下载击键记录数据?", "提示", {
       confirmButtonText: "确定",
       cancelButtonText: "取消",
       type: "warning"
     })
-        .then(async () => {
-          const userEvent = this.userEvents.find(event => event.userName === userName);
+    .then(async () => {
+          const userEvent = await this.fetchEventLogs(userName) as any;
           if (userEvent) {
             const orderedEventLogs = userEvent.eventLogs.map(log => ({
               index: log.index || "",
@@ -189,12 +231,30 @@ export default class AdminView extends Vue {
     this.$router.push({path: "/replay", query: {userName}});
   }
 
+  handleSizeChange(val) {
+    this.perPage = val;
+    this.getUserEvents();
+  }
+
+  handleCurrentChange(val) {
+    this.currentPage = val;
+    this.getUserEvents();
+  }
+
+  searchUserEvents() {
+    this.getUserEvents();
+  }
+
 }
 </script>
 
 <style scoped>
 .main {
   position: relative;
+}
+
+.search-input {
+  margin-bottom: 20px;
 }
 
 .loading-overlay {
@@ -226,5 +286,13 @@ export default class AdminView extends Vue {
   100% {
     transform: rotate(360deg);
   }
+}
+
+.el-table .cell {
+  padding: 6px 0;
+}
+
+.aside-text {
+  text-decoration: none;
 }
 </style>
