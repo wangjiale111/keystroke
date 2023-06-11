@@ -1,20 +1,28 @@
 <template>
   <div class="layout-container">
     <div class="header">
-      <div class="sidebar-header" :style="{ width: asideWidth + 'px' }">
-        <h1>写作过程</h1>
+      <div
+          class="sidebar-header"
+      >
+        <img src="@/assets/logo.png" alt="" style="width: 5em; height: 5em; margin-left: 30px">
+        <div class="toggle-button">
+          <el-button @click="toggleSidebar" style="width: 2em; height: 2em;">
+
+            <Operation style="width: 2em; height: 2em;" v-if="!sidebarVisible" />
+            <Fold style="width: 2em; height: 2em;" v-if="sidebarVisible"/>
+          </el-button>
+        </div>
       </div>
       <div class="right-header" :style="{ width: mainWidth + 'px' }">
-        <el-button @click="toggleSidebar" style="width: 2.5em; height: 2.5em;">
-          <el-tooltip content="收起菜单" placement="right">
-            <Menu style="width: 2em; height: 2em;" />
-          </el-tooltip>
-        </el-button>
+          <h1>keystroke数据收集平台</h1>
       </div>
     </div>
     <div class="app-layout">
       <el-container>
-        <el-aside :style="{display: sidebarVisible ? 'block' : 'none'}" class="aside">
+        <el-aside
+            :style="{ display: sidebarVisible ? 'block' : 'none', width: '150px', height: '100%' }"
+            class="aside"
+        >
           <el-menu>
             <el-menu-item index="1">
               <router-link to="/admin/user">
@@ -75,12 +83,16 @@ import {
 })
 export default class AppLayout extends Vue {
   sidebarVisible = true;
-  asideWidth = 0;
   mainWidth = 0;
 
   mounted() {
     this.calculateWidths();
     window.addEventListener("resize", this.calculateWidths);
+
+    // 添加页面加载时的初始折叠状态
+    if (window.innerWidth < 800) {
+      this.sidebarVisible = false;
+    }
   }
 
   beforeUnmount() {
@@ -91,10 +103,15 @@ export default class AppLayout extends Vue {
     const asideElement = document.querySelector(".aside");
     const mainElement = document.querySelector(".main-content");
     if (asideElement && mainElement) {
-      const asideWidth = asideElement.getBoundingClientRect().width;
       const mainWidth = mainElement.getBoundingClientRect().width;
-      this.asideWidth = Math.floor(asideWidth);
       this.mainWidth = Math.floor(mainWidth);
+
+      // 添加页面宽度改变时的折叠状态
+      if (window.innerWidth < 800) {
+        this.sidebarVisible = false;
+      } else {
+        this.sidebarVisible = true;
+      }
     }
   }
 
@@ -106,10 +123,11 @@ export default class AppLayout extends Vue {
 
 <style>
 .layout-container {
-  height: 100%;
+  height: 97vh; /* 设置为视口高度 */
   width: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* 添加overflow: hidden以阻止整个页面滚动 */
 }
 
 .header{
@@ -122,32 +140,35 @@ export default class AppLayout extends Vue {
 }
 
 .app-layout {
-  flex: 1;
   display: flex;
 }
+
 
 .aside {
   background-color: #f0f2f5;
   border-right: 1px solid #ccc;
   box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+  width: 20%;
 }
 
 .sidebar-header {
-  width: 20%;
+  width: 150px;
   height: 100%;
-  display:flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
   border-right: 1px solid #ccc;
 }
 
 .right-header{
   width: 80%;
   height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-right: 1px solid #ccc;
 }
 
 .aside {
-  width: 20%;
+  width: 100px;
   height: 80%;
   transition: width 0.3s ease-in-out;
 }
@@ -155,6 +176,7 @@ export default class AppLayout extends Vue {
 .main-content {
   height: calc(100vh - 80px); /* 设置内容区域的高度 */
   overflow-y: auto; /* 添加垂直滚动条 */
+  position: relative;
 }
 
 h1 {
@@ -162,4 +184,13 @@ h1 {
   font-size: 24px;
   color: #333;
 }
+
+/* toggle-button位于sidebar-header右下角,而不是屏幕右下角*/
+.toggle-button {
+  position: absolute;
+  z-index: 999;
+  bottom:0;
+  right:0;
+}
+
 </style>
