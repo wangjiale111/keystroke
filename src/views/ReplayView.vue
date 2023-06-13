@@ -1,16 +1,22 @@
 <template>
   <div class="replay">
     <div class="composition">
-      <div class="text">
-        <pre v-html="getHighlightedText()"></pre>
-      </div>
-      <el-button @click="showMistake">纠错</el-button>
       <div class="mistakeTable">
-        <el-table :data="mistakes" v-show="showMistakeFlag">
+        <el-button @click="showMistake">纠错</el-button>
+        <el-table :data="mistakes" v-show="showMistakeFlag" v-if="mistakes.length > 0">
           <el-table-column prop="mistake" label="错误" />
-          <el-table-column prop="correct" label="正确" />
+          <el-table-column prop="correct" label="建议" />
+          <el-table-column label="操作" >
+            <el-button @click="ignoreMistake(index)" style="width: 2em; height: 2em;">
+              忽略
+            </el-button>
+          </el-table-column>
         </el-table>
       </div>
+      <div class="replayText">
+        <pre v-html="getHighlightedText()"></pre>
+      </div>
+
     </div>
     <div class="writingReplay">
       <div class="header">
@@ -44,9 +50,12 @@ import {DomEventRecord} from '@/record/DomEventRecord';
 import * as echarts from 'echarts';
 import axios from 'axios';
 import {keystrokeUrl} from "@/assets/config";
-import { ElRow, ElCol, ElMenu, ElMenuItem } from "element-plus";
+import {ElRow, ElCol, ElMenu, ElMenuItem, ElButton} from "element-plus";
+import {Message} from 'element-plus';
 
-@Options({})
+@Options({
+  components: {ElButton}
+})
 export default class ReplayView extends mixins(Vue) {
   viewModelPlayback: any;
   domRecord = new DomEventRecord();
@@ -76,6 +85,7 @@ export default class ReplayView extends mixins(Vue) {
   mistakeStr: '';
   mistakes: any[] = [];
   showMistakeFlag = false;
+  $message: Message;
 
   /**
    * 生命周期 created
@@ -134,7 +144,7 @@ export default class ReplayView extends mixins(Vue) {
         });
       }
 
-      console.log(this.mistakes);  // 打印转换后的 JSON 数组
+      // console.log(this.mistakes);  // 打印转换后的 JSON 数组
       return response.data;
     } catch (error) {
       console.error(error);
@@ -274,7 +284,21 @@ export default class ReplayView extends mixins(Vue) {
   showMistake () {
     this.showMistakeFlag = !this.showMistakeFlag;
     this.getHighlightedText();
+    if(this.mistakes.length == 0) {
+      this.$message({
+        message: '暂未发现错误',
+        type: 'info'
+      });
+    }
   }
+
+  // 忽略el-table当前行的错误，保留其他行的错误不变
+  ignoreMistake(currentIndex: number) {
+    this.mistakes.splice(currentIndex, 1); // 删除当前行的数据
+  }
+
+
+
   /**
    * 暂停回放
    */
@@ -396,10 +420,7 @@ p {
 }
 
 .composition {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
+  position:relative;
   margin-top: 40px;
   width: 80%;
   background-color: #fff;
@@ -429,6 +450,18 @@ p {
   width: 50%;
   padding: 20px;
   height: 400px; /* 设置合适的高度 */
+}
+
+.mistakeTable{
+  width:300px;
+  position:fixed;
+  top:100px;
+  right:30px;
+  z-index:999;
+}
+
+.replayText{
+  width: 100%;
 }
 </style>
 

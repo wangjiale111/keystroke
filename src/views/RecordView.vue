@@ -66,16 +66,19 @@
                 <div class="button" v-show="showForm">
                     <el-button type="primary" @click="confirmSubmit" :disabled="disable3">提交调查问卷</el-button>
                 </div>
+              <div class="recordText">
                 <el-input
-                        type="textarea"
-                        :rows="10"
-                        v-model="value"
-                        :disabled="disable"
-                        @input="handleInput"
-                        @keydown="handleKeyDown"
-                        v-show="showWriting"
-                        @paste="handlePaste"
+                    type="textarea"
+                    :rows="13"
+                    v-model="value"
+                    :disabled="disable"
+                    @input="handleInput"
+                    @keydown="handleKeyDown"
+                    v-show="showWriting"
+                    @paste="handlePaste"
+                    style="width: 100%; font-size: 30px; border: 1px solid #ccc; border-radius: 4px; padding: 10px;"
                 ></el-input>
+              </div>
             </div>
             <div class="button">
                 <el-button type="primary" @click="confirmStartWriting" v-show="showStart">开始写作</el-button>
@@ -357,7 +360,6 @@ export default class WritingRecord extends Vue {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    background-color: #f0f0f0; /* 添加背景色 */
     padding: 10px 20px; /* 添加内边距 */
     font-family: Arial, sans-serif; /* 修改字体 */
     font-size: 16px; /* 修改字体大小 */
@@ -396,11 +398,9 @@ export default class WritingRecord extends Vue {
     justify-content: center;
     padding: 40px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
     width: 100%;
     height: 100%;
-    margin-top: 0;
+    margin: 0 auto;
 }
 
 .admin-login {
@@ -426,6 +426,10 @@ export default class WritingRecord extends Vue {
   z-index: 999;
 }
 
+.recordText{
+  width: 50%;
+  margin: 0 auto;
+}
 </style>
 
 

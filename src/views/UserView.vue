@@ -228,7 +228,7 @@ export default class AdminView extends Vue {
   }
 
   viewReplay(userName: string) {
-    this.$router.push({path: "/replay", query: {userName}});
+    this.$router.push({path: "/admin/replay", query: {userName}});
   }
 
   handleSizeChange(val) {

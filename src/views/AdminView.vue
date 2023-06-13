@@ -14,7 +14,7 @@
         </div>
       </div>
       <div class="right-header" :style="{ width: mainWidth + 'px' }">
-          <h1>keystroke数据收集平台</h1>
+          <h1>keystroke数据分析平台</h1>
       </div>
     </div>
     <div class="app-layout">

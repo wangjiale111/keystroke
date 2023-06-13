@@ -15,14 +15,6 @@ const routes: Array<RouteRecordRaw> = [
         },
     },
     {
-        path: "/replay",
-        name: "replay",
-        component: ReplayView,
-        meta: {
-            requiresAuth: true, // 需要登录才能访问的页面
-        },
-    },
-    {
         path: "/admin",
         component: AdminView,
         meta: {
@@ -35,14 +27,19 @@ const routes: Array<RouteRecordRaw> = [
                 component: UserView,
             },
             {
-                path: "user",
+                path: "/admin/user",
                 name: "user",
                 component: UserView,
             },
             {
-                path: "dashBoard",
+                path: "/admin/dashBoard",
                 name: "dashBoard",
                 component: dashBoard,
+            },
+            {
+                path: "/admin/replay",
+                name: "replay",
+                component: ReplayView
             },
         ],
     },
