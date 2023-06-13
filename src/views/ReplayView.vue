@@ -1,46 +1,44 @@
 <template>
-  <div class="replay">
-    <div class="composition">
-      <div class="mistakeTable">
-        <el-button @click="showMistake">纠错</el-button>
-        <el-table :data="mistakes" v-show="showMistakeFlag" v-if="mistakes.length > 0">
-          <el-table-column prop="mistake" label="错误" />
-          <el-table-column prop="correct" label="建议" />
-          <el-table-column label="操作" >
-            <el-button @click="ignoreMistake(index)" style="width: 2em; height: 2em;">
-              忽略
-            </el-button>
-          </el-table-column>
-        </el-table>
+  <div class="replayContent">
+    <div class="username">用户名: {{ userName }}</div>
+    <div class="replay">
+      <div class="composition">
+        <div class="mistakeTable">
+          <el-button @click="showMistake" class="red-button">纠错</el-button>
+          <el-table :data="mistakes" v-show="showMistakeFlag" v-if="mistakes.length > 0">
+            <el-table-column prop="mistake" label="错误" />
+            <el-table-column prop="correct" label="建议" />
+            <el-table-column label="操作" >
+              <el-button @click="ignoreMistake(index)" style="width: 2em; height: 2em;">
+                忽略
+              </el-button>
+            </el-table-column>
+          </el-table>
+        </div>
+        <div v-html="getHighlightedText()" class="replayText"/>
       </div>
-      <div class="replayText">
-        <pre v-html="getHighlightedText()"></pre>
+      <div class="writingReplay">
+        <div class="content">
+          <el-input
+              type="textarea"
+              :rows="10"
+              v-model="value"
+              :disabled="true"
+              class="text-area"
+          ></el-input>
+        </div>
+        <div class="header">
+          <div class="header-item">写作总时间:{{ time }}</div>
+          <div class="header-item">写作速度:{{ typeSpeed }}字/分钟、{{ typeSpeedSecond }}字/秒</div>
+          <div class="header-item">写作总字数:{{ writingLength }}</div>
+        </div>
+        <div class="playButton">
+          <el-button type="primary" @click="Replay">开始回放</el-button>
+          <el-button type="danger" @click="exitReplay">暂停回放</el-button>
+        </div>
       </div>
-
     </div>
-    <div class="writingReplay">
-      <div class="header">
-        <div>用户名:{{ userName }}</div>
-        <div>写作总时间:{{ time }}</div>
-        <div>写作速度:{{ typeSpeed }}字/分钟、{{ typeSpeedSecond }}字/秒</div>
-        <div>写作总字数:{{ writingLength }}</div>
-      </div>
-      <div class="content">
-        <el-input
-            type="textarea"
-            :rows="10"
-            v-model="value"
-            :disabled="true"
-            class="text-area"
-        ></el-input>
-      </div>
-      <div class="playButton">
-        <el-button type="primary" @click="Replay">开始回放</el-button>
-        <el-button type="danger" @click="exitReplay">暂停回放</el-button>
-        <el-button @click="returnBack" style="margin-left: 50px;">返回</el-button>
-      </div>
-      <div id="chart" style="width: 80%;height: 300px; margin-top: 50px;"></div>
-    </div>
+    <div id="chart" class="chart"></div>
   </div>
 </template>
 
@@ -265,7 +263,7 @@ export default class ReplayView extends mixins(Vue) {
     this.mistakes.forEach(item => {
       const { startIndex, endIndex } = item;
       const highlightedText = this.finalText.slice(startIndex, endIndex).replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      if (this.showMistakeFlag){
+      if (this.showMistakeFlag) {
         result = result.replace(
             this.finalText.slice(startIndex, endIndex),
             `<span style="color: red;">${highlightedText}</span>`
@@ -276,10 +274,11 @@ export default class ReplayView extends mixins(Vue) {
             `<span style="color: black;">${highlightedText}</span>`
         );
       }
-
     });
+    result = result.replace(/\n/g, '<br>'); // 将换行符替换为<br>标签
     return result;
   }
+
 
   showMistake () {
     this.showMistakeFlag = !this.showMistakeFlag;
@@ -359,10 +358,8 @@ export default class ReplayView extends mixins(Vue) {
 <style scoped>
 .replay {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  margin-bottom: 20px;
   width: 100%;
 }
 
@@ -376,11 +373,11 @@ p {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 10px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background-color: #fff;
-  width: 50%;
+  margin-left:0px;
+  width: 60%;
 }
 
 .content {
@@ -388,8 +385,10 @@ p {
   overflow: auto;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: flex-start;
+  margin-top: 30px;
+  margin-right: -30px;
 }
 
 .header {
@@ -397,12 +396,11 @@ p {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  background-color: #f0f0f0; /* 添加背景色 */
   padding: 10px 20px; /* 添加内边距 */
   font-family: Arial, sans-serif; /* 修改字体 */
   font-size: 16px; /* 修改字体大小 */
   color: #333; /* 修改字体颜色 */
-  width: 90%;
+  width: 70%;
 }
 
 .text-area {
@@ -422,22 +420,12 @@ p {
 .composition {
   position:relative;
   margin-top: 40px;
-  width: 80%;
+  margin-right: 30px;
+  width: 50%;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
-}
-
-.text{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 300px;
-  overflow: auto;
-  padding: 10px;
 }
 
 #chart{
@@ -448,20 +436,73 @@ p {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   width: 50%;
+  margin-left: 20px;
   padding: 20px;
   height: 400px; /* 设置合适的高度 */
 }
 
 .mistakeTable{
-  width:300px;
+  width:240px;
   position:fixed;
   top:100px;
-  right:30px;
+  right:730px;
   z-index:999;
 }
 
 .replayText{
   width: 100%;
+  margin-right: 30px;
+  font-size: 20px;
+  border-radius: 4px;
+  padding: 10px;
+  white-space: pre-wrap;
+  margin-top: 20px;
+  font-family: KaiTi;
 }
+
+.replayContent{
+  position: relative;
+}
+
+.username {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 24px;
+  color: #0088cc;
+  font-weight: bold;
+  padding: 10px;
+  margin-bottom:50px;
+}
+
+.red-button {
+  color: #ff5252;
+  border: 1px solid #ff5252;
+}
+
+.red-button:hover {
+  background-color: #ff5252;
+  color: white;
+}
+
+.header-item {
+  font-weight: bold;
+}
+
+.chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9;
+  margin-top: 50px;
+  width: 80%;
+  height: 350px; /* 设置合适的较大高度 */
+  padding: 20px;
+}
+
+/* 其他代码未修改，请保持原样 */
 </style>
 

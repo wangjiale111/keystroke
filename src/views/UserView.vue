@@ -65,6 +65,7 @@ export default class AdminView extends Vue {
   total = 0;
   searchQuery = "";
 
+
   mounted() {
     this.getUserEvents();
   }

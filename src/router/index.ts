@@ -12,6 +12,7 @@ const routes: Array<RouteRecordRaw> = [
         component: RecordView,
         meta: {
             requiresAuth: false, // 不需要登录即可访问的页面
+            keepAlive: true , // 保持状态
         },
     },
     {
@@ -19,27 +20,40 @@ const routes: Array<RouteRecordRaw> = [
         component: AdminView,
         meta: {
             requiresAuth: true, // 需要登录才能访问的页面
+            key:"admin" // 设置 key 值为 "admin"
         },
         children: [
             {
                 path: "", // 子路径为空时，为默认路由
                 name: "admin",
                 component: UserView,
+                meta: {
+                    key: "user" // 用于keep-alive的key
+                }
             },
             {
                 path: "/admin/user",
                 name: "user",
                 component: UserView,
+                meta: {
+                    key: "user" // 设置 key 值为 "user"
+                }
             },
             {
                 path: "/admin/dashBoard",
                 name: "dashBoard",
                 component: dashBoard,
+                meta: {
+                    key: "dash"
+                }
             },
             {
                 path: "/admin/replay",
                 name: "replay",
-                component: ReplayView
+                component: ReplayView,
+                meta: {
+                    key: "replay" // 设置 key 值为 "user"
+                }
             },
         ],
     },
@@ -47,7 +61,7 @@ const routes: Array<RouteRecordRaw> = [
         path: "/:pathMatch(.*)*", // 匹配所有路径
         redirect: () => {
             return "/record";
-        }
+        },
     },
 ];
 
@@ -66,7 +80,7 @@ router.beforeEach((to, from, next) => {
             next();
         } else {
             console.log("未登录");
-            next('/record');
+            next("/record");
         }
     } else {
         next();
@@ -80,4 +94,5 @@ router.afterEach((to, from) => {
         localStorage.setItem("adminToken", token);
     }
 });
+
 export default router;

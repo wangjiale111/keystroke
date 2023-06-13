@@ -25,25 +25,22 @@
         >
           <el-menu>
             <el-menu-item index="1">
-              <router-link to="/admin/user">
-                用户列表
-              </router-link>
+              <router-link to="/admin/user">用户列表</router-link>
             </el-menu-item>
-            <router-link to="/admin/dashBoard">
-              <el-menu-item index="2">
-                数据分析
-              </el-menu-item>
-            </router-link>
-            <router-link to="/record">
-              <el-menu-item index="3">
-                写作记录
-              </el-menu-item>
-            </router-link>
+            <el-menu-item index="2">
+              <router-link to="/admin/dashBoard">数据分析</router-link>
+            </el-menu-item>
+            <el-menu-item index="3">
+              <router-link to="/record">写作记录</router-link>
+            </el-menu-item>
           </el-menu>
+
         </el-aside>
         <el-container>
           <el-main class="main-content">
-            <router-view></router-view>
+            <keep-alive>
+              <router-view></router-view>
+            </keep-alive>
           </el-main>
         </el-container>
       </el-container>
@@ -54,6 +51,7 @@
 <script lang="ts">
 import { Vue, Options } from "vue-class-component";
 import "element-plus/theme-chalk/index.css";
+
 import {
   ElContainer,
   ElHeader,
