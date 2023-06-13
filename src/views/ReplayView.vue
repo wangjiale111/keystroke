@@ -5,6 +5,8 @@
       <div class="composition">
         <div class="mistakeTable">
           <el-button @click="showMistake" class="red-button">纠错</el-button>
+          <el-button @click="submitMistake" v-show="showMistakeFlag">
+            纠正</el-button>
           <el-table :data="mistakes" v-show="showMistakeFlag" v-if="mistakes.length > 0">
             <el-table-column prop="mistake" label="错误" />
             <el-table-column prop="correct" label="建议" />
@@ -294,6 +296,51 @@ export default class ReplayView extends mixins(Vue) {
   // 忽略el-table当前行的错误，保留其他行的错误不变
   ignoreMistake(currentIndex: number) {
     this.mistakes.splice(currentIndex, 1); // 删除当前行的数据
+  }
+
+// 向数据库提交mistakes：/api/update_mistakes
+  async submitMistake() {
+    try {
+      const token = localStorage.getItem("adminToken"); // 从本地存储获取JWT令牌
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token, // 将JWT令牌添加到请求头
+        },
+      };
+
+      // 将mistakes从对象数组转换回原始字符串格式
+      const mistakesString = `[${this.mistakes
+          .map(({ mistake, correct, startIndex, endIndex }) => {
+            return `("${mistake}", "${correct}", ${startIndex}, ${endIndex})`;
+          })
+          .join(",")}]`;
+
+      console.log(mistakesString);
+      // 向后端发送用户名和mistakes更新请求
+      const data = {
+        userName: this.userName,
+        mistakes: mistakesString,
+      };
+      const response = await axios.post(
+          keystrokeUrl + "/update_mistakes",
+          data,
+          config
+      );
+
+      // 成功提示
+      this.$message({
+        message: response.data,
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      // 错误提示
+      this.$message({
+        message: "Failed to update user mistakes!",
+        type: "error",
+      });
+    }
   }
 
 
