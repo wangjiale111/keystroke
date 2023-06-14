@@ -38,9 +38,24 @@
         </el-aside>
         <el-container>
           <el-main class="main-content">
-            <keep-alive>
-              <router-view></router-view>
-            </keep-alive>
+            <el-tabs type="border-card">
+              <router-view
+                  v-slot="{ Component, route }"
+                  :key="$route.path"
+                  v-bind:component=Component
+              >
+                <keep-alive>
+                  <el-tab-pane :label="route.meta.label" :key="route.path">
+                    <Close
+                        v-slot="label"
+                        style="width: 2em; height: 2em;"
+                        @click.stop="closeTab(route.path)"
+                    />
+                    <Component />
+                  </el-tab-pane>
+                </keep-alive>
+              </router-view>
+            </el-tabs>
           </el-main>
         </el-container>
       </el-container>
@@ -51,7 +66,7 @@
 <script lang="ts">
 import { Vue, Options } from "vue-class-component";
 import "element-plus/theme-chalk/index.css";
-
+import store from '@/store/index.ts';
 import {
   ElContainer,
   ElHeader,
@@ -82,6 +97,7 @@ import {
 export default class AppLayout extends Vue {
   sidebarVisible = true;
   mainWidth = 0;
+  $store :store;
 
   mounted() {
     this.calculateWidths();
@@ -95,6 +111,38 @@ export default class AppLayout extends Vue {
 
   beforeUnmount() {
     window.removeEventListener("resize", this.calculateWidths);
+  }
+
+  created() {
+    // 监听路由变化并添加新选项卡到 store
+    this.$watch(
+        "$route",
+        () => {
+          this.$store.commit("ADD_TAB", {
+            path: this.$route.path,
+            label: this.$route.name,
+            componentName: this.$route.meta.key,
+          });
+        },
+        { immediate: true }
+    );
+  }
+
+  closeTab(path: string) {
+    const currentViewIndex = this.$store.state.tabs.findIndex(
+        (tab: any) => tab.path === path
+    );
+
+    if (currentViewIndex > -1) {
+      this.$store.commit("REMOVE_TAB", currentViewIndex);
+    }
+
+    if (this.$store.state.tabs.length > 0) {
+      const newPath = this.$store.state.tabs[
+          Math.min(currentViewIndex, this.$store.state.tabs.length - 1)
+          ].path;
+      this.$router.push(newPath);
+    }
   }
 
   calculateWidths() {

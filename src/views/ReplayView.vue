@@ -4,9 +4,7 @@
     <div class="replay">
       <div class="composition">
         <div class="mistakeTable">
-          <el-button @click="showMistake" class="red-button">纠错</el-button>
-          <el-button @click="submitMistake" v-show="showMistakeFlag">
-            纠正</el-button>
+          <el-button @click="showMistake" class="red-button">错别字分析</el-button>
           <el-table :data="mistakes" v-show="showMistakeFlag" v-if="mistakes.length > 0">
             <el-table-column prop="mistake" label="错误" />
             <el-table-column prop="correct" label="建议" />
@@ -16,6 +14,12 @@
               </el-button>
             </el-table-column>
           </el-table>
+          <div>
+            <el-button @click="cancelMistake" v-show="showMistakeFlag && ignoreFlag">
+              取消更改</el-button>
+            <el-button @click="submitMistake" v-show="showMistakeFlag && ignoreFlag">
+              确认更改</el-button>
+          </div>
         </div>
         <div v-html="getHighlightedText()" class="replayText"/>
       </div>
@@ -86,6 +90,7 @@ export default class ReplayView extends mixins(Vue) {
   mistakes: any[] = [];
   showMistakeFlag = false;
   $message: Message;
+  ignoreFlag = false;
 
   /**
    * 生命周期 created
@@ -123,7 +128,7 @@ export default class ReplayView extends mixins(Vue) {
         params: {userName: this.userName}
       };
       const response = await axios.get(keystrokeUrl + '/get_mistake_data', config);
-      console.log(response.data)
+      // console.log(response.data)
       this.finalText = response.data[0].finalText
       this.mistakeStr = response.data[0].mistakes;
 
@@ -296,6 +301,7 @@ export default class ReplayView extends mixins(Vue) {
   // 忽略el-table当前行的错误，保留其他行的错误不变
   ignoreMistake(currentIndex: number) {
     this.mistakes.splice(currentIndex, 1); // 删除当前行的数据
+    this.ignoreFlag = true;
   }
 
 // 向数据库提交mistakes：/api/update_mistakes
@@ -316,7 +322,7 @@ export default class ReplayView extends mixins(Vue) {
           })
           .join(",")}]`;
 
-      console.log(mistakesString);
+      // console.log(mistakesString);
       // 向后端发送用户名和mistakes更新请求
       const data = {
         userName: this.userName,
@@ -330,19 +336,24 @@ export default class ReplayView extends mixins(Vue) {
 
       // 成功提示
       this.$message({
-        message: response.data,
+        message: '成功提交！',
         type: "success",
       });
     } catch (error) {
       console.error(error);
       // 错误提示
       this.$message({
-        message: "Failed to update user mistakes!",
+        message: "提交失败!",
         type: "error",
       });
     }
   }
 
+  // 取消所欲哦更改，把删除的el-table数据进行恢复
+  async cancelMistake(){
+    this.mistakes = [];
+    await this.fetchMistake();
+  }
 
 
   /**
