@@ -1,31 +1,20 @@
-import { createStore } from "vuex";
+import { defineStore } from 'pinia';
 
-const store = createStore({
-    state: {
+export const useTabsStore = defineStore('tabs', {
+    state: () => ({
         tabs: [],
-    },
-    mutations: {
-        ADD_TAB: (state: any, tab: any) => {
-            const exists = state.tabs.some(
-                (item: any) => item.path === tab.path
-            );
+    }),
+    actions: {
+        addTab(tab) {
+            const tabIdentifier = `${tab.path}:${tab.query?.userName}`;
+
+            const exists = this.tabs.some((item) => item.identifier === tabIdentifier);
             if (!exists) {
-                state.tabs.push(tab);
+                this.tabs.push({ ...tab, identifier: tabIdentifier });
             }
         },
-        REMOVE_TAB: (state: any, index: number) => {
-            state.tabs.splice(index, 1);
+        removeTab(index) {
+            this.tabs.splice(index, 1);
         },
     },
-    actions: {
-        addTab({ commit }, tab) {
-            commit("ADD_TAB", tab);
-        },
-        removeTab({ commit }, index) {
-            commit("REMOVE_TAB", index);
-        },
-    },
-    modules: {},
 });
-
-export default store;

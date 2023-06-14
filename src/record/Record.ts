@@ -1,9 +1,5 @@
 import {UserViewModel} from './DomEventRecord';
 import $ from 'jquery';
-import Papa from "papaparse";
-import {ElMessageBox} from 'element-plus';
-import index from "@/store";
-import axios from "axios";
 
 export default class EventRecord {
 
@@ -163,7 +159,7 @@ export default class EventRecord {
         }
 
         // Only record the event if recording is in progress
-        if ((window as any).recordInProgress == true) {
+        if (true) {
 
             const userEvent = {'selector': this.getSelector(event.target)} as any;
 
@@ -275,7 +271,7 @@ export default class EventRecord {
             // userEvent.timeStamp = new Date().getTime() - this.startTimeDelay;
             userEvent.timeStamp = Math.floor((new Date().getTime() - this.startTimeDelay) / 10) * 10; // 更改为10毫秒精度
             if (userEvent.selector !== null) {
-                if ((window as any).playbackInProgress == false) {
+                if (true) {
                     const {
                         No,
                         value,
@@ -354,12 +350,12 @@ export default class EventRecord {
     };
 
     start = () => {
-        if ((window as any).playbackInProgress == false) {
+        if (true) {
             this.startTimeDelay = new Date().getTime();
             console.debug('Start recording.');
 
             // this.startTimeDelay = Math.abs(this.startTimeDelay - new Date().getTime());
-            (window as any).recordInProgress = true;
+
 
         } else {
             throw new Error('Cannot start recording -- test playback is in progress.');
@@ -368,45 +364,10 @@ export default class EventRecord {
 
     stop = () => {
         console.debug('Stop recording.');
-
-        (window as any).recordInProgress = false;
-        // index.setState(JSON.parse(JSON.stringify(this.userEventLog)));
-        // // 将用户事件日志发送给后端保存到数据库
-        // axios.post('http://127.0.0.1:5000/api/save_event_logs', this.userEventLog)
-        //     .then(response => {
-        //         console.log(response.data);
-        //     })
-        //     .catch(error => {
-        //         console.error(error);
-        //     });
-
         const playbackScript = {
             'window': {'width': window.innerWidth, 'height': window.innerHeight},
             'event_log': this.userEventLog
         };
-        // console.log(this.userEventLog)
-        // ElMessageBox.confirm("是否生成CSV?", "提示", {
-        //     confirmButtonText: "确定",
-        //     cancelButtonText: "取消",
-        //     type: "warning"
-        // })
-        //     .then(() => {
-        //         // 将数据转换为CSV格式
-        //         const csv = Papa.unparse(this.userEventLog);
-        //         const csvData = new Blob([csv], {type: "text/csv;charset=utf-8;"});
-        //         const csvURL = window.URL.createObjectURL(csvData);
-        //         const tempLink = document.createElement("a");
-        //         tempLink.href = csvURL;
-        //         tempLink.setAttribute("download", "writingData.csv");
-        //         document.body.appendChild(tempLink);
-        //         tempLink.click();
-        //         document.body.removeChild(tempLink);
-        //     })
-        //     .catch(() => {
-        //         // 取消
-        //     });
-
-
         return playbackScript;
     }
 

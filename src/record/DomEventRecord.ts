@@ -70,8 +70,6 @@ export class DomEventRecord {
 
     constructor() {
         (window as any).emitter = mitt();
-        (window as any).playbackInProgress = false;
-        (window as any).recordInProgress = false;
     }
 
     /**
@@ -80,7 +78,6 @@ export class DomEventRecord {
      */
     startRecord(progressCall:any) {
         this.record = new EventRecord(progressCall);
-
         this.record.start();
     }
 
@@ -126,10 +123,10 @@ export class DomEventRecord {
     //    this.playback.start();
     // }
 
-    startViewModelPlayback(data:any,  finish?:any) {
+    startViewModelPlayback(userName:any, data:any,  finish?:any) {
         this.viewModelPlayBack = new ViewModelPlayBack(data);
         if(finish && typeof finish == 'function'){
-            this.viewModelPlayBack.start(finish);
+            this.viewModelPlayBack.start(userName, finish);
         }
         else this.viewModelPlayBack.start();
         return this.viewModelPlayBack;

@@ -96,10 +96,18 @@ export default class ReplayView extends mixins(Vue) {
    * 生命周期 created
    */
   async created() {
-    (window as any).playbackInProgress = false;
+
     this.userName = this.$route.query.userName;
     await this.fetchMistake();
     // await this.getReplayData(this.time);
+    this.$watch(
+        () => ({path: this.$route.path, query: this.$route.query}),
+        (newValue) => {
+          this.fetchMistake();
+          this.userName = this.$route.query.userName;
+        },
+        {immediate: true, deep: true}
+    );
   }
 
   async fetchEventLogs() {
@@ -167,7 +175,7 @@ export default class ReplayView extends mixins(Vue) {
     // this.startTime = 0;
     this.flag = 1;
     if ((window as any).emitter && this.flag == 1) {
-      (window as any).emitter.on('Writing', async (data: any) => {
+      (window as any).emitter.on(this.userName, async (data: any) => {
         await this.viewModelPlaBackHander(data);
       });
     }
@@ -261,7 +269,7 @@ export default class ReplayView extends mixins(Vue) {
       this.numSecond = this.writingLength;
     }, 1000);
     if (this.replayData.length) {
-      this.viewModelPlayback = await this.domRecord.startViewModelPlayback(this.replayData);
+      this.viewModelPlayback = await this.domRecord.startViewModelPlayback(this.userName, this.replayData);
     }
   }
 

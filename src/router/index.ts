@@ -11,54 +11,59 @@ const routes: Array<RouteRecordRaw> = [
         name: "record",
         component: RecordView,
         meta: {
-            requiresAuth: false, // 不需要登录即可访问的页面
-            keepAlive: true , // 保持状态
+            requiresAuth: false,
+            keepAlive: true,
+            label: "记录", // 添加label属性
         },
     },
     {
         path: "/admin",
         component: AdminView,
         meta: {
-            requiresAuth: true, // 需要登录才能访问的页面
-            key:"admin" // 设置 key 值为 "admin"
+            requiresAuth: true,
+            key: "admin",
         },
         children: [
             {
-                path: "", // 子路径为空时，为默认路由
+                path: "",
                 name: "admin",
                 component: UserView,
                 meta: {
-                    key: "user" // 用于keep-alive的key
-                }
+                    key: "user",
+                    label: "用户列表", // 添加label属性
+                },
             },
             {
                 path: "/admin/user",
                 name: "user",
                 component: UserView,
                 meta: {
-                    key: "user" // 设置 key 值为 "user"
-                }
+                    key: "user",
+                    label: "用户列表", // 添加label属性
+                },
             },
             {
                 path: "/admin/dashBoard",
                 name: "dashBoard",
                 component: dashBoard,
                 meta: {
-                    key: "dash"
-                }
+                    key: "dash",
+                    label: "数据分析", // 添加label属性
+                },
             },
             {
                 path: "/admin/replay",
                 name: "replay",
                 component: ReplayView,
                 meta: {
-                    key: "replay" // 设置 key 值为 "user"
-                }
+                    key: "replay",
+                    label: "写作记录回放", // 添加label属性
+                },
             },
         ],
     },
     {
-        path: "/:pathMatch(.*)*", // 匹配所有路径
+        path: "/:pathMatch(.*)*",
         redirect: () => {
             return "/record";
         },
@@ -74,7 +79,6 @@ router.beforeEach((to, from, next) => {
     const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
 
     if (requiresAuth) {
-        // 检查登录状态
         const token = localStorage.getItem("adminToken");
         if (token) {
             next();
@@ -90,7 +94,6 @@ router.beforeEach((to, from, next) => {
 router.afterEach((to, from) => {
     const token = localStorage.getItem("adminToken");
     if (token) {
-        // 更新浏览器中的token
         localStorage.setItem("adminToken", token);
     }
 });

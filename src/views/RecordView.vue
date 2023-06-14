@@ -244,9 +244,9 @@ export default class WritingRecord extends Vue {
                     writingLevel: this.form.writingLevel
                   })
                   .then(response => {
-                    console.log(response.data);
+                    // console.log(response.data);
                     this.disable4 = true;
-                    console.log(this.disable4);
+
                     this.$message({
                       message: '提交成功',
                       type: 'success'
