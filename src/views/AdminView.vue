@@ -37,7 +37,7 @@
         </el-aside>
         <el-container direction="vertical">
           <div class="tab-bar">
-            <el-tabs type="border-card" v-model="activeTabIndex">
+            <el-tabs type="border-card" v-model="activeTabIndex" style="height:10px;">
               <template v-for="(tab, index) in tabsStore.tabs" :key="index">
                 <el-tab-pane :key="tab.identifier" v-if="tabsStore.tabs.length > 0">
                   <template v-slot:label>
@@ -200,7 +200,6 @@ export default class AppLayout extends Vue {
   flex-direction: row;
   height: 80px;
   width: 100%;
-  border-bottom: 1px solid #ccc;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -229,6 +228,7 @@ export default class AppLayout extends Vue {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  border: 1px solid #ccc;
 }
 
 .aside {
@@ -242,6 +242,7 @@ export default class AppLayout extends Vue {
   overflow-y: auto; /* 添加垂直滚动条 */
   position: relative;
   margin-top: 10px;
+  margin-bottom: 30px;
 }
 
 h1 {

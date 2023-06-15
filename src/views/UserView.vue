@@ -142,7 +142,6 @@ export default class AdminView extends Vue {
     }
   }
 
-
   async fetchEventLogs(userName: string){
     try {
       const token = localStorage.getItem('adminToken'); // 从本地存储获取JWT令牌
@@ -259,6 +258,8 @@ export default class AdminView extends Vue {
 <style scoped>
 .main {
   position: relative;
+  margin-top: 40px;
+  margin-bottom: 30px;
 }
 
 .search-input {
