@@ -78,10 +78,10 @@ export default class ReplayView extends mixins(Vue) {
         params: {userName: this.userName}
       };
       const response = await axios.get(keystrokeUrl + '/get_mistake_data', config);
+      console.log(response.data)
       // console.log(response.data)
       this.finalText = response.data[0].finalText
       this.mistakeStr = response.data[0].mistakes;
-
       // 去除字符串中的外层括号以及引号
       const formattedData = this.mistakeStr.replace(/^\[|\]$/g, '').replace(/'/g, '"');
 
@@ -229,9 +229,10 @@ p {
   border-radius: 4px;
   padding: 10px;
   white-space: pre-wrap;
-  margin-top: 20px;
+  margin-top: 40px;
   margin-left: -80px;
   font-family: KaiTi;
+  border: 1px solid #ebebeb;
 }
 
 .replayContent{

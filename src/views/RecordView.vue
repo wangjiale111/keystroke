@@ -7,7 +7,7 @@
       </div>
       <div class="writing">
             <div class="title" v-show="!showForm">
-                <span>题目：作文题目</span>
+                <span>名校生涯后的孔乙己困境：自我成长与社会期待的矛盾</span>
             </div>
             <div class="header" v-show="!showForm">
                 <div>时间:{{ timeFormat }}</div>
@@ -76,7 +76,7 @@
                     @keydown="handleKeyDown"
                     v-show="showWriting"
                     @paste="handlePaste"
-                    style="width: 100%; font-size: 30px; border: 1px solid #ccc; border-radius: 4px; padding: 10px;"
+                    style="width: 100%; font-size: 10px; border: 1px solid #ccc; border-radius: 4px; padding: 10px;"
                 ></el-input>
               </div>
             </div>
@@ -118,12 +118,12 @@ export default class WritingRecord extends Vue {
     value = '';
     replayData: any[] = [];
     // 设置时间
-    timeFormat = '1分00秒';
+    timeFormat = '20分00秒';
     flag = false;
     wordNum = 0;
     disable = true;
     // 设置时间,与timeFormat同步
-    time = 60;
+    time = 1200;
     writingData: any[] = [];
     form = {
         userName: '',
