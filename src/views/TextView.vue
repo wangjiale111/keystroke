@@ -147,6 +147,7 @@ export default class ReplayView extends mixins(Vue) {
 
 // 向数据库提交mistakes：/api/update_mistakes
   async submitMistake() {
+    this.ignoreFlag = false;
     try {
       const token = localStorage.getItem("adminToken"); // 从本地存储获取JWT令牌
       const config = {

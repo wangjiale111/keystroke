@@ -150,6 +150,7 @@ export default class WritingRecord extends Vue {
 
   showLogin = false; // 控制登录弹窗显示/隐藏的状态
   showRecord = true;
+  writingFlag = false;
 
 
   mounted() {
@@ -177,6 +178,7 @@ export default class WritingRecord extends Vue {
         console.log("record开始")
         this.disable = false;
         this.showStart = false;
+        this.writingFlag = true;
         // 计时器计算时间
         this.flag = false;
         this.value = '';
@@ -204,8 +206,9 @@ export default class WritingRecord extends Vue {
 
         this.domRecord = new DomEventRecord();
         this.domRecord.startRecord((log: any) => {
+          if (this.writingFlag) {
             this.writingData.push(log);
-            // console.log(log);
+          }
         });
         this.$watch('value', (newValue: any, oldValue: any) => {
             // const data: UserViewModel = {
@@ -309,6 +312,7 @@ export default class WritingRecord extends Vue {
      */
     toStop() {
         console.log("点击提交，结束录制");
+        this.writingFlag = false;
         this.disable = true;
         this.flag = true;
         recordData = this.domRecord.stopRecord((log: any) => {
