@@ -21,6 +21,9 @@
             <el-button type="success" @click="viewReplay(scope.row.userName)">
               查看回放
             </el-button>
+            <el-button type="success" @click="viewText(scope.row.userName)">
+              查看原文
+            </el-button>
             <el-button @click="deleteUser(scope.row.userName)">
               删除
             </el-button>
@@ -229,7 +232,11 @@ export default class AdminView extends Vue {
   }
 
   viewReplay(userName: string) {
-    this.$router.push({path: "/admin/replay", query: {userName}});
+    this.$router.push({path: `/admin/replay/${userName}`});
+  }
+
+  viewText(userName: string){
+    this.$router.push({path: `/admin/text/${userName}`});
   }
 
   handleSizeChange(val) {

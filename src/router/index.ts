@@ -4,6 +4,7 @@ import ReplayView from "@/views/ReplayView.vue";
 import AdminView from "@/views/AdminView.vue";
 import UserView from "@/views/UserView.vue";
 import dashBoard from "@/views/dashBoard.vue";
+import TextView from "@/views/TextView.vue";
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -52,12 +53,21 @@ const routes: Array<RouteRecordRaw> = [
                 },
             },
             {
-                path: "/admin/replay",
+                path: "/admin/replay/:userName",
                 name: "replay",
                 component: ReplayView,
                 meta: {
                     key: "replay",
                     label: "写作记录回放", // 添加label属性
+                },
+            },
+            {
+                path: "/admin/text/:userName",
+                name: "text",
+                component: TextView,
+                meta: {
+                    key: "text",
+                    label: "原文分析", // 添加label属性
                 },
             },
         ],

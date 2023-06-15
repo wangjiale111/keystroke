@@ -128,7 +128,7 @@ export class DomEventRecord {
         if(finish && typeof finish == 'function'){
             this.viewModelPlayBack.start(userName, finish);
         }
-        else this.viewModelPlayBack.start();
+        else this.viewModelPlayBack.start(userName);
         return this.viewModelPlayBack;
     }
    async stopViewModelPlayback(data:ViewModelPlayBack) {

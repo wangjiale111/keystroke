@@ -15,23 +15,6 @@
       </div>
       <div class="right-header" :style="{ width: mainWidth + 'px' }">
         <h1>keystroke数据分析平台</h1>
-        <div class="tab-bar">
-          <el-tabs type="border-card" v-model="activeTabIndex">
-            <template v-for="(tab, index) in tabsStore.tabs" :key="index">
-              <el-tab-pane :key="tab.identifier" v-if="tabsStore.tabs.length > 0">
-                <template v-slot:label>
-                  <div @click="switchTab(tab.path, tab.query)">
-                    {{ tab.label }}
-                    <Close
-                        style="width: 1em; height: 1em;"
-                        @click.stop="closeTab(tab.path)"
-                    />
-                  </div>
-                </template>
-              </el-tab-pane>
-            </template>
-          </el-tabs>
-        </div>
       </div>
     </div>
     <div class="app-layout">
@@ -51,12 +34,30 @@
               <router-link to="/record">写作记录</router-link>
             </el-menu-item>
           </el-menu>
-
         </el-aside>
-        <el-container>
-          <el-main class="main-content">
-            <router-view></router-view>
-          </el-main>
+        <el-container direction="vertical">
+          <div class="tab-bar">
+            <el-tabs type="border-card" v-model="activeTabIndex">
+              <template v-for="(tab, index) in tabsStore.tabs" :key="index">
+                <el-tab-pane :key="tab.identifier" v-if="tabsStore.tabs.length > 0">
+                  <template v-slot:label>
+                    <div @click="switchTab(tab.path, tab.query)">
+                      {{ tab.label }}
+                      <Close
+                          style="width: 1em; height: 1em;"
+                          @click.stop="closeTab(tab.path)"
+                      />
+                    </div>
+                  </template>
+                </el-tab-pane>
+              </template>
+            </el-tabs>
+          </div>
+          <div class="main-content">
+            <el-main>
+              <router-view :key="$route.fullPath" />
+            </el-main>
+          </div>
         </el-container>
       </el-container>
     </div>
@@ -101,6 +102,7 @@ export default class AppLayout extends Vue {
   sidebarVisible = true;
   mainWidth = 0;
   tabsStore = useTabsStore();
+  activeTabIndex = '0';
 
   mounted() {
     this.calculateWidths();
@@ -110,12 +112,6 @@ export default class AppLayout extends Vue {
     if (window.innerWidth < 800) {
       this.sidebarVisible = false;
     }
-  }
-
-  activeTabIndex() {
-    let currentIndex = this.tabsStore.tabs.findIndex(tab => tab.path === this.$route.path);
-    console.log(currentIndex)
-    return currentIndex >= 0 ? String(currentIndex) : undefined;
   }
 
   switchTab(path: string, query: any) {
@@ -137,7 +133,13 @@ export default class AppLayout extends Vue {
             componentName: this.$route.meta.key,
             query: newValue.query,
           });
-          console.log(this.tabsStore.tabs)
+
+          // 确保在 DOM 更新后再获取新的 activeTabIndex
+          this.$nextTick(() => {
+            let currentIndex = this.tabsStore.tabs.findIndex(tab => tab.identifier === `${newValue.path}:${newValue.query?.userName}`);
+            this.activeTabIndex = currentIndex >= 0 ? String(currentIndex) : undefined;
+            console.log(  this.activeTabIndex)
+          })
         },
         {immediate: true, deep: true}
     );
@@ -236,9 +238,10 @@ export default class AppLayout extends Vue {
 }
 
 .main-content {
-  height: calc(100vh - 80px); /* 设置内容区域的高度 */
+  height: calc(100vh - 90px); /* 设置内容区域的高度 */
   overflow-y: auto; /* 添加垂直滚动条 */
   position: relative;
+  margin-top: 10px;
 }
 
 h1 {
