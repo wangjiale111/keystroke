@@ -62,6 +62,20 @@
                           ></el-input>
                         </el-form-item>
                     </el-form>
+                  <div>
+                    <div class="question-container">
+                      <h3>{{ currentQuestion.label }}</h3>
+                      <el-radio-group v-model="answers[currentQuestion.key]">
+                        <el-radio v-for="(option, optionIndex) in currentQuestion.options" :key="optionIndex" :label="option.value">
+                          {{ option.label }}
+                        </el-radio>
+                      </el-radio-group>
+                    </div>
+                    <div class="navigation-buttons">
+                      <el-button icon="el-icon-arrow-left" :disabled="currentIndex === 0" @click="prevQuestion"></el-button>
+                      <el-button icon="el-icon-arrow-right" :disabled="currentIndex === questions.length - 1" @click="nextQuestion"></el-button>
+                    </div>
+                  </div>
                 </div>
                 <div class="button" v-show="showForm">
                     <el-button type="primary" @click="confirmSubmit" :disabled="disable3">提交调查问卷</el-button>
@@ -69,14 +83,14 @@
               <div class="recordText">
                 <el-input
                     type="textarea"
-                    :rows="13"
+                    :rows="15"
                     v-model="value"
                     :disabled="disable"
                     @input="handleInput"
                     @keydown="handleKeyDown"
                     v-show="showWriting"
                     @paste="handlePaste"
-                    style="width: 100%; font-size: 10px; border: 1px solid #ccc; border-radius: 4px; padding: 10px;"
+                    style="width: 100%; font-size: 20px; border: 1px solid #ccc; border-radius: 4px;"
                 ></el-input>
               </div>
             </div>
@@ -102,8 +116,7 @@ import {FormRules} from "element-plus/lib/components";
 import {keystrokeUrl} from "@/assets/config";
 import axios from "axios";
 import LoginDialog from "@/components/LoginDialog.vue";
-import { AppViewModel } from "@/AppViewModel";
-
+import {question} from "@/utils/studentData";
 
 let recordData: any;
 
@@ -151,11 +164,31 @@ export default class WritingRecord extends Vue {
   showLogin = false; // 控制登录弹窗显示/隐藏的状态
   showRecord = true;
   writingFlag = false;
+  questions = question;
+  currentIndex = 0;
+  answers: Record<string, string> = {};
 
 
   mounted() {
     this.showRecord = true;
   }
+
+  get currentQuestion() {
+    return this.questions[this.currentIndex];
+  }
+
+  prevQuestion() {
+    if (this.currentIndex > 0) {
+      this.currentIndex--;
+    }
+  }
+
+  nextQuestion() {
+    if (this.currentIndex < this.questions.length - 1) {
+      this.currentIndex++;
+    }
+  }
+
 
   showLoginDialog(): void {
     this.showLogin = true; // 显示登录弹窗
@@ -300,6 +333,7 @@ export default class WritingRecord extends Vue {
             type: "warning"
         })
             .then(() => {
+              this.showWriting = false;
                 this.toStop();
             })
             .catch(() => {
@@ -431,7 +465,7 @@ export default class WritingRecord extends Vue {
 }
 
 .recordText{
-  width: 50%;
+  width: 80%;
   margin: 0 auto;
 }
 </style>
