@@ -5,6 +5,7 @@ import AdminView from "@/views/AdminView.vue";
 import UserView from "@/views/UserView.vue";
 import dashBoard from "@/views/dashBoard.vue";
 import TextView from "@/views/TextView.vue";
+import markText from "@/views/markText.vue";
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -50,6 +51,15 @@ const routes: Array<RouteRecordRaw> = [
                 meta: {
                     key: "dash",
                     label: "数据分析", // 添加label属性
+                },
+            },
+            {
+                path: "/admin/markText/:userName",
+                name: "markText",
+                component: markText,
+                meta: {
+                    key: "dash",
+                    label: "作文点评", // 添加label属性
                 },
             },
             {

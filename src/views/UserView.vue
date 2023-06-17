@@ -22,7 +22,10 @@
               查看回放
             </el-button>
             <el-button type="success" @click="viewText(scope.row.userName)">
-              查看原文
+              查看原文批改
+            </el-button>
+            <el-button type="success" @click="viewMistake(scope.row.userName)">
+              查看错别字
             </el-button>
             <el-button @click="deleteUser(scope.row.userName)">
               删除
@@ -235,8 +238,13 @@ export default class AdminView extends Vue {
   }
 
   viewText(userName: string){
+    this.$router.push({path: `/admin/markText/${userName}`});
+  }
+
+  viewMistake(userName: string){
     this.$router.push({path: `/admin/text/${userName}`});
   }
+
 
   handleSizeChange(val) {
     this.perPage = val;
