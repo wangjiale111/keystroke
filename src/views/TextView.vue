@@ -27,21 +27,16 @@
 
 <script lang="ts" name="TextView">
 import {mixins, Options, Vue} from 'vue-class-component';
-import {DomEventRecord} from '@/record/DomEventRecord';
-import * as echarts from 'echarts';
 import axios from 'axios';
 import {keystrokeUrl} from "@/assets/config";
-import {ElRow, ElCol, ElMenu, ElMenuItem, ElButton} from "element-plus";
+import {ElButton} from "element-plus";
 import {Message} from 'element-plus';
 
 @Options({
   components: {ElButton}
 })
 export default class ReplayView extends mixins(Vue) {
-  value = '';
-  time = '00分00秒';
   flag = 1;
-  timing: any;
   userName: any;
   index = 0;
   result: any[] = [];
@@ -59,13 +54,6 @@ export default class ReplayView extends mixins(Vue) {
 
     this.userName = this.$route.params.userName;
     await this.fetchMistake();
-    this.$watch(
-        () => this.$route.params.userName, (newUserName, oldUserName) => {
-          // 当userName变化时重新加载页面所有的数据
-          console.log(`Username changed from ${oldUserName} to ${newUserName}`);
-        },
-        {immediate: true, deep: true}
-    );
   }
 
   async fetchMistake() {

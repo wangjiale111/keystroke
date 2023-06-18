@@ -246,6 +246,7 @@ export default class AppLayout extends Vue {
   position: relative;
   margin-top: 10px;
   margin-bottom: 30px;
+  padding: 0;
 }
 
 h1 {

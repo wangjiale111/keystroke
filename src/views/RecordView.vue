@@ -78,7 +78,7 @@
               @input="handleInput"
               @keydown="handleKeyDown"
               v-show="showWriting"
-
+              @paste = "handlePaste"
               style="width: 100%; font-size: 20px; border: 1px solid #ccc; border-radius: 4px;"
           ></el-input>
         </div>
