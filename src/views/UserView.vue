@@ -1,5 +1,11 @@
 <template>
   <div class="user">
+    <div class="title">
+      <div class="textTitle">
+       题目： {{title}}
+      </div>
+      <el-button @click="editTitle">点击修改</el-button>
+    </div>
     <div class="main">
       <el-input
           class="search-input"
@@ -45,6 +51,7 @@
       <div class="loading-spinner"></div>
     </div>
   </div>
+  <edit-title :editTitleVisible="editTitleVisible" :title="title" @close="editTitleVisible = false" @submit="submitTitle"/>
 </template>
 
 
@@ -54,9 +61,11 @@ import axios from 'axios';
 import {ElMessageBox, Message} from "element-plus";
 import Papa from "papaparse";
 import {keystrokeUrl} from "@/assets/config";
+import editTitle from "@/components/editTitle.vue";
 
 @Options({
   name: 'UserView',
+  components: {editTitle},
 })
 export default class AdminView extends Vue {
   userEvents: any[] = [];
@@ -67,6 +76,8 @@ export default class AdminView extends Vue {
   perPage = 10;
   total = 0;
   searchQuery = "";
+  title = "名校生涯后的孔乙己困境：自我成长与社会期待的矛盾";
+  editTitleVisible = false;
 
 
   mounted() {
@@ -242,6 +253,19 @@ export default class AdminView extends Vue {
     this.$router.push({path: `/admin/text/${userName}`});
   }
 
+  // 点击按钮弹出editTitle组件
+  editTitle(){
+    // 弹出editTitle组件
+    this.editTitleVisible = true;
+    console.log(this.editTitleVisible)
+  }
+
+  submitTitle(newTitle){
+    // 更新title
+    this.title = newTitle;
+    // 隐藏editTitle组件
+    this.editTitleVisible = false;
+  }
 
   handleSizeChange(val) {
     this.perPage = val;
@@ -308,5 +332,14 @@ export default class AdminView extends Vue {
 
 .aside-text {
   text-decoration: none;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
