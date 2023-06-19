@@ -6,6 +6,7 @@ import UserView from "@/views/UserView.vue";
 import dashBoard from "@/views/dashBoard.vue";
 import TextView from "@/views/TextView.vue";
 import markText from "@/views/markText.vue";
+import editTitle from "@/components/editTitle.vue";
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -80,6 +81,15 @@ const routes: Array<RouteRecordRaw> = [
                     label: "原文分析", // 添加label属性
                 },
             },
+            {
+                path: "/admin/editTitle",
+                name: "editTitle",
+                component: editTitle,
+                meta: {
+                    key: "editTitle",
+                    label: "发布作文", // 添加label属性
+                }
+            }
         ],
     },
     {

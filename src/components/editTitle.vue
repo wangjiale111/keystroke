@@ -1,54 +1,60 @@
 <template>
-<div class="form">
-  <el-dialog title="修改标题和要求" v-model:visible="editTitleVisible" @close="editTitleVisible = false">
-    <el-form ref="titleForm" :model="form" label-width="120px">
-      <el-form-item label="作文标题：">
-        <el-input v-model="form.title"></el-input>
+  <div>
+    <h2>发布作文</h2>
+    <el-form ref="form" :model="essay" :rules="rules" label-width="80px">
+      <el-form-item label="标题" prop="title">
+        <el-input v-model="essay.title"></el-input>
       </el-form-item>
-      <el-form-item label="作文要求：">
-        <el-input v-model="form.description"></el-input>
+      <el-form-item label="要求" prop="requirements">
+        <el-input type="textarea" v-model="essay.requirements"></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="publishEssay">发布</el-button>
       </el-form-item>
     </el-form>
-    <div class="dialog-footer">
-      <el-button @click="editTitleVisible = false">取消</el-button>
-      <el-button type="primary" @click="submitTitle">确定</el-button>
-    </div>
-  </el-dialog>
-</div>
+  </div>
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
+import {Options, Vue} from 'vue-class-component';
+import {ElMessage, ElMessageBox, ElForm} from 'element-plus';
+import {Message} from 'element-plus';
 
 @Options({
-  props: {
-    title: String,
-    editTitleVisible: Boolean
-  }
-})
-export default class EditTitle extends Vue {
-  form = {
-    title: (this.$props as { title: string }).title || '',
-    description: ''
-  }
 
-  submitTitle() {
-    this.$emit('update:title', this.form.title);
-    this.$emit('close');
+})
+export default class PublishEssay extends Vue {
+  essay = {
+    title: '',
+    requirements: ''
+  };
+
+  rules = {
+    title: [
+      { required: true, message: '请输入标题', trigger: 'blur' }
+    ],
+    requirements: [
+      { required: true, message: '请输入要求', trigger: 'blur' }
+    ]
+  };
+  $message: Message;
+
+  publishEssay() {
+    (this.$refs.form as typeof ElForm).validate((valid: any) => {
+      if (valid) {
+        // 表单验证通过，可以进行发布作文的操作
+        console.log('标题:', this.essay.title);
+        console.log('要求:', this.essay.requirements);
+        this.$message.success('发布成功');
+
+        // 重置表单
+        (this.$refs.form as typeof ElForm).resetFields();
+      } else {
+        // 表单验证不通过，显示错误信息
+        this.$message.error('请填写必填字段');
+        return false;
+      }
+    });
   }
 }
 </script>
-<style scoped>
-.dialog-footer {
-  text-align: right;
-  margin-top: 20px;
-}
-
-.form{
-  width: 500px;
-  height: 800px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-</style>

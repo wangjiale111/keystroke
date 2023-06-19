@@ -30,10 +30,10 @@
             <el-menu-item index="2">
               <router-link to="/admin/dashBoard">数据分析</router-link>
             </el-menu-item>
-<!--            <el-menu-item index="3">-->
-<!--              <router-link to="/admin/markText">作文点评</router-link>-->
-<!--            </el-menu-item>-->
             <el-menu-item index="3">
+              <router-link to="/admin/editTitle">发布作文</router-link>
+            </el-menu-item>
+            <el-menu-item index="4">
               <router-link to="/record">返回</router-link>
             </el-menu-item>
           </el-menu>
