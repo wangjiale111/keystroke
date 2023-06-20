@@ -27,7 +27,7 @@
       </div>
     </div>
   </div>
-  <div v-if="showFlag">
+  <div v-if="showFlag" style="margin-bottom: 200px;">
 
     <h2>得分：</h2>
     <p>总分：{{ apiResult.scoreCollection.score }}</p>
@@ -63,7 +63,7 @@
     </ul>
 
     <h2>纠错内容：</h2>
-    <div v-for="(correction, index) in apiResult.correctedContent" :key="index">
+    <div v-for="(correction, index) in apiResult.correctedContent" :key="index" >
       <p>
         <span>{{ correction.orgSent }}</span>
         <span>（原句）</span>
@@ -321,8 +321,8 @@ p {
 .mistakeTable{
   width:240px;
   position:fixed;
-  top:100px;
-  right:0; /* Changed to make it on the rightmost */
+  top:120px;
+  right:30px; /* Changed to make it on the rightmost */
   z-index:999;
 }
 
@@ -350,7 +350,7 @@ p {
   font-size: 24px;
   color: #0088cc;
   font-weight: bold;
-  margin-top: -30px;
+  margin-top: -50px;
   margin-bottom: 30px;
 }
 
@@ -394,5 +394,9 @@ p {
   100% {
     transform: rotate(360deg);
   }
+}
+
+*{
+  font-family: KaiTi;
 }
 </style>

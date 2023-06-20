@@ -1,15 +1,20 @@
 <template>
   <div class="user">
     <div class="main">
-      <el-input
-          class="search-input"
-          v-model="searchQuery"
-          placeholder="搜索姓名"
-          @keyup.enter="searchUserEvents"
-      ></el-input>
+      <div class="header">
+        <div style="margin-top: 5px;">搜索用户：</div>
+        <el-input
+            class="search-input"
+            v-model="searchQuery"
+            placeholder="请输入姓名"
+            @keyup.enter="searchUserEvents"
+            style=" width: 300px; margin-right: 10px;"
+        ></el-input>
+        <el-button type="primary" @click="searchUserEvents">搜索</el-button>
+      </div>
       <el-table :data="userEvents" border>
-        <el-table-column prop="userName" label="姓名" min-width="30"></el-table-column>
-        <el-table-column prop="saveTime" label="提交时间" min-width="50"></el-table-column>
+        <el-table-column prop="userName" label="姓名" min-width="20"></el-table-column>
+        <el-table-column prop="saveTime" label="提交时间" min-width="20"></el-table-column>
         <el-table-column label="操作">
           <template v-slot="scope">
             <el-button type="primary" @click="downloadEventLogs(scope.row.userName)">
@@ -268,6 +273,13 @@ export default class AdminView extends Vue {
   position: relative;
   margin-top: 40px;
   margin-bottom: 30px;
+}
+
+.header{
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-bottom: 20px;
 }
 
 .search-input {

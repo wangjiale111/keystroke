@@ -1,4 +1,5 @@
 <template>
+
   <div class="layout-container">
     <div class="header">
       <div
@@ -7,13 +8,12 @@
         <img src="@/assets/logo.png" alt="" style="width: 5em; height: 5em; margin-left: 30px">
         <div class="toggle-button">
           <el-button @click="toggleSidebar" style="width: 2em; height: 2em;">
-
             <Operation style="width: 2em; height: 2em;" v-if="!sidebarVisible"/>
             <Fold style="width: 2em; height: 2em;" v-if="sidebarVisible"/>
           </el-button>
         </div>
       </div>
-      <div class="right-header" :style="{ width: mainWidth + 'px' }">
+      <div class="right-header">
         <h1>keystroke数据分析平台</h1>
       </div>
     </div>
@@ -23,14 +23,17 @@
             :style="{ display: sidebarVisible ? 'block' : 'none', width: '150px', height: '100%' }"
             class="aside"
         >
-          <el-menu>
+          <el-menu class="el-menu" default-active="1">
             <el-menu-item index="1">
+              <Menu style="width: 1em; height: 1em;"/>
               <router-link to="/admin/user">用户列表</router-link>
             </el-menu-item>
             <el-menu-item index="2">
+              <Menu style="width: 1em; height: 1em;"/>
               <router-link to="/admin/dashBoard">数据分析</router-link>
             </el-menu-item>
             <el-menu-item index="3">
+              <Menu style="width: 1em; height: 1em;"/>
               <router-link to="/admin/editTitle">发布作文</router-link>
             </el-menu-item>
             <el-menu-item index="4">
@@ -57,7 +60,7 @@
             </el-tabs>
           </div>
           <div class="main-content">
-            <el-main>
+            <el-main class="el-main">
               <router-view :key="$route.fullPath" />
             </el-main>
           </div>
@@ -103,7 +106,6 @@ import {
 })
 export default class AppLayout extends Vue {
   sidebarVisible = true;
-  mainWidth = 0;
   tabsStore = useTabsStore();
   activeTabIndex = '0';
 
@@ -167,19 +169,13 @@ export default class AppLayout extends Vue {
   }
 
   calculateWidths() {
-    const asideElement = document.querySelector('.aside');
-    const mainElement = document.querySelector('.main-content');
-    if (asideElement && mainElement) {
-      const mainWidth = mainElement.getBoundingClientRect().width;
-      this.mainWidth = Math.floor(mainWidth);
-
       // 添加页面宽度改变时的折叠状态
       if (window.innerWidth < 800) {
         this.sidebarVisible = false;
       } else {
         this.sidebarVisible = true;
       }
-    }
+
   }
 
   toggleSidebar() {
@@ -191,11 +187,13 @@ export default class AppLayout extends Vue {
 
 <style>
 .layout-container {
-  height: 97vh; /* 设置为视口高度 */
+  height: 100vh;
   width: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* 添加overflow: hidden以阻止整个页面滚动 */
+  overflow: hidden;
+  /* 添加边框和阴影 */
+  box-shadow: 2px 2px 15px #ddd;
 }
 
 .header {
@@ -204,49 +202,91 @@ export default class AppLayout extends Vue {
   height: 80px;
   width: 100%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0;
+  padding: 0;
+}
+
+
+.sidebar-header {
+  width: 150px;
+  height: 80px;
+  position: relative;
+  background-color: #faefef;
+  top:0px;
+  left:0px;
+}
+
+.right-header {
+  width: calc(100% - 150px);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  background-color: #f8f4f4;
+}
+
+.right-header h1 {
+  margin: 0;
+  font-size: 34px;
+  color: #0088cc;
+  /* 修改字体为楷体 */
+  font-family: "楷体";
 }
 
 .app-layout {
   display: flex;
 }
 
+/* 选中状态背景颜色 */
+.el-menu>.el-menu-item.is-active {
+  background-color: #d2f2f5;
+}
+
+.el-menu>.el-menu-item {
+  background-color: #f0f2f5;
+  font-family: "楷体";
+  font-size: 20px;
+  text-decoration: none;   /*删除下划线*/
+  color: #000000;
+  border: 1px solid #ebebeb;
+}
+
+.el-menu > .el-menu-item:last-child {
+  border-bottom: none;
+}
+
+.el-menu>.el-menu-item>a{
+  text-decoration: none;
+  color: #000000;
+  text-decoration-line: none;
+}
+
+.el-menu{
+  text-decoration: none;
+}
 
 .aside {
   background-color: #f0f2f5;
   border-right: 1px solid #ccc;
-  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
-  width: 20%;
-}
-
-.sidebar-header {
-  width: 150px;
-  height: 100%;
-  position: relative;
-}
-
-.right-header {
-  width: 80%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid #ccc;
-}
-
-.aside {
   width: 100px;
   height: 80%;
-  transition: width 0.3s ease-in-out;
+  /* 添加过渡动画 */
+  transition: all 0.3s ease-in-out;
 }
 
 .main-content {
-  height: calc(100vh - 90px); /* 设置内容区域的高度 */
+  height: calc(100vh); /* 设置内容区域的高度 */
   overflow-y: auto; /* 添加垂直滚动条 */
   position: relative;
-  margin-top: 10px;
-  margin-bottom: 30px;
   padding: 0;
+}
+
+.el-main{
+  padding: 0;
+
 }
 
 h1 {
@@ -264,9 +304,9 @@ h1 {
 }
 
 .tab-bar {
-  height: 10px;
+  height: 30px;
   width: 100%;
-  font-size: 10px;
-  border: 1px solid #ccc;
+  font-size: 15px;
+  background-color: #ebebeb;
 }
 </style>

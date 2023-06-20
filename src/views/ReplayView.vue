@@ -1,6 +1,10 @@
 <template>
   <div class="replayContent">
     <div class="username">用户名: {{ userName }}</div>
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">正在加载数据...</div>
+    </div>
     <div class="replay">
       <div class="writingReplay">
         <div class="content">
@@ -19,6 +23,7 @@
         </div>
         <div class="playButton">
           <el-button type="primary" @click="Replay">开始回放</el-button>
+<!--          <el-button type="primary" @click="continueReplay" v-show="stopFlag">继续回放</el-button>-->
           <el-button type="danger" @click="exitReplay">暂停回放</el-button>
         </div>
       </div>
@@ -62,6 +67,9 @@ export default class ReplayView extends mixins(Vue) {
   mistakes: any[] = [];
   $message: Message;
   replayFlag = false;
+  isLoading = false;
+  stopFlag = false;
+  viewModelPlaybackDone = false;
 
   /**
    * 生命周期 created
@@ -69,13 +77,13 @@ export default class ReplayView extends mixins(Vue) {
   async created() {
 
     this.userName = this.$route.params.userName;
-    this.$watch(
-        () => this.$route.params.userName, (newUserName, oldUserName) => {
-          // 当userName变化时重新加载页面所有的数据
-          console.log(`Username changed from ${oldUserName} to ${newUserName}`);
-        },
-        {immediate: true, deep: true}
-    );
+    // this.$watch(
+    //     () => this.$route.params.userName, (newUserName, oldUserName) => {
+    //       // 当userName变化时重新加载页面所有的数据
+    //       console.log(`Username changed from ${oldUserName} to ${newUserName}`);
+    //     },
+    //     {immediate: true, deep: true}
+    // );
   }
 
   async fetchEventLogs() {
@@ -106,18 +114,211 @@ export default class ReplayView extends mixins(Vue) {
       });
       return;
     } else {
-      await this.fetchEventLogs().then((replayData) => {
-        this.replayData = replayData.eventLogs;
-      });
+      this.replayFlag = true;
+      if(!this.stopFlag){
+        this.isLoading = true;
+        await this.fetchEventLogs().then((replayData) => {
+          this.replayData = replayData.eventLogs;
+        });
+        this.isLoading = false;
+      }
       this.flag = 1;
       if (this.replayData.length) {
         this.viewModelPlayback = this.domRecord.startViewModelPlayback(this.userName, this.replayData);
+      } else {
+        clearInterval(this.timing);
       }
-      if ((window as any).emitter && this.flag == 1) {
-        (window as any).emitter.on(this.userName, async (data: any) => {
-          await this.viewModelPlaBackHander(data);
-        });
+      if(!this.stopFlag) {
+        if ((window as any).emitter && this.flag == 1) {
+          (window as any).emitter.on(this.userName, async (data: any) => {
+            await this.viewModelPlaBackHander(data);
+          });
+        }
+        this.timing = setInterval(async () => {
+          if (this.numSecond >= this.writingLength) {
+            this.typeSpeedSecond = 0;
+            // 若此刻的打字长度小于等于上一刻的打字长度，则这一秒内打字数为0
+            this.lengthArray.push(0);
+          } else {
+            // 若此刻的打字长度大于上一刻的打字长度，则这一秒内打字数为此刻的打字长度减去上一刻的打字长度
+            this.lengthArray.push(this.writingLength - this.numSecond);
+          }
+          // 如果allTime小于60，则this.typeSpeed为等比例的每分钟打字速度
+          if (this.allTime <= 60) {
+            // 对这一秒内的打字数求和，除以60，得到每秒的打字数
+            let sum = 0;
+            for (let i = 0; i < this.allTime; i++) {
+              sum = sum + this.lengthArray[i];
+            }
+            // 每秒的打字数乘以60，得到每分钟的打字数, 首先判断this.allTime是否为0，若为0，则this.typeSpeed为0
+            if (this.allTime == 0) {
+              this.typeSpeed = 0;
+            } else {
+              // this.typeSpeed = Math.round(sum / this.allTime * 60);
+              this.typeSpeed = Math.round(sum);
+            }
+          } else {
+            // 对这一秒内的打字数求和，除以60，得到每秒的打字数
+            let sum = 0;
+            for (let i = this.allTime - 60; i < this.allTime; i++) {
+              sum = sum + this.lengthArray[i];
+            }
+            this.typeSpeed = Math.round(sum);
+          }
+          this.speedArray.push(this.typeSpeed);
+          this.timeArray.push(this.allTime);
+          if (!this.chart) {
+            this.chart = echarts.init(document.getElementById('chart'));
+            await this.chart.setOption({
+              title: {
+                text: '写作速度',
+              },
+              tooltip: {
+                trigger: 'axis',
+              },
+              xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: this.timeArray,
+                axisLabel: {
+                  formatter: '{value} 秒',
+                },
+              },
+              yAxis: {
+                type: 'value',
+                axisLabel: {
+                  formatter: '{value} 字/分钟',
+                },
+              },
+              series: [
+                {
+                  name: '速度',
+                  type: 'line',
+                  data: this.speedArray,
+                },
+              ],
+            });
+          } else {
+            this.chart.setOption({
+              xAxis: {
+                data: this.timeArray,
+              },
+              series: [
+                {
+                  name: '速度',
+                  data: this.speedArray,
+                },
+              ],
+            });
+          }
+          this.allTime++;
+          this.time = this.formateSeconds(this.allTime);
+          // 记录此刻的打字长度
+          this.numSecond = this.writingLength;
+        }, 1000);
+      } else{
+
+        if ((window as any).emitter && this.flag == 1) {
+          this.isLoading = true;
+          (window as any).emitter.on(this.userName, async (data: any) => {
+            this.viewModelPlaybackDone= true;
+            this.viewModelPlaBackHander(data);
+          });
+          this.isLoading = false;
+        }
+
+        const checkPlaybackDoneIntervalId = setInterval(() => {
+          // 检查处理器是否完成，如果完成，则清除interval并开始新的定时器
+          if (this.viewModelPlaybackDone) {
+
+            clearInterval(checkPlaybackDoneIntervalId);
+            this.timing = setInterval(async () => {
+              if (this.numSecond >= this.writingLength) {
+                this.typeSpeedSecond = 0;
+                // 若此刻的打字长度小于等于上一刻的打字长度，则这一秒内打字数为0
+                this.lengthArray.push(0);
+              } else {
+                // 若此刻的打字长度大于上一刻的打字长度，则这一秒内打字数为此刻的打字长度减去上一刻的打字长度
+                this.lengthArray.push(this.writingLength - this.numSecond);
+              }
+              // 如果allTime小于60，则this.typeSpeed为等比例的每分钟打字速度
+              if (this.allTime <= 60) {
+                // 对这一秒内的打字数求和，除以60，得到每秒的打字数
+                let sum = 0;
+                for (let i = 0; i < this.allTime; i++) {
+                  sum = sum + this.lengthArray[i];
+                }
+                // 每秒的打字数乘以60，得到每分钟的打字数, 首先判断this.allTime是否为0，若为0，则this.typeSpeed为0
+                if (this.allTime == 0) {
+                  this.typeSpeed = 0;
+                } else {
+                  // this.typeSpeed = Math.round(sum / this.allTime * 60);
+                  this.typeSpeed = Math.round(sum);
+                }
+              } else {
+                // 对这一秒内的打字数求和，除以60，得到每秒的打字数
+                let sum = 0;
+                for (let i = this.allTime - 60; i < this.allTime; i++) {
+                  sum = sum + this.lengthArray[i];
+                }
+                this.typeSpeed = Math.round(sum);
+              }
+              this.speedArray.push(this.typeSpeed);
+              this.timeArray.push(this.allTime);
+              if (!this.chart) {
+                this.chart = echarts.init(document.getElementById('chart'));
+                await this.chart.setOption({
+                  title: {
+                    text: '写作速度',
+                  },
+                  tooltip: {
+                    trigger: 'axis',
+                  },
+                  xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: this.timeArray,
+                    axisLabel: {
+                      formatter: '{value} 秒',
+                    },
+                  },
+                  yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                      formatter: '{value} 字/分钟',
+                    },
+                  },
+                  series: [
+                    {
+                      name: '速度',
+                      type: 'line',
+                      data: this.speedArray,
+                    },
+                  ],
+                });
+              } else {
+                this.chart.setOption({
+                  xAxis: {
+                    data: this.timeArray,
+                  },
+                  series: [
+                    {
+                      name: '速度',
+                      data: this.speedArray,
+                    },
+                  ],
+                });
+              }
+              this.allTime++;
+              this.time = this.formateSeconds(this.allTime);
+              // 记录此刻的打字长度
+              this.numSecond = this.writingLength;
+            }, 1000);
+          }
+        }, 100);
       }
+
+
       this.$watch('writingLength', (newValue: any, oldValue: any) => {
         if (newValue > oldValue) {
           this.typeSpeedSecond = newValue - oldValue;
@@ -126,97 +327,33 @@ export default class ReplayView extends mixins(Vue) {
         }
       }, {deep: true, immediate: true});
       // 计时器
-      this.timing = setInterval(async () => {
-        if (this.numSecond >= this.writingLength) {
-          this.typeSpeedSecond = 0;
-          // 若此刻的打字长度小于等于上一刻的打字长度，则这一秒内打字数为0
-          this.lengthArray.push(0);
-        } else {
-          // 若此刻的打字长度大于上一刻的打字长度，则这一秒内打字数为此刻的打字长度减去上一刻的打字长度
-          this.lengthArray.push(this.writingLength - this.numSecond);
-        }
-        // 如果allTime小于60，则this.typeSpeed为等比例的每分钟打字速度
-        if (this.allTime <= 60) {
-          // 对这一秒内的打字数求和，除以60，得到每秒的打字数
-          let sum = 0;
-          for (let i = 0; i < this.allTime; i++) {
-            sum = sum + this.lengthArray[i];
-          }
-          // 每秒的打字数乘以60，得到每分钟的打字数, 首先判断this.allTime是否为0，若为0，则this.typeSpeed为0
-          if (this.allTime == 0) {
-            this.typeSpeed = 0;
-          } else {
-            this.typeSpeed = Math.round(sum / this.allTime * 60);
-          }
-        } else {
-          // 对这一秒内的打字数求和，除以60，得到每秒的打字数
-          let sum = 0;
-          for (let i = this.allTime - 60; i < this.allTime; i++) {
-            sum = sum + this.lengthArray[i];
-          }
-          this.typeSpeed = Math.round(sum);
-        }
-        this.speedArray.push(this.typeSpeed);
-        this.timeArray.push(this.allTime);
-        if (!this.chart) {
-          this.chart = echarts.init(document.getElementById('chart'));
-          await this.chart.setOption({
-            title: {
-              text: '写作速度',
-            },
-            tooltip: {
-              trigger: 'axis',
-            },
-            xAxis: {
-              type: 'category',
-              boundaryGap: false,
-              data: this.timeArray,
-              axisLabel: {
-                formatter: '{value} 秒',
-              },
-            },
-            yAxis: {
-              type: 'value',
-              axisLabel: {
-                formatter: '{value} 字/分钟',
-              },
-            },
-            series: [
-              {
-                name: '速度',
-                type: 'line',
-                data: this.speedArray,
-              },
-            ],
-          });
-        } else {
-          this.chart.setOption({
-            xAxis: {
-              data: this.timeArray,
-            },
-            series: [
-              {
-                name: '速度',
-                data: this.speedArray,
-              },
-            ],
-          });
-        }
-        this.allTime++;
-        this.time = this.formateSeconds(this.allTime);
-        // 记录此刻的打字长度
-        this.numSecond = this.writingLength;
-      }, 1000);
-      this.replayFlag = true;
+
     }
   }
+
+  /**
+   * 继续回放
+   */
+  // continueReplay() {
+  //   if(this.replayFlag){
+  //     this.$message({
+  //       message: '回放正在进行！',
+  //       type: 'warning'
+  //     });
+  //     return;
+  //   } else {
+  //
+  //   }
+  // }
 
   /**
    * 暂停回放
    */
   exitReplay() {
     this.flag = 0;
+    this.stopFlag = true;
     this.replayFlag = false;
+    this.viewModelPlaybackDone = false;
     clearInterval(this.timing);
     try {
       if (this.viewModelPlayback) {
@@ -334,7 +471,7 @@ p {
   justify-content: center;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 50%;
+  width: 70%;
   margin-left: 20px;
   padding: 20px;
   height: 400px; /* 设置合适的高度 */
@@ -342,6 +479,7 @@ p {
 
 .replayContent{
   position: relative;
+  margin-bottom: 200px;
 }
 
 .username {
@@ -370,5 +508,46 @@ p {
   height: 350px; /* 设置合适的较大高度 */
 }
 
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 150px;
+  height: 150px;
+  animation: spin 1s linear infinite;
+}
+
+.loading-text {
+  position: absolute;
+  top: 430px;
+  text-align: center;
+  width: 100%;
+  font-weight: bold;
+  font-size: 16px;
+  font-family: '楷体';
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 </style>
 
