@@ -7,7 +7,8 @@
     </div>
     <div class="writing">
       <div class="title" v-show="!showForm">
-        <span>名校生涯后的孔乙己困境：自我成长与社会期待的矛盾</span>
+        <span style="  font-size: 20px;">{{textTitle}}</span>
+        <span  style="  font-size: 15px;margin-top: 10px;">要求：{{requirements}}</span>
       </div>
       <div class="header" v-show="!showForm">
         <div>时间:{{ timeFormat }}</div>
@@ -106,7 +107,7 @@ import {keystrokeUrl} from "@/assets/config";
 import axios from "axios";
 import LoginDialog from "@/components/LoginDialog.vue";
 import {question} from "@/utils/studentData";
-
+import {useTabsStore} from '@/store/index';
 let recordData: any;
 
 @Options({
@@ -152,10 +153,16 @@ export default class WritingRecord extends Vue {
   questions = question;
   currentIndex = 0;
   answers: Record<string, string> = {};
+  tabsStore = useTabsStore();
+
+  textTitle = '';
+  requirements = '';
 
 
   mounted() {
     this.showRecord = true;
+    this.textTitle = this.tabsStore.title;
+    this.requirements = this.tabsStore.requirements;
   }
 
   get currentQuestion() {
@@ -408,7 +415,10 @@ export default class WritingRecord extends Vue {
 
 .title {
   margin-bottom: 30px;
-  font-size: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .button {

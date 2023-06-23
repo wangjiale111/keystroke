@@ -1,12 +1,12 @@
 <template>
   <div>
     <h2>发布作文</h2>
-    <el-form ref="form" :model="essay" :rules="rules" label-width="80px">
-      <el-form-item label="标题" prop="title">
+    <el-form ref="form" :model="essay" :rules="rules" class="title">
+      <el-form-item label="标题" prop="title" style="margin-left: 30px;">
         <el-input v-model="essay.title"></el-input>
       </el-form-item>
-      <el-form-item label="要求" prop="requirements">
-        <el-input type="textarea" v-model="essay.requirements"></el-input>
+      <el-form-item label="要求" prop="requirements"  style="margin-left: 30px;">
+        <el-input type="textarea" v-model="essay.requirements" ></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="publishEssay">发布</el-button>
@@ -19,6 +19,7 @@
 import {Options, Vue} from 'vue-class-component';
 import {ElMessage, ElMessageBox, ElForm} from 'element-plus';
 import {Message} from 'element-plus';
+import {useTabsStore} from '@/store/index';
 
 @Options({
 
@@ -28,6 +29,7 @@ export default class PublishEssay extends Vue {
     title: '',
     requirements: ''
   };
+  tabsStore = useTabsStore();
 
   rules = {
     title: [
@@ -39,16 +41,21 @@ export default class PublishEssay extends Vue {
   };
   $message: Message;
 
+  mounted() {
+    this.essay.title = this.tabsStore.title;
+    this.essay.requirements = this.tabsStore.requirements;
+  }
+
   publishEssay() {
     (this.$refs.form as typeof ElForm).validate((valid: any) => {
       if (valid) {
         // 表单验证通过，可以进行发布作文的操作
-        console.log('标题:', this.essay.title);
-        console.log('要求:', this.essay.requirements);
+        this.tabsStore.title = this.essay.title
+        this.tabsStore.requirements = this.essay.requirements
         this.$message.success('发布成功');
 
-        // 重置表单
-        (this.$refs.form as typeof ElForm).resetFields();
+        // // 重置表单
+        // (this.$refs.form as typeof ElForm).resetFields();
       } else {
         // 表单验证不通过，显示错误信息
         this.$message.error('请填写必填字段');
@@ -58,3 +65,9 @@ export default class PublishEssay extends Vue {
   }
 }
 </script>
+<style scoped>
+.title {
+  width: 100%;
+  margin-top: 30px;
+}
+</style>
