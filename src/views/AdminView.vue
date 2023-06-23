@@ -8,13 +8,28 @@
         <img src="@/assets/logo.png" alt="" style="width: 5em; height: 5em; margin-left: 30px">
         <div class="toggle-button">
           <el-button @click="toggleSidebar" style="width: 2em; height: 2em;">
-            <Operation style="width: 2em; height: 2em;" v-if="!sidebarVisible"/>
+            <Expand style="width: 2em; height: 2em;" v-if="!sidebarVisible"/>
             <Fold style="width: 2em; height: 2em;" v-if="sidebarVisible"/>
           </el-button>
         </div>
       </div>
       <div class="right-header">
         <h1>keystroke数据分析平台</h1>
+        <div class="logo">
+          <div class="full"><FullScreen style="width: 1.5em; height: 1.5em;  cursor: pointer; margin-right: 30px;" @click="fullScreen"/></div>
+          <el-dropdown @command="handleCommand">
+            <div class="el-dropdown-link">
+              <User style="width: 2.5em; height: 2.5em; cursor: pointer;"></User>
+            </div>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="changePassword">修改密码</el-dropdown-item>
+                <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
+        <passwordChangeDialog ref="passwordDialog"></passwordChangeDialog>
       </div>
     </div>
     <div class="app-layout">
@@ -36,9 +51,9 @@
               <Menu style="width: 1em; height: 1em;"/>
               <router-link to="/admin/editTitle">发布作文</router-link>
             </el-menu-item>
-            <el-menu-item index="4">
-              <router-link to="/record">返回</router-link>
-            </el-menu-item>
+<!--            <el-menu-item index="4">-->
+<!--              <router-link to="/record">返回</router-link>-->
+<!--            </el-menu-item>-->
           </el-menu>
         </el-aside>
         <el-container direction="vertical">
@@ -87,6 +102,8 @@ import {
   ElTabs,
   ElTabPane,
 } from 'element-plus';
+import {Message} from 'element-plus';
+import passwordChangeDialog from '@/components/passwordChangeDialog.vue';
 
 @Options({
   components: {
@@ -102,12 +119,14 @@ import {
     ElTooltip,
     ElTabs,
     ElTabPane,
+    passwordChangeDialog
   },
 })
 export default class AppLayout extends Vue {
   sidebarVisible = true;
   tabsStore = useTabsStore();
   activeTabIndex = '0';
+  $messgae: Message;
 
   mounted() {
     this.calculateWidths();
@@ -122,6 +141,38 @@ export default class AppLayout extends Vue {
   switchTab(path: string, query: any) {
     this.$router.push({path: path, query: query});
   }
+
+
+  fullScreen() {
+    const elMain = document.querySelector('.el-main');
+    if (elMain) {
+      if (elMain.requestFullscreen) {
+        elMain.requestFullscreen();
+      } else if ((elMain as any).mozRequestFullScreen) {
+        (elMain as any).mozRequestFullScreen();
+      } else if ((elMain as any).webkitRequestFullscreen) {
+        (elMain as any).webkitRequestFullscreen();
+      } else if ((elMain as any).msRequestFullscreen) {
+        (elMain as any).msRequestFullscreen();
+      }
+    }
+  }
+
+  handleCommand(command: string) {
+    switch (command) {
+      case 'changePassword':
+        // 引用 PasswordChangeDialog 组件的 open 方法
+        (this.$refs.passwordDialog as any).open();
+        break;
+      case 'logout':
+        this.$router.push({path: '/record'});
+        break;
+    }
+  }
+
+  // handleCommand = (command: string | number | object) => {
+  //   this.$messgae.info(`click on item ${command}`)
+  // }
 
   beforeUnmount() {
     window.removeEventListener('resize', this.calculateWidths);
@@ -220,7 +271,6 @@ export default class AppLayout extends Vue {
   width: calc(100% - 150px);
   height: 100%;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
   margin: 0;
@@ -278,7 +328,7 @@ export default class AppLayout extends Vue {
 }
 
 .main-content {
-  height: calc(100vh); /* 设置内容区域的高度 */
+  height: calc(100vh - 110px); /* 设置内容区域的高度 */
   overflow-y: auto; /* 添加垂直滚动条 */
   position: relative;
   padding: 0;
@@ -286,7 +336,8 @@ export default class AppLayout extends Vue {
 
 .el-main{
   padding: 0;
-
+  height: 100%;
+  background-color: #ffffff;
 }
 
 h1 {
@@ -304,9 +355,32 @@ h1 {
 }
 
 .tab-bar {
-  height: 30px;
+  height: 40px;
   width: 100%;
   font-size: 15px;
   background-color: #ebebeb;
+}
+
+.example-showcase .el-dropdown-link {
+  cursor: pointer;
+  color: var(--el-color-primary);
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  margin-left: auto;
+  margin-right: 20px;
+}
+
+.full{
+  cursor: pointer;
+}
+
+.logo{
+  position: absolute;
+  right: 30px;
+  top: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
