@@ -6,6 +6,7 @@
   <div class="replayContent">
     <div class="username">用户名: {{ userName }}</div>
     <div class="composition">
+      <div class="title">作文题目：{{textTitle}}</div>
       <div v-html="getHighlightedText()" class="replayText"/>
       <div class="mistakeTable">
         <el-button @click="showMistake" class="red-button">错别字分析</el-button>
@@ -104,6 +105,7 @@ export default class markText extends Vue {
 
   flag = 1;
   userName: any;
+  textTitle: any;
   index = 0;
   result: any[] = [];
   finalText = '';
@@ -115,6 +117,7 @@ export default class markText extends Vue {
 
   async created() {
     this.userName = this.$route.params.userName;
+    this.textTitle = this.$route.query.textTitle;
     await this.fetchMistake();
     await this.getMarkFlag()
     this.isLoading = false;

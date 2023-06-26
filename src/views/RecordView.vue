@@ -8,7 +8,7 @@
     <div class="writing">
       <div class="title" v-show="!showForm">
         <span style="  font-size: 20px;">{{textTitle}}</span>
-        <span  style="  font-size: 15px;margin-top: 10px;">要求：{{requirements}}</span>
+        <span  style="  font-size: 15px;margin-top: 30px; width:800px;">要求：{{requirements}}</span>
       </div>
       <div class="header" v-show="!showForm">
         <div>时间:{{ timeFormat }}</div>
@@ -90,6 +90,9 @@
           结束写作
         </el-button>
       </div>
+      <div v-if="isLoading" class="loading-overlay">
+        <div class="loading-spinner"></div>
+      </div>
     </div>
     <LoginDialog v-if="showLogin" @close="closeLoginDialog" @login="handleLogin"/>
   </div>
@@ -107,7 +110,6 @@ import {keystrokeUrl} from "@/assets/config";
 import axios from "axios";
 import LoginDialog from "@/components/LoginDialog.vue";
 import {question} from "@/utils/studentData";
-import {useTabsStore} from '@/store/index';
 let recordData: any;
 
 @Options({
@@ -147,22 +149,36 @@ export default class WritingRecord extends Vue {
   showStart = true;
   showForm = false;
 
+  isLoading = true;
   showLogin = false; // 控制登录弹窗显示/隐藏的状态
   showRecord = true;
   writingFlag = false;
   questions = question;
   currentIndex = 0;
   answers: Record<string, string> = {};
-  tabsStore = useTabsStore();
 
   textTitle = '';
   requirements = '';
 
 
-  mounted() {
+  async mounted() {
     this.showRecord = true;
-    this.textTitle = this.tabsStore.title;
-    this.requirements = this.tabsStore.requirements;
+    await this.getTextInfo();
+    this.isLoading = false;
+  }
+
+
+  async getTextInfo() {
+    try {
+      const response = await axios.get(keystrokeUrl + '/get_text_info');
+      const textInfo = response.data;
+      this.textTitle = textInfo.textTitle;
+      this.requirements = textInfo.textRequirement;
+      this.time = textInfo.textTime * 60;
+      this.timeFormat = textInfo.textTime + '分00秒';
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   get currentQuestion() {
@@ -260,6 +276,7 @@ export default class WritingRecord extends Vue {
         }).then(() => {
           this.disable3 = true;
           // 提交所有数据
+          console.log(this.answers)
           try {
             // 将用户事件日志发送给后端保存到数据库
             axios
@@ -268,6 +285,7 @@ export default class WritingRecord extends Vue {
                   eventLogs: this.writingData,
                   gender: this.form.gender,  // 添加调查问卷相关字段
                   age: this.form.age,
+                  answers: this.answers
                 })
                 .then(response => {
                   // console.log(response.data);
@@ -406,15 +424,15 @@ export default class WritingRecord extends Vue {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 10px 20px; /* 添加内边距 */
   font-family: Arial, sans-serif; /* 修改字体 */
   font-size: 16px; /* 修改字体大小 */
   color: #333; /* 修改字体颜色 */
   width: 80%;
+  box-shadow:none;
 }
 
 .title {
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -478,6 +496,38 @@ export default class WritingRecord extends Vue {
 .recordText {
   width: 80%;
   margin: 0 auto;
+}
+
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>
 

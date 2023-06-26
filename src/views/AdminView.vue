@@ -43,11 +43,11 @@
               <Menu style="width: 1em; height: 1em;"/>
               <router-link to="/admin/user">用户列表</router-link>
             </el-menu-item>
+<!--            <el-menu-item index="2">-->
+<!--              <Menu style="width: 1em; height: 1em;"/>-->
+<!--              <router-link to="/admin/dashBoard">数据分析</router-link>-->
+<!--            </el-menu-item>-->
             <el-menu-item index="2">
-              <Menu style="width: 1em; height: 1em;"/>
-              <router-link to="/admin/dashBoard">数据分析</router-link>
-            </el-menu-item>
-            <el-menu-item index="3">
               <Menu style="width: 1em; height: 1em;"/>
               <router-link to="/admin/editTitle">发布作文</router-link>
             </el-menu-item>
@@ -351,7 +351,7 @@ h1 {
   position: absolute;
   z-index: 999;
   bottom: 0;
-  right: 0;
+  left: 0;
 }
 
 .tab-bar {

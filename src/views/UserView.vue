@@ -14,6 +14,7 @@
       </div>
       <el-table :data="userEvents" border>
         <el-table-column prop="userName" label="姓名" min-width="20"></el-table-column>
+        <el-table-column prop="textTitle" label="作文题目" min-width="30"></el-table-column>
         <el-table-column prop="saveTime" label="提交时间" min-width="20"></el-table-column>
         <el-table-column label="操作">
           <template v-slot="scope">
@@ -24,10 +25,10 @@
               下载调查问卷
             </el-button>
             <el-button type="success" @click="viewReplay(scope.row.userName)">
-              查看回放
+              写作过程分析
             </el-button>
-            <el-button type="success" @click="viewText(scope.row.userName)">
-              查看作文批改
+            <el-button type="success" @click="viewText(scope.row)">
+              写作结果分析
             </el-button>
             <el-button @click="deleteUser(scope.row.userName)">
               删除
@@ -43,6 +44,7 @@
           layout="total, sizes, prev, pager, next, jumper"
           :page-sizes="[10, 20, 50, 100]"
           :total="total"
+          style="margin-top: 30px;"
       >
       </el-pagination>
     </div>
@@ -74,7 +76,7 @@ export default class AdminView extends Vue {
   perPage = 10;
   total = 0;
   searchQuery = "";
-  title = "名校生涯后的孔乙己困境：自我成长与社会期待的矛盾";
+  title = "";
 
 
   mounted() {
@@ -90,6 +92,7 @@ export default class AdminView extends Vue {
         }
       };
       const response = await axios.get(keystrokeUrl + '/get_all_user_events', { ...config, params: { page, perPage, query } });
+      console.log(response.data.data)
       this.userEvents = response.data.data;
       this.total = response.data.total;
       this.isLoading = false;
@@ -108,6 +111,7 @@ export default class AdminView extends Vue {
         }
       };
       const response = await axios.get(keystrokeUrl + `/get_form?userName=${userName}`, config);
+      console.log(response.data)
       return response.data;
     } catch (error) {
       this.$message.error('获取调查问卷失败');
@@ -127,7 +131,7 @@ export default class AdminView extends Vue {
             if (userForm) {
               // console.log(JSON.parse(JSON.stringify(userForm)))
               this.submitTime = userForm.saveTime;
-              console.log(this.submitTime)
+              // console.log(this.submitTime)
               const csv = Papa.unparse(JSON.parse(JSON.stringify(userForm)));
               const csvData = new Blob([csv], {type: "text/csv;charset=utf-8;"});
               const csvURL = window.URL.createObjectURL(csvData);
@@ -242,8 +246,8 @@ export default class AdminView extends Vue {
     this.$router.push({path: `/admin/replay/${userName}`});
   }
 
-  viewText(userName: string){
-    this.$router.push({path: `/admin/markText/${userName}`});
+  viewText(row) {
+    this.$router.push({path: `/admin/markText/${row.userName}`, query: {textTitle: row.textTitle}});
   }
 
   viewMistake(userName: string){
