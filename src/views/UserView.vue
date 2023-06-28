@@ -190,6 +190,7 @@ export default class AdminView extends Vue {
               textLength: log.text ? log.text.length : 0,
               keyValue: log.keyValue || "",
               keyAction: log.keyAction || "",
+              selector: log.selector || "",
               timeStamp: log.timeStamp || ""
             }));
 

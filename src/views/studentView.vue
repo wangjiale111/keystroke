@@ -5,7 +5,7 @@
       <div
           class="sidebar-header"
       >
-        <img src="@/assets/logo.png" alt="" style="width: 4em; height: 4em; margin-left: 30px">
+        <img src="@/assets/logo.png" alt="" style="width: 5em; height: 5em; margin-left: 30px">
         <div class="toggle-button">
           <el-button @click="toggleSidebar" style="width: 2em; height: 2em;">
             <Expand style="width: 2em; height: 2em;" v-if="!sidebarVisible"/>
@@ -41,7 +41,7 @@
           <el-menu class="el-menu" default-active="1">
             <el-menu-item index="1">
               <Menu style="width: 1em; height: 1em;"/>
-              <router-link to="/admin/user">用户列表</router-link>
+              <router-link to="/student/record">在线写作</router-link>
             </el-menu-item>
 <!--            <el-menu-item index="2">-->
 <!--              <Menu style="width: 1em; height: 1em;"/>-->
@@ -49,7 +49,7 @@
 <!--            </el-menu-item>-->
             <el-menu-item index="2">
               <Menu style="width: 1em; height: 1em;"/>
-              <router-link to="/admin/editTitle">发布作文</router-link>
+              <router-link to="/student/dashBoard">我的成绩</router-link>
             </el-menu-item>
 <!--            <el-menu-item index="4">-->
 <!--              <router-link to="/record">返回</router-link>-->
@@ -167,7 +167,7 @@ export default class AppLayout extends Vue {
       case 'logout':
         this.$router.push({path: '/login'});
         // 清除 token
-        localStorage.removeItem('adminToken');
+        localStorage.removeItem('studentToken');
         break;
     }
   }
@@ -252,7 +252,7 @@ export default class AppLayout extends Vue {
 .header {
   display: flex;
   flex-direction: row;
-  height: 60px;
+  height: 80px;
   width: 100%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin: 0;
@@ -262,7 +262,7 @@ export default class AppLayout extends Vue {
 
 .sidebar-header {
   width: 150px;
-  height: 60px;
+  height: 80px;
   position: relative;
   background-color: #faefef;
   top:0px;
@@ -380,7 +380,7 @@ h1 {
 .logo{
   position: absolute;
   right: 30px;
-  top: 10px;
+  top: 30px;
   display: flex;
   align-items: center;
   justify-content: center;

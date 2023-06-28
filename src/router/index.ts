@@ -7,16 +7,18 @@ import dashBoard from "@/views/dashBoard.vue";
 import TextView from "@/views/TextView.vue";
 import markText from "@/views/markText.vue";
 import editTitle from "@/components/editTitle.vue";
+import studentView from "@/views/studentView.vue";
+import LoginDialog from "@/components/LoginDialog.vue";
 
 const routes: Array<RouteRecordRaw> = [
     {
-        path: "/record",
-        name: "record",
-        component: RecordView,
+        path: "/login",
+        name: "login",
+        component: LoginDialog,
         meta: {
             requiresAuth: false,
             keepAlive: true,
-            label: "记录", // 添加label属性
+            label: "登录", // 添加label属性
         },
     },
     {
@@ -25,6 +27,7 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
             requiresAuth: true,
             key: "admin",
+            role: "admin",
         },
         children: [
             {
@@ -34,6 +37,7 @@ const routes: Array<RouteRecordRaw> = [
                 meta: {
                     key: "user",
                     label: "用户列表", // 添加label属性
+                    role: "admin",
                 },
             },
             {
@@ -43,6 +47,7 @@ const routes: Array<RouteRecordRaw> = [
                 meta: {
                     key: "user",
                     label: "用户列表", // 添加label属性
+                    role: "admin",
                 },
             },
             {
@@ -52,6 +57,7 @@ const routes: Array<RouteRecordRaw> = [
                 meta: {
                     key: "dash",
                     label: "数据分析", // 添加label属性
+                    role: "admin",
                 },
             },
             {
@@ -60,7 +66,8 @@ const routes: Array<RouteRecordRaw> = [
                 component: markText,
                 meta: {
                     key: "dash",
-                    label: "作文点评", // 添加label属性
+                    label: "作文分析", // 添加label属性
+                    role: "admin",
                 },
             },
             {
@@ -69,7 +76,8 @@ const routes: Array<RouteRecordRaw> = [
                 component: ReplayView,
                 meta: {
                     key: "replay",
-                    label: "写作记录回放", // 添加label属性
+                    label: "写作过程分析", // 添加label属性
+                    role: "admin",
                 },
             },
             {
@@ -79,6 +87,7 @@ const routes: Array<RouteRecordRaw> = [
                 meta: {
                     key: "text",
                     label: "原文分析", // 添加label属性
+                    role: "admin",
                 },
             },
             {
@@ -88,14 +97,48 @@ const routes: Array<RouteRecordRaw> = [
                 meta: {
                     key: "editTitle",
                     label: "发布作文", // 添加label属性
+                    role: "admin",
                 }
             }
         ],
     },
     {
+        path: "/student",
+        component: studentView,
+        name: "student",
+        meta: {
+            requiresAuth: true,
+            key: "student",
+            role: "student",
+        },
+        children: [
+            {
+                path: "/student/record",
+                name: "record",
+                component: RecordView,
+                meta: {
+                    key: "record",
+                    label: "在线写作", // 添加label属性
+                    role: "student",
+                },
+            },
+            {
+                path: "/student/dashBoard",
+                name: "dashBoard",
+                component: dashBoard,
+                meta: {
+                    key: "dash",
+                    label: "数据分析", // 添加label属性
+                    role: "student",
+                },
+            },
+
+        ],
+    },
+    {
         path: "/:pathMatch(.*)*",
         redirect: () => {
-            return "/record";
+            return "/login";
         },
     },
 ];
@@ -106,15 +149,26 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+    const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
 
-    if (requiresAuth) {
-        const token = localStorage.getItem("adminToken");
-        if (token) {
-            next();
+    if(requiresAuth) {
+        if(localStorage.getItem('adminToken')) {
+            if(to.meta.role === 'admin') {
+                next();
+            } else {
+                console.log("你没有权限访问这个页面");
+                next({ name: "login" });
+            }
+        } else if(localStorage.getItem('studentToken')) {
+            if(to.meta.role === 'student') {
+                next();
+            } else {
+                console.log("你没有权限访问这个页面");
+                next({ name: "login" });
+            }
         } else {
             console.log("未登录");
-            next("/record");
+            next('/login');
         }
     } else {
         next();
@@ -122,9 +176,13 @@ router.beforeEach((to, from, next) => {
 });
 
 router.afterEach((to, from) => {
-    const token = localStorage.getItem("adminToken");
-    if (token) {
-        localStorage.setItem("adminToken", token);
+    const adminToken = localStorage.getItem("adminToken");
+    const studentToken = localStorage.getItem("studentToken");
+    if (adminToken) {
+        localStorage.setItem("adminToken", adminToken);
+    }
+    if(studentToken) {
+        localStorage.setItem("studentToken", studentToken);
     }
 });
 

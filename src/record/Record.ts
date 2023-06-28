@@ -160,6 +160,8 @@ export default class EventRecord {
 
         // Only record the event if recording is in progress
         const userEvent = {'selector': this.getSelector(event.target)} as any;
+        // textPosition为鼠标光标所在的位置
+        userEvent.textPosition = event.target.selectionStart;
         if (event.type === 'scroll') {
             userEvent.type = 'scroll';
             userEvent.scrollTop = $(event.target).scrollTop();
@@ -263,6 +265,7 @@ export default class EventRecord {
         if (userEvent.selector !== null) {
             const {
                 No,
+                selector,
                 value,
                 ChineseText,
                 data,
@@ -271,11 +274,12 @@ export default class EventRecord {
                 textLength,
                 keyValue,
                 inputType,
+                textPosition,
                 timeStamp
             } = userEvent;
             const simplifiedUserEvent = {
                 index: No,
-                classKey: 'writing',
+                classKey: selector,
                 text: value,
                 ChineseText,
                 IMEBuffer: data,
@@ -284,6 +288,7 @@ export default class EventRecord {
                 textLength,
                 keyValue,
                 keyAction: inputType,
+                textPosition,
                 timeStamp,
             };
             this.userEventLog.push(simplifiedUserEvent);
