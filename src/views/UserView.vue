@@ -92,7 +92,7 @@ export default class AdminView extends Vue {
         }
       };
       const response = await axios.get(keystrokeUrl + '/get_all_user_events', { ...config, params: { page, perPage, query } });
-      console.log(response.data.data)
+      // console.log(response.data.data)
       this.userEvents = response.data.data;
       this.total = response.data.total;
       this.isLoading = false;
@@ -111,7 +111,7 @@ export default class AdminView extends Vue {
         }
       };
       const response = await axios.get(keystrokeUrl + `/get_form?userName=${userName}`, config);
-      console.log(response.data)
+      // console.log(response.data)
       return response.data;
     } catch (error) {
       this.$message.error('获取调查问卷失败');

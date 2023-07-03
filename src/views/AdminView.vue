@@ -51,6 +51,10 @@
               <Menu style="width: 1em; height: 1em;"/>
               <router-link to="/admin/editTitle">发布作文</router-link>
             </el-menu-item>
+            <el-menu-item index="3">
+              <Menu style="width: 1em; height: 1em;"/>
+              <router-link to="/admin/classManage">班级管理</router-link>
+            </el-menu-item>
 <!--            <el-menu-item index="4">-->
 <!--              <router-link to="/record">返回</router-link>-->
 <!--            </el-menu-item>-->
@@ -89,20 +93,20 @@
 import {Options, Vue} from 'vue-class-component';
 import {useTabsStore} from '@/store/index';
 import {
+  ElAside,
+  ElButton,
+  ElCol,
   ElContainer,
   ElHeader,
-  ElAside,
   ElMain,
-  ElRow,
-  ElCol,
   ElMenu,
   ElMenuItem,
-  ElButton,
-  ElTooltip,
-  ElTabs,
+  ElRow,
   ElTabPane,
+  ElTabs,
+  ElTooltip,
+  Message,
 } from 'element-plus';
-import {Message} from 'element-plus';
 import passwordChangeDialog from '@/components/passwordChangeDialog.vue';
 
 @Options({
@@ -127,6 +131,7 @@ export default class AppLayout extends Vue {
   tabsStore = useTabsStore();
   activeTabIndex = '0';
   $messgae: Message;
+  adminId = '';
 
   mounted() {
     this.calculateWidths();
@@ -196,7 +201,7 @@ export default class AppLayout extends Vue {
           this.$nextTick(() => {
             let currentIndex = this.tabsStore.tabs.findIndex(tab => tab.identifier === `${newValue.path}:${newValue.query?.userName}`);
             this.activeTabIndex = currentIndex >= 0 ? String(currentIndex) : undefined;
-            console.log(  this.activeTabIndex)
+            // console.log(  this.activeTabIndex)
           })
         },
         {immediate: true, deep: true}

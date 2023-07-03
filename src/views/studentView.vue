@@ -277,7 +277,7 @@ export default class AppLayout extends Vue {
   align-items: center;
   margin: 0;
   padding: 0;
-  background-color: #f8f4f4;
+  background-color: #f1efef;
 }
 
 .right-header h1 {

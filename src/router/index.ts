@@ -9,6 +9,7 @@ import markText from "@/views/markText.vue";
 import editTitle from "@/components/editTitle.vue";
 import studentView from "@/views/studentView.vue";
 import LoginDialog from "@/components/LoginDialog.vue";
+import classManage from "@/components/students/classManage.vue";
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -37,6 +38,16 @@ const routes: Array<RouteRecordRaw> = [
                 meta: {
                     key: "user",
                     label: "用户列表", // 添加label属性
+                    role: "admin",
+                },
+            },
+            {
+                path: "/admin/classManage",
+                name: "classManage",
+                component: classManage,
+                meta: {
+                    key: "classManage",
+                    label: "班级管理", // 添加label属性
                     role: "admin",
                 },
             },

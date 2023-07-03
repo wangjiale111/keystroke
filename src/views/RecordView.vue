@@ -267,7 +267,8 @@ export default class WritingRecord extends Vue {
   }
 
   confirmSubmit() {
-    (this.$refs.myForm as typeof ElForm).validate((valid: any) => {
+    (this.$refs.myForm as typeof ElForm).validate(
+        (valid: any) => {
       if (valid) {
         ElMessageBox.confirm('提交后不可更改，是否提交？', '提示', {
           confirmButtonText: '确定',
