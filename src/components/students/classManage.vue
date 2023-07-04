@@ -1,10 +1,29 @@
 <template>
   <div class="container">
-    <el-button type="primary" @click="showDialog = true" style="margin-left: 10px;">添加班级</el-button>
+    <el-button type="primary" @click="showDialog = true" style="margin-left: 10px;">发布任务</el-button>
     <div class="modal" v-show="showDialog">
+      <div style="margin: 10px 0 -10px 20px">
+        <span>发布任务</span>
+      </div>
+      <el-divider></el-divider>
       <el-form :model="newClassForm" ref="newClass" label-width="120px" :rules="rules" style="margin: 30px 40px 20px 10px;">
-        <el-form-item label="班级名称" prop="name">
+        <el-form-item label="任务名称" prop="name">
           <el-input v-model="newClassForm.name"></el-input>
+        </el-form-item>
+        <el-form-item label="作文标题" prop="textTitle">
+          <el-input v-model="newClassForm.textTitle"></el-input>
+        </el-form-item>
+        <el-form-item label="写作要求" prop="textRequirement">
+          <el-input v-model="newClassForm.textRequirement"></el-input>
+        </el-form-item>
+        <el-form-item label="写作时间" prop="textTime">
+          <el-input-number v-model.number="newClassForm.textTime" controls-position="right"></el-input-number>
+        </el-form-item>
+        <el-form-item label="开始日期" prop="start_date">
+          <el-date-picker v-model="newClassForm.start_date" type="datetime" placeholder="选择日期"></el-date-picker>
+        </el-form-item>
+        <el-form-item label="截止日期" prop="due_date">
+          <el-date-picker v-model="newClassForm.due_date" type="datetime" placeholder="选择日期"></el-date-picker>
         </el-form-item>
       </el-form>
       <div class="footer">
@@ -13,14 +32,31 @@
       </div>
     </div>
     <div class="table">
-      <el-table :data="classes" style="width: 100%">
+      <el-table :data="classes">
 <!--        <el-table-column prop="id" label="ID" width="180"></el-table-column>-->
-        <el-table-column prop="name" label="名称" width="180"></el-table-column>
-        <el-table-column prop="class_id" label="班级代码" width="180"></el-table-column>
-        <el-table-column prop="created_by" label="操作" width="180"></el-table-column>
+        <el-table-column prop="name" label="任务名称" width="80"></el-table-column>
+        <el-table-column prop="class_id" label="任务代码" width="80"></el-table-column>
+<!--        <el-table-column prop="created_by" label="创建者" width="180"></el-table-column>-->
+        <el-table-column prop="textTitle" label="作文标题" width="200"></el-table-column>
+        <el-table-column prop="textRequirement" label="写作要求" width="180"></el-table-column>
+        <el-table-column label="写作时间" width="80">
+          <template v-slot="{row}">
+            {{row.textTime}}分钟
+          </template>
+        </el-table-column>
+        <el-table-column prop="start_date" label="开始日期" width="180"></el-table-column>
+        <el-table-column prop="due_date" label="截止日期" width="180"></el-table-column>
+        <el-table-column label="操作">
+          <template #default="scope">
+            <el-button @click="viewStudents(scope.row.class_id)">学生管理</el-button>
+            <el-button type="danger" @click="onDelete(scope.row.id)">删除</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
-
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
   </div>
 </template>
 
@@ -30,30 +66,81 @@
 import {Options, Vue} from 'vue-class-component';
 import {keystrokeUrl} from "@/assets/config";
 import axios from 'axios';
-import {ElForm} from "element-plus";
+import {ElForm, ElMessageBox, Message} from "element-plus";
+import {useTabsStore} from "@/store";
 
 @Options({})
 export default class ClassManage extends Vue {
   adminId = ''
   classes = []
   showDialog = false
-  newClassForm = {name: ''}
-  rules = {
-    name: [{required: true, message: '班级名称不能为空', trigger: 'blur'}]
+  newClassForm = {
+    name: '',
+    textTitle: '',
+    textRequirement: '',
+    textTime: null,
+    start_date: null,
+    due_date: null
   }
+  rules = {
+    name: [{required: true, message: '任务名称不能为空', trigger: 'blur'}],
+    textTitle: [{required: true, message: '作文标题不能为空', trigger: 'blur'}],
+    textRequirement: [{required: true, message: '写作要求不能为空', trigger: 'blur'}],
+    textTime: [{required: true, message: '写作时间不能为空', trigger: 'blur'}],
+    start_date: [
+      {required: true, message: '开始日期不能为空', trigger: 'change'},
+      {
+        validator: (rule, value, callback) => {
+          if (value < new Date()) {
+            callback(new Error('开始日期必须为未来日期'));
+          } else {
+            callback();
+          }
+        },
+        trigger: 'change'
+      }],
+    due_date: [
+      {required: true, message: '截止日期不能为空', trigger: 'change'},
+      {
+        validator: (rule, value, callback) => {
+          if (this.newClassForm.start_date >= value) {
+            callback(new Error('截止日期必须在开始日期之后'));
+          } else {
+            callback();
+          }
+        },
+        trigger: 'change'
+      }
+    ]
+  }
+  isLoading = false;
+  $message: Message;
+  tabsStore = useTabsStore();
 
   async mounted() {
-    this.adminId = localStorage.getItem('adminId')
-    const token = localStorage.getItem('adminToken');
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token
-      }
-    };
-    const response = await axios.get(`${keystrokeUrl}/classes?adminId=${this.adminId}`, config);
-    this.classes = response.data
+    await this.getData()
   }
+
+  // 获取表格数据
+  async getData(){
+    try {
+      this.isLoading = true;
+      this.adminId = localStorage.getItem('adminId')
+      const token = localStorage.getItem('adminToken');
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token
+        }
+      };
+      const response = await axios.get(`${keystrokeUrl}/classes?adminId=${this.adminId}`, config);
+      this.classes = response.data;
+      this.isLoading = false;
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
 
   async onSubmit() {
     (this.$refs.newClass as typeof ElForm).validate(async (valid: any) => {
@@ -67,16 +154,70 @@ export default class ClassManage extends Vue {
         };
         const response = await axios.post(keystrokeUrl + '/classes', {
           name: this.newClassForm.name,
+          textTitle: this.newClassForm.textTitle,
+          textRequirement: this.newClassForm.textRequirement,
+          textTime: this.newClassForm.textTime,
+          start_date: this.formatDate(this.newClassForm.start_date),
+          due_date: this.formatDate(this.newClassForm.due_date),
           created_by: this.adminId
         }, config);
         this.newClassForm.name = '';
+        this.newClassForm.textTitle = '';
+        this.newClassForm.textRequirement = '';
+        this.newClassForm.textTime = null;
+        this.newClassForm.start_date = null;
+        this.newClassForm.due_date = null;
         this.showDialog = false;
-        this.classes = (await axios.get(`${keystrokeUrl}/classes?adminId=${this.adminId}`, config)).data;
+        await this.getData();
       } else {
         return false;
       }
     })
   }
+
+  async onDelete(class_id) {
+    ElMessageBox.confirm("是否删除该任务?", "提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning"
+    })
+        .then(async () => {
+          try {
+            const token = localStorage.getItem('adminToken');
+            const config = {
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token
+              }
+            };
+            const response =  await axios.delete(`${keystrokeUrl}/classes/${class_id}`, config);
+            if (response.status === 200) {
+              await this.getData();
+            }
+            this.$message.success('删除任务成功');
+          } catch (error) {
+            console.error('Failed to delete user events', error);
+            this.$message.error('删除任务失败');
+          }
+        })
+        .catch(() => {
+          // 取消
+        });
+
+  }
+
+  async viewStudents(class_id) {
+    this.$router.push({path: `/admin/users/${class_id}`, query: {class_id: class_id}});
+
+  }
+
+   formatDate = (datetime: any) => {
+    const addDateZero = (num: any) => {
+      return (num < 10 ? "0" + num : num);
+    }
+    let d = new Date(datetime);
+    return d.getFullYear() + '-' + addDateZero(d.getMonth() + 1) + '-' + addDateZero(d.getDate()) + ' ' + addDateZero(d.getHours()) + ':' + addDateZero(d.getMinutes()) + ':' + addDateZero(d.getSeconds());
+  };
 }
 </script>
 
@@ -106,13 +247,53 @@ export default class ClassManage extends Vue {
 .footer {
   width: 100%;
   display: flex;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 30px;
   margin-bottom: 20px;
 }
 
 .el-table {
   margin-top: 20px;
+}
+
+.table{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

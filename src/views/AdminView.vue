@@ -5,7 +5,7 @@
       <div
           class="sidebar-header"
       >
-        <img src="@/assets/logo.png" alt="" style="width: 4em; height: 4em; margin-left: 30px">
+        <img src="@/assets/logo.png" alt="" style="width: 4em; height: 4em; margin-left: 30px;margin-top:10px;">
         <div class="toggle-button">
           <el-button @click="toggleSidebar" style="width: 2em; height: 2em;">
             <Expand style="width: 2em; height: 2em;" v-if="!sidebarVisible"/>
@@ -41,19 +41,19 @@
           <el-menu class="el-menu" default-active="1">
             <el-menu-item index="1">
               <Menu style="width: 1em; height: 1em;"/>
-              <router-link to="/admin/user">用户列表</router-link>
+              <router-link to="/admin/user">学生列表</router-link>
             </el-menu-item>
 <!--            <el-menu-item index="2">-->
 <!--              <Menu style="width: 1em; height: 1em;"/>-->
 <!--              <router-link to="/admin/dashBoard">数据分析</router-link>-->
 <!--            </el-menu-item>-->
+<!--            <el-menu-item index="2">-->
+<!--              <Menu style="width: 1em; height: 1em;"/>-->
+<!--              <router-link to="/admin/editTitle">发布作文</router-link>-->
+<!--            </el-menu-item>-->
             <el-menu-item index="2">
               <Menu style="width: 1em; height: 1em;"/>
-              <router-link to="/admin/editTitle">发布作文</router-link>
-            </el-menu-item>
-            <el-menu-item index="3">
-              <Menu style="width: 1em; height: 1em;"/>
-              <router-link to="/admin/classManage">班级管理</router-link>
+              <router-link to="/admin/classManage">任务管理</router-link>
             </el-menu-item>
 <!--            <el-menu-item index="4">-->
 <!--              <router-link to="/record">返回</router-link>-->
@@ -173,6 +173,7 @@ export default class AppLayout extends Vue {
         this.$router.push({path: '/login'});
         // 清除 token
         localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminId');
         break;
     }
   }
@@ -190,6 +191,7 @@ export default class AppLayout extends Vue {
     this.$watch(
         () => ({path: this.$route.path, query: this.$route.query}),
         (newValue) => {
+          // console.log(newValue)
           this.tabsStore.addTab({
             path: newValue.path,
             label: this.$route.meta.label,

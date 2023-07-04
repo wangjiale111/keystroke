@@ -2,7 +2,7 @@
   <div class="user">
     <div class="main">
       <div class="header">
-        <div style="margin-top: 5px;">搜索学生：</div>
+        <div style="margin-top: 5px;">搜索用户：</div>
         <el-input
             class="search-input"
             v-model="searchQuery"
@@ -86,15 +86,16 @@ export default class AdminView extends Vue {
 
   async getUserEvents(page = this.currentPage, perPage = this.perPage, query = this.searchQuery) {
     try {
-      this.adminId = localStorage.getItem('adminId')
+      this.adminId = localStorage.getItem('adminId');
       const token = localStorage.getItem('adminToken'); // 从本地存储获取JWT令牌
+      const class_id = this.$route.query.class_id; // 从路由查询参数获取class_id
+      // console.log('class:'+class_id)
       const config = {
         headers: {
           'Authorization': token // 将JWT令牌添加到请求头
         }
       };
-      const response = await axios.get(keystrokeUrl + '/get_all_user_events', { ...config, params: { page, perPage, query, adminId: this.adminId } });
-      // console.log(response.data.data)
+      const response = await axios.get(keystrokeUrl + '/get_all_user_events', { ...config, params: { page, perPage, query, adminId: this.adminId, class_id } }); // 在请求参数中添加新的class_id字段
       this.userEvents = response.data.data;
       this.total = response.data.total;
       this.isLoading = false;

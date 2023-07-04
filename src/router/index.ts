@@ -10,6 +10,7 @@ import editTitle from "@/components/editTitle.vue";
 import studentView from "@/views/studentView.vue";
 import LoginDialog from "@/components/LoginDialog.vue";
 import classManage from "@/components/students/classManage.vue";
+import UserViews from "@/components/students/UserView.vue";
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -37,7 +38,7 @@ const routes: Array<RouteRecordRaw> = [
                 component: UserView,
                 meta: {
                     key: "user",
-                    label: "用户列表", // 添加label属性
+                    label: "学生列表", // 添加label属性
                     role: "admin",
                 },
             },
@@ -57,7 +58,17 @@ const routes: Array<RouteRecordRaw> = [
                 component: UserView,
                 meta: {
                     key: "user",
-                    label: "用户列表", // 添加label属性
+                    label: "学生列表", // 添加label属性
+                    role: "admin",
+                },
+            },
+            {
+                path: "/admin/users/:classId",
+                name: "users",
+                component: UserViews,
+                meta: {
+                    key: "users",
+                    label: "班级学生", // 添加label属性
                     role: "admin",
                 },
             },
