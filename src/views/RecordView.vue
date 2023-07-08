@@ -163,23 +163,13 @@ export default class WritingRecord extends Vue {
 
   async mounted() {
     this.showRecord = true;
-    await this.getTextInfo();
     this.isLoading = false;
+    this.textTitle = this.$route.query.textTitle as string;
+    this.requirements = this.$route.query.textRequirement as string;
+    this.time = this.$route.query.textTime as any * 60;
+    this.timeFormat = this.$route.query.textTime + '分00秒';
   }
 
-
-  async getTextInfo() {
-    try {
-      const response = await axios.get(keystrokeUrl + '/get_text_info');
-      const textInfo = response.data;
-      this.textTitle = textInfo.textTitle;
-      this.requirements = textInfo.textRequirement;
-      this.time = textInfo.textTime * 60;
-      this.timeFormat = textInfo.textTime + '分00秒';
-    } catch (error) {
-      console.error(error);
-    }
-  }
 
   get currentQuestion() {
     return this.questions[this.currentIndex];

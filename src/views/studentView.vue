@@ -41,7 +41,7 @@
           <el-menu class="el-menu" default-active="1">
             <el-menu-item index="1">
               <Menu style="width: 1em; height: 1em;"/>
-              <router-link to="/student/record">在线写作</router-link>
+              <router-link to="/student/writingList">任务列表</router-link>
             </el-menu-item>
 <!--            <el-menu-item index="2">-->
 <!--              <Menu style="width: 1em; height: 1em;"/>-->
@@ -85,7 +85,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" name="studentView">
 import {Options, Vue} from 'vue-class-component';
 import {useTabsStore} from '@/store/index';
 import {
@@ -136,6 +136,7 @@ export default class AppLayout extends Vue {
     if (window.innerWidth < 800) {
       this.sidebarVisible = false;
     }
+
   }
 
   switchTab(path: string, query: any) {
@@ -168,6 +169,9 @@ export default class AppLayout extends Vue {
         this.$router.push({path: '/login'});
         // 清除 token
         localStorage.removeItem('studentToken');
+        localStorage.removeItem('studentId');
+        // 使得 store 中tabs为空
+        this.tabsStore.tabs = [];
         break;
     }
   }
@@ -196,7 +200,7 @@ export default class AppLayout extends Vue {
           this.$nextTick(() => {
             let currentIndex = this.tabsStore.tabs.findIndex(tab => tab.identifier === `${newValue.path}:${newValue.query?.userName}`);
             this.activeTabIndex = currentIndex >= 0 ? String(currentIndex) : undefined;
-            console.log(  this.activeTabIndex)
+            // console.log(  this.activeTabIndex)
           })
         },
         {immediate: true, deep: true}

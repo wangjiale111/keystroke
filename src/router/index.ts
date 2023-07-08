@@ -9,8 +9,9 @@ import markText from "@/views/markText.vue";
 import editTitle from "@/components/editTitle.vue";
 import studentView from "@/views/studentView.vue";
 import LoginDialog from "@/components/LoginDialog.vue";
-import classManage from "@/components/students/classManage.vue";
-import UserViews from "@/components/students/UserView.vue";
+import classManage from "@/components/admins/classManage.vue";
+import UserViews from "@/components/admins/UserView.vue";
+import writingList from "@/components/students/writingList.vue";
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -135,13 +136,33 @@ const routes: Array<RouteRecordRaw> = [
         },
         children: [
             {
+                path: "",
+                name: "writingList",
+                component: writingList,
+                meta: {
+                    key: "writingList",
+                    label: "在线写作", // 添加label属性
+                    role: "student",
+                },
+            },
+            {
+                path: "/student/writingList",
+                name: "writingList",
+                component: writingList,
+                meta: {
+                    key: "writingList",
+                    label: "任务列表", // 添加label属性
+                    role: "student",
+                },
+            },
+            {
                 path: "/student/record",
                 name: "record",
                 component: RecordView,
                 meta: {
-                    key: "record",
+                    requiresAuth: true,
+                    keepAlive: true,
                     label: "在线写作", // 添加label属性
-                    role: "student",
                 },
             },
             {

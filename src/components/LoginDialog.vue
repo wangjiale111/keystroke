@@ -77,9 +77,8 @@ export default class LoginDialog extends Vue {
     this.$refs.loginForm.validate(async valid => {
       if (valid) {
         try {
-          let response;
           if (this.userType === 'admin') {
-            response = await axios.post(keystrokeUrl + "/admin", {
+            const response = await axios.post(keystrokeUrl + "/admin", {
               adminName: this.form.username,
               password: this.form.password
             });
@@ -97,7 +96,7 @@ export default class LoginDialog extends Vue {
               this.$message.error('登录失败');
             }
           } else if (this.userType === 'student') {
-            response = await axios.post(keystrokeUrl + "/login", {
+            const response = await axios.post(keystrokeUrl + "/login", {
               username: this.form.username,
               password: this.form.password
             });

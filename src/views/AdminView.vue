@@ -174,6 +174,8 @@ export default class AppLayout extends Vue {
         // 清除 token
         localStorage.removeItem('adminToken');
         localStorage.removeItem('adminId');
+        // 使得 store 中tabs为空
+        this.tabsStore.tabs = [];
         break;
     }
   }
