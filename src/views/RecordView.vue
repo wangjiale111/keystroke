@@ -1,85 +1,24 @@
 <template>
   <div class="record">
-    <div class="admin-login">
-      <el-button class="admin-icon" @click="showLoginDialog" v-show="showRecord">
-        管理员登录
-      </el-button>
-    </div>
     <div class="writing">
-      <div class="title" v-show="!showForm">
-        <span style="  font-size: 20px;">{{textTitle}}</span>
-        <span  style="  font-size: 15px;margin-top: 30px; width:800px;">要求：{{requirements}}</span>
+      <div class="title">
+        <span style="  font-size: 20px;">{{ textTitle }}</span>
+        <span style="  font-size: 15px;margin-top: 10px; width:800px;">要求：{{ requirements }}</span>
       </div>
-      <div class="header" v-show="!showForm">
+      <div class="header">
         <div>时间:{{ timeFormat }}</div>
-        <div style="margin-left: 80px">字数:{{ wordNum }}</div>
+        <div style="margin-left: 60px">字数:{{ wordNum }}</div>
       </div>
       <div class="content">
-        <div class="form" v-show="showForm">
-          <h3>基本信息</h3>
-          <el-form ref="myForm"
-                   :model="form"
-                   label-width="120px"
-                   style="margin-top: 10px"
-                   :rules="formRules">
-            <el-form-item label="用户名" prop="userName">
-              <el-input
-                  v-model="form.userName"
-                  placeholder="请输入用户名"
-                  :disabled="disable3"
-              ></el-input>
-            </el-form-item>
-            <el-form-item label="性别" prop="gender">
-              <el-select v-model="form.gender" placeholder="请选择性别" :disabled="disable3">
-                <el-option label="男" value="male"></el-option>
-                <el-option label="女" value="female"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="年龄" prop="age">
-              <el-input
-                  v-model="form.age"
-                  placeholder="请输入年龄"
-                  :disabled="disable3"
-                  type="number"
-                  min="16"
-              ></el-input>
-            </el-form-item>
-          </el-form>
-          <div style="margin-top: 100px;margin-bottom: 20px;">
-            <h3>问卷调查</h3>
-            <div class="question-container">
-              <h3>{{ currentQuestion.label }}</h3>
-              <el-radio-group v-model="answers[currentQuestion.key]">
-                <el-radio v-for="(option, optionIndex) in currentQuestion.options" :key="optionIndex"
-                          :label="option.value" >
-                  {{ option.label }}
-                </el-radio>
-              </el-radio-group>
-            </div>
-            <div class="navigation-buttons">
-              <el-button :disabled="currentIndex === 0" @click="prevQuestion">
-                上一题
-              </el-button>
-              <el-button  :disabled="currentIndex === questions.length - 1" style="margin-left: 30px;"
-                         @click="nextQuestion">
-              下一题
-              </el-button>
-            </div>
-          </div>
-        </div>
-        <div class="button" v-show="showForm">
-          <el-button type="primary" @click="confirmSubmit" :disabled="disable3" style="margin-top: 100px;">提交调查问卷</el-button>
-        </div>
         <div class="recordText">
           <el-input
               type="textarea"
-              :rows="15"
+              :rows="8"
               v-model="value"
               :disabled="disable"
               @input="handleInput"
               @keydown="handleKeyDown"
-              v-show="showWriting"
-              @paste = "handlePaste"
+              @paste="handlePaste"
               style="width: 100%; font-size: 20px; border: 1px solid #ccc; border-radius: 4px;"
           ></el-input>
         </div>
@@ -94,7 +33,7 @@
         <div class="loading-spinner"></div>
       </div>
     </div>
-    <LoginDialog v-if="showLogin" @close="closeLoginDialog" @login="handleLogin"/>
+
   </div>
 </template>
 
@@ -103,13 +42,12 @@ import {Options, Vue} from 'vue-class-component';
 import ReplayView from '@/views/ReplayView.vue';
 import {DomEventRecord} from "@/record/DomEventRecord";
 // import Papa from "papaparse";
-import {ElMessage, ElMessageBox, ElForm} from 'element-plus';
-import {Message} from 'element-plus';
-import {FormRules} from "element-plus/lib/components";
+import {ElMessage, ElMessageBox, Message} from 'element-plus';
+
 import {keystrokeUrl} from "@/assets/config";
 import axios from "axios";
 import LoginDialog from "@/components/LoginDialog.vue";
-import {question} from "@/utils/studentData";
+
 let recordData: any;
 
 @Options({
@@ -130,35 +68,24 @@ export default class WritingRecord extends Vue {
   // 设置时间,与timeFormat同步
   time = 1200;
   writingData: any[] = [];
-  form = {
-    userName: '',
-    gender: '',
-    age: ''
-  };
-  disable3 = false
+
   disable4 = false
   $message: Message;
-  formRules = {
-    userName: [{required: true, message: '请输入用户名', trigger: 'blur'}],
-    gender: [{required: true, message: '请选择性别', trigger: 'change'}],
-    age: [
-      {required: true, message: '请输入年龄', trigger: 'blur'}
-    ]
-  };
+
   showWriting = true;
   showStart = true;
   showForm = false;
 
   isLoading = true;
-  showLogin = false; // 控制登录弹窗显示/隐藏的状态
   showRecord = true;
   writingFlag = false;
-  questions = question;
-  currentIndex = 0;
-  answers: Record<string, string> = {};
+
 
   textTitle = '';
   requirements = '';
+  class_id = '';
+  adminId = '';
+  userId = '';
 
 
   async mounted() {
@@ -166,40 +93,11 @@ export default class WritingRecord extends Vue {
     this.isLoading = false;
     this.textTitle = this.$route.query.textTitle as string;
     this.requirements = this.$route.query.textRequirement as string;
+    this.class_id = this.$route.query.class_id as string;
+    this.adminId = this.$route.query.created_by as string;
+    this.userId = localStorage.getItem('userId')
     this.time = this.$route.query.textTime as any * 60;
     this.timeFormat = this.$route.query.textTime + '分00秒';
-  }
-
-
-  get currentQuestion() {
-    return this.questions[this.currentIndex];
-  }
-
-  prevQuestion() {
-    if (this.currentIndex > 0) {
-      this.currentIndex--;
-    }
-  }
-
-  nextQuestion() {
-    if (this.currentIndex < this.questions.length - 1) {
-      this.currentIndex++;
-    }
-  }
-
-
-  showLoginDialog(): void {
-    this.showLogin = true; // 显示登录弹窗
-  }
-
-  closeLoginDialog(): void {
-    this.showLogin = false; // 关闭登录弹窗
-  }
-
-  async handleLogin(loginFlag: string): Promise<void> {
-    if (loginFlag) {
-      this.$router.push({name: "user"}); // 修改为跳转到默认子路由
-    }
   }
 
   /**
@@ -256,61 +154,6 @@ export default class WritingRecord extends Vue {
     }, {deep: true, immediate: true});
   }
 
-  confirmSubmit() {
-    (this.$refs.myForm as typeof ElForm).validate(
-        (valid: any) => {
-      if (valid) {
-        ElMessageBox.confirm('提交后不可更改，是否提交？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.disable3 = true;
-          // 提交所有数据
-          console.log(this.answers)
-          try {
-            // 将用户事件日志发送给后端保存到数据库
-            axios
-                .post(keystrokeUrl + '/save_event_logs', {
-                  userName: this.form.userName,
-                  eventLogs: this.writingData,
-                  gender: this.form.gender,  // 添加调查问卷相关字段
-                  age: this.form.age,
-                  answers: this.answers
-                })
-                .then(response => {
-                  // console.log(response.data);
-                  this.disable4 = true;
-
-                  this.$message({
-                    message: '提交成功',
-                    type: 'success'
-                  });
-                })
-                .catch(error => {
-                  console.error(error);
-                  this.$message({
-                    message: '提交失败，请检查网络连接',
-                    type: 'error'
-                  });
-                });
-          } catch (error) {
-            this.$message({
-              message: '提交失败，请联系管理员',
-              type: 'error'
-            });
-            console.log(error);
-          }
-        }).catch(() => {
-          // 取消提交
-          ElMessage.info('已取消提交');
-        });
-      } else {
-        return false;
-      }
-    });
-  }
-
   confirmStartWriting() {
     ElMessageBox.confirm("是否开始写作?", "提示", {
       confirmButtonText: "开始",
@@ -352,6 +195,37 @@ export default class WritingRecord extends Vue {
       console.log(log);
     });
     this.showForm = true;
+    try {
+      // 将用户事件日志发送给后端保存到数据库
+      axios
+          .post(keystrokeUrl + '/save_event_logs', {
+            event_logs: this.writingData,
+            userId: this.userId,
+            adminId: this.adminId,
+            class_id: this.class_id,
+            textTitle: this.textTitle
+          })
+          .then(response => {
+            // console.log(response.data);
+            this.$message({
+              message: '提交成功',
+              type: 'success'
+            });
+          })
+          .catch(error => {
+            console.error(error);
+            this.$message({
+              message: '提交失败，请检查网络连接',
+              type: 'error'
+            });
+          });
+    } catch (error) {
+      this.$message({
+        message: '提交失败，请联系管理员',
+        type: 'error'
+      });
+      console.log(error);
+    }
   }
 
 
@@ -383,24 +257,6 @@ export default class WritingRecord extends Vue {
 </script>
 
 <style scoped>
-.question-container{
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  width: 100%;
-  margin-bottom: 50px;
-}
-
-.navigation-buttons{
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  margin-top: 20px;
-}
-
 .content {
   width: 80%;
   overflow: auto;
@@ -419,11 +275,10 @@ export default class WritingRecord extends Vue {
   font-size: 16px; /* 修改字体大小 */
   color: #333; /* 修改字体颜色 */
   width: 80%;
-  box-shadow:none;
+  box-shadow: none;
 }
 
 .title {
-  margin-bottom: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -461,27 +316,12 @@ export default class WritingRecord extends Vue {
   margin: 0 auto;
 }
 
-.admin-login {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  align-items: center;
-  margin-right: 250px;
-}
-
 .admin-login a {
   display: flex;
   align-items: center;
   color: #2c3e50;
   text-decoration: none;
   margin-left: 10px;
-}
-
-.admin-icon {
-  position: absolute;
-  top: 10px;
-  right: 0;
-  z-index: 999;
 }
 
 .recordText {

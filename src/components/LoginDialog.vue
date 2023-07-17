@@ -107,7 +107,7 @@ export default class LoginDialog extends Vue {
               localStorage.setItem("userId", userId);
               localStorage.setItem("studentToken", token);
               axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-              this.$router.push({name: "student"});
+              this.$router.push({name: "writingList"});
             } else {
               this.$message.error('登录失败');
             }

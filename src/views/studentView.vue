@@ -43,11 +43,11 @@
               <Menu style="width: 1em; height: 1em;"/>
               <router-link to="/student/writingList">任务列表</router-link>
             </el-menu-item>
-<!--            <el-menu-item index="2">-->
-<!--              <Menu style="width: 1em; height: 1em;"/>-->
-<!--              <router-link to="/admin/dashBoard">数据分析</router-link>-->
-<!--            </el-menu-item>-->
             <el-menu-item index="2">
+              <Menu style="width: 1em; height: 1em;"/>
+              <router-link to="/student/historyList">历史任务</router-link>
+            </el-menu-item>
+            <el-menu-item index="3">
               <Menu style="width: 1em; height: 1em;"/>
               <router-link to="/student/dashBoard">我的成绩</router-link>
             </el-menu-item>
@@ -179,10 +179,6 @@ export default class AppLayout extends Vue {
   // handleCommand = (command: string | number | object) => {
   //   this.$messgae.info(`click on item ${command}`)
   // }
-
-  beforeUnmount() {
-    window.removeEventListener('resize', this.calculateWidths);
-  }
 
   created() {
     // 监听路由变化并添加新选项卡到 store

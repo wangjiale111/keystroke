@@ -12,6 +12,7 @@ import LoginDialog from "@/components/LoginDialog.vue";
 import classManage from "@/components/admins/classManage.vue";
 import UserViews from "@/components/admins/UserView.vue";
 import writingList from "@/components/students/writingList.vue";
+import historyList from "@/components/students/historyList.vue";
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -152,6 +153,16 @@ const routes: Array<RouteRecordRaw> = [
                 meta: {
                     key: "writingList",
                     label: "任务列表", // 添加label属性
+                    role: "student",
+                },
+            },
+            {
+                path: "/student/historyList",
+                name: "historyList",
+                component: historyList,
+                meta: {
+                    key: "historyList",
+                    label: "历史任务", // 添加label属性
                     role: "student",
                 },
             },
