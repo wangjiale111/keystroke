@@ -70,20 +70,14 @@ export default class ReplayView extends mixins(Vue) {
   isLoading = false;
   stopFlag = false;
   viewModelPlaybackDone = false;
+  userId: any;
+  class_id: any;
 
-  /**
-   * 生命周期 created
-   */
-  async created() {
+  async mounted() {
 
-    this.userName = this.$route.params.userName;
-    // this.$watch(
-    //     () => this.$route.params.userName, (newUserName, oldUserName) => {
-    //       // 当userName变化时重新加载页面所有的数据
-    //       console.log(`Username changed from ${oldUserName} to ${newUserName}`);
-    //     },
-    //     {immediate: true, deep: true}
-    // );
+    this.userName = this.$route.query.userName;
+    this.userId = this.$route.query.userId;
+    this.class_id = this.$route.query.class_id;
   }
 
   async fetchEventLogs() {
@@ -93,9 +87,10 @@ export default class ReplayView extends mixins(Vue) {
         headers: {
           'Authorization': token // 将JWT令牌添加到请求头
         },
-        params: {userName: this.userName}
+        params: {userId: this.userId, class_id: this.class_id}
       };
       const response = await axios.get(keystrokeUrl + '/get_event_logs', config);
+      console.log(response.data)
       return response.data;
     } catch (error) {
       console.error(error);
@@ -118,19 +113,20 @@ export default class ReplayView extends mixins(Vue) {
       if(!this.stopFlag){
         this.isLoading = true;
         await this.fetchEventLogs().then((replayData) => {
-          this.replayData = replayData.eventLogs;
+          console.log(replayData)
+          this.replayData = replayData.event_logs;
         });
         this.isLoading = false;
       }
       this.flag = 1;
       if (this.replayData.length) {
-        this.viewModelPlayback = this.domRecord.startViewModelPlayback(this.userName, this.replayData);
+        this.viewModelPlayback = this.domRecord.startViewModelPlayback(this.userId, this.replayData);
       } else {
         clearInterval(this.timing);
       }
       if(!this.stopFlag) {
         if ((window as any).emitter && this.flag == 1) {
-          (window as any).emitter.on(this.userName, async (data: any) => {
+          (window as any).emitter.on(this.userId, async (data: any) => {
             await this.viewModelPlaBackHander(data);
           });
         }

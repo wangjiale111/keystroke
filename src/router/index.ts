@@ -2,7 +2,6 @@ import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import RecordView from "@/views/RecordView.vue";
 import ReplayView from "@/views/ReplayView.vue";
 import AdminView from "@/views/AdminView.vue";
-import UserView from "@/views/UserView.vue";
 import dashBoard from "@/views/dashBoard.vue";
 import TextView from "@/views/TextView.vue";
 import markText from "@/views/markText.vue";
@@ -12,7 +11,7 @@ import LoginDialog from "@/components/LoginDialog.vue";
 import classManage from "@/components/admins/classManage.vue";
 import UserViews from "@/components/admins/UserView.vue";
 import writingList from "@/components/students/writingList.vue";
-import historyList from "@/components/students/historyList.vue";
+import historyList from "@/components/admins/historyList.vue";
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -37,10 +36,10 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: "",
                 name: "admin",
-                component: UserView,
+                component: classManage,
                 meta: {
-                    key: "user",
-                    label: "学生列表", // 添加label属性
+                    key: "classManage",
+                    label: "任务列表", // 添加label属性
                     role: "admin",
                 },
             },
@@ -50,17 +49,27 @@ const routes: Array<RouteRecordRaw> = [
                 component: classManage,
                 meta: {
                     key: "classManage",
-                    label: "班级管理", // 添加label属性
+                    label: "任务列表", // 添加label属性
                     role: "admin",
                 },
             },
             {
                 path: "/admin/user",
                 name: "user",
-                component: UserView,
+                component: historyList,
                 meta: {
                     key: "user",
-                    label: "学生列表", // 添加label属性
+                    label: "历史任务", // 添加label属性
+                    role: "admin",
+                },
+            },
+            {
+                path: "/admin/history",
+                name: "historyList",
+                component: historyList,
+                meta: {
+                    key: "user",
+                    label: "历史任务", // 添加label属性
                     role: "admin",
                 },
             },
@@ -95,7 +104,7 @@ const routes: Array<RouteRecordRaw> = [
                 },
             },
             {
-                path: "/admin/replay/:userName",
+                path: '/admin/replay',
                 name: "replay",
                 component: ReplayView,
                 meta: {
@@ -162,7 +171,7 @@ const routes: Array<RouteRecordRaw> = [
                 component: historyList,
                 meta: {
                     key: "historyList",
-                    label: "历史任务", // 添加label属性
+                    label: "我的成绩", // 添加label属性
                     role: "student",
                 },
             },

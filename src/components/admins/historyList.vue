@@ -1,43 +1,12 @@
 <template>
   <div class="container">
-    <el-button type="primary" @click="showDialog = true" style="margin-left: 10px;">发布任务</el-button>
-    <div class="modal" v-show="showDialog">
-      <div style="margin: 10px 0 -10px 20px">
-        <span>发布任务</span>
-      </div>
-      <el-divider></el-divider>
-      <el-form :model="newClassForm" ref="newClass" label-width="120px" :rules="rules" style="margin: 30px 40px 20px 10px;">
-        <el-form-item label="任务名称" prop="name">
-          <el-input v-model="newClassForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="作文标题" prop="textTitle">
-          <el-input v-model="newClassForm.textTitle"></el-input>
-        </el-form-item>
-        <el-form-item label="写作要求" prop="textRequirement">
-          <el-input v-model="newClassForm.textRequirement"></el-input>
-        </el-form-item>
-        <el-form-item label="写作时间" prop="textTime">
-          <el-input-number v-model.number="newClassForm.textTime" controls-position="right"></el-input-number>
-        </el-form-item>
-        <el-form-item label="开始日期" prop="start_date">
-          <el-date-picker v-model="newClassForm.start_date" type="datetime" placeholder="选择日期"></el-date-picker>
-        </el-form-item>
-        <el-form-item label="截止日期" prop="due_date">
-          <el-date-picker v-model="newClassForm.due_date" type="datetime" placeholder="选择日期"></el-date-picker>
-        </el-form-item>
-      </el-form>
-      <div class="footer">
-        <el-button @click="showDialog = false">取消</el-button>
-        <el-button type="primary" @click="onSubmit">确认</el-button>
-      </div>
-    </div>
     <div class="table">
-      <h3 style="margin-top: 50px;font-family: KaiTi; ">当前任务</h3>
-      <el-table :data="classes">
-<!--        <el-table-column prop="id" label="ID" width="180"></el-table-column>-->
+      <h3 style="margin-top: 50px;font-family: KaiTi; ">历史任务</h3>
+      <el-table :data="historyClasses">
+        <!--        <el-table-column prop="id" label="ID" width="180"></el-table-column>-->
         <el-table-column prop="name" label="任务名称" width="80"></el-table-column>
         <el-table-column prop="class_id" label="任务代码" width="80"></el-table-column>
-<!--        <el-table-column prop="created_by" label="创建者" width="180"></el-table-column>-->
+        <!--        <el-table-column prop="created_by" label="创建者" width="180"></el-table-column>-->
         <el-table-column prop="textTitle" label="作文标题" width="200"></el-table-column>
         <el-table-column prop="textRequirement" label="写作要求" width="180"></el-table-column>
         <el-table-column label="写作时间" width="80">
@@ -56,47 +25,14 @@
       </el-table>
       <el-pagination
           @size-change="handleSizeChange"
-          @current-change="currentClassesPageChange"
-          :current-page="currentClassesCurrentPage"
+          @current-change="historyClassesPageChange"
+          :current-page="historyClassesCurrentPage"
           :page-size="pageSize"
           layout="prev, pager, next"
-          :total="totalClasses"
-          style="margin-bottom: 50px;"
+          :total="totalHistoryClasses"
+          style="margin-bottom: 100px;"
       ></el-pagination>
     </div>
-<!--    <div class="table">-->
-<!--      <h3 style="margin-top: 50px;font-family: KaiTi; ">已结束</h3>-->
-<!--      <el-table :data="historyClasses">-->
-<!--        &lt;!&ndash;        <el-table-column prop="id" label="ID" width="180"></el-table-column>&ndash;&gt;-->
-<!--        <el-table-column prop="name" label="任务名称" width="80"></el-table-column>-->
-<!--        <el-table-column prop="class_id" label="任务代码" width="80"></el-table-column>-->
-<!--        &lt;!&ndash;        <el-table-column prop="created_by" label="创建者" width="180"></el-table-column>&ndash;&gt;-->
-<!--        <el-table-column prop="textTitle" label="作文标题" width="200"></el-table-column>-->
-<!--        <el-table-column prop="textRequirement" label="写作要求" width="180"></el-table-column>-->
-<!--        <el-table-column label="写作时间" width="80">-->
-<!--          <template v-slot="{row}">-->
-<!--            {{row.textTime}}分钟-->
-<!--          </template>-->
-<!--        </el-table-column>-->
-<!--        <el-table-column prop="start_date" label="开始日期" width="180"></el-table-column>-->
-<!--        <el-table-column prop="due_date" label="截止日期" width="180"></el-table-column>-->
-<!--        <el-table-column label="操作">-->
-<!--          <template #default="scope">-->
-<!--            <el-button @click="viewStudents(scope.row.class_id)">学生管理</el-button>-->
-<!--            <el-button type="danger" @click="onDelete(scope.row.id)">删除</el-button>-->
-<!--          </template>-->
-<!--        </el-table-column>-->
-<!--      </el-table>-->
-<!--      <el-pagination-->
-<!--          @size-change="handleSizeChange"-->
-<!--          @current-change="historyClassesPageChange"-->
-<!--          :current-page="historyClassesCurrentPage"-->
-<!--          :page-size="pageSize"-->
-<!--          layout="prev, pager, next"-->
-<!--          :total="totalHistoryClasses"-->
-<!--          style="margin-bottom: 100px;"-->
-<!--      ></el-pagination>-->
-<!--    </div>-->
     <div v-if="isLoading" class="loading-overlay">
       <div class="loading-spinner"></div>
     </div>
@@ -113,7 +49,7 @@ import {ElForm, ElMessageBox, Message} from "element-plus";
 import {useTabsStore} from "@/store";
 
 @Options({})
-export default class ClassManage extends Vue {
+export default class historyList extends Vue {
   adminId = ''
   classes = []
   historyClasses = []

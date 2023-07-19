@@ -10,7 +10,7 @@ export class ViewModelPlayBack {
     }
 
 
-    start = (userName: string, finish?: any) => {
+    start = (userId: string, finish?: any) => {
 
         console.log('Starting test script playback.');
 
@@ -48,7 +48,7 @@ export class ViewModelPlayBack {
                          */
 
                         // 发送消息给对应的vue class
-                        (window as any).emitter.emit(userName, {
+                        (window as any).emitter.emit(userId, {
                             classKey: userEvent.classKey,
                             value: userEvent.text,
                             timeStamp: userEvent.timeStamp,

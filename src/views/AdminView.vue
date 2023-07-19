@@ -41,7 +41,11 @@
           <el-menu class="el-menu" default-active="1">
             <el-menu-item index="1">
               <Menu style="width: 1em; height: 1em;"/>
-              <router-link to="/admin/user">学生列表</router-link>
+              <router-link to="/admin/classManage">当前任务</router-link>
+            </el-menu-item>
+            <el-menu-item index="2">
+              <Menu style="width: 1em; height: 1em;"/>
+              <router-link to="/admin/user">历史任务</router-link>
             </el-menu-item>
 <!--            <el-menu-item index="2">-->
 <!--              <Menu style="width: 1em; height: 1em;"/>-->
@@ -51,10 +55,6 @@
 <!--              <Menu style="width: 1em; height: 1em;"/>-->
 <!--              <router-link to="/admin/editTitle">发布作文</router-link>-->
 <!--            </el-menu-item>-->
-            <el-menu-item index="2">
-              <Menu style="width: 1em; height: 1em;"/>
-              <router-link to="/admin/classManage">任务管理</router-link>
-            </el-menu-item>
 <!--            <el-menu-item index="4">-->
 <!--              <router-link to="/record">返回</router-link>-->
 <!--            </el-menu-item>-->

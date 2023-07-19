@@ -45,12 +45,12 @@
             </el-menu-item>
             <el-menu-item index="2">
               <Menu style="width: 1em; height: 1em;"/>
-              <router-link to="/student/historyList">历史任务</router-link>
+              <router-link to="/student/historyList">我的成绩</router-link>
             </el-menu-item>
-            <el-menu-item index="3">
-              <Menu style="width: 1em; height: 1em;"/>
-              <router-link to="/student/dashBoard">我的成绩</router-link>
-            </el-menu-item>
+<!--            <el-menu-item index="3">-->
+<!--              <Menu style="width: 1em; height: 1em;"/>-->
+<!--              <router-link to="/student/dashBoard">我的成绩</router-link>-->
+<!--            </el-menu-item>-->
 <!--            <el-menu-item index="4">-->
 <!--              <router-link to="/record">返回</router-link>-->
 <!--            </el-menu-item>-->

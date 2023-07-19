@@ -104,6 +104,7 @@ export default class WritingRecord extends Vue {
    * toStart  开始录制 1.计时器计算时间  2.监听输入框的值 3.调用recordUserViewModel方法
    */
   toStart() {
+    this.enterFullScreen();
     console.log("record开始")
     this.disable = false;
     this.showStart = false;
@@ -176,6 +177,7 @@ export default class WritingRecord extends Vue {
     })
         .then(() => {
           this.showWriting = false;
+          console.log(this.writingData);
           this.toStop();
         })
         .catch(() => {
@@ -187,6 +189,7 @@ export default class WritingRecord extends Vue {
    * toStop  结束录制
    */
   toStop() {
+    this.exitFullscreen();
     console.log("点击提交，结束录制");
     this.writingFlag = false;
     this.disable = true;
@@ -228,6 +231,27 @@ export default class WritingRecord extends Vue {
     }
   }
 
+  enterFullScreen() {
+    const element: any = document.documentElement;
+    const requestMethod = element.requestFullscreen || // W3C
+        element.mozRequestFullScreen || // Chrome等函数名与W3C有差异
+        element.webkitRequestFullscreen || // FireFox等函数名与W3C有差异
+        element.msRequestFullscreen; // IE11等函数名与W3C有差异
+    if (requestMethod) { // 存在则调用该方法
+      requestMethod.call(element);
+    }
+  }
+
+  exitFullscreen () {
+    const documentAny: any = document;
+    const exitMethod = document.exitFullscreen || // W3C
+        documentAny.mozCancelFullScreen || // Chrome等
+        documentAny.webkitExitFullscreen || // Firefox等，注意这里有一个s
+        documentAny.msExitFullscreen; // IE11等
+    if (exitMethod) { // 存在则调用该方法
+      exitMethod.call(document);
+    }
+  }
 
   /**
    * handleInput  监听输入框的值

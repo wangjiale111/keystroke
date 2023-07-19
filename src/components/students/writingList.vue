@@ -16,7 +16,7 @@
         <el-button type="primary" @click="onSubmit">确认</el-button>
       </div>
     </div>
-    <h3 style="margin-top: 50px;font-family: KaiTi; ">未完成</h3>
+    <h3 style="margin-top: 50px;font-family: KaiTi; ">当前任务</h3>
     <el-table :data="classes" style="width: 100%">
       <el-table-column prop="class_id" label="任务代码"></el-table-column>
       <el-table-column prop="name" label="任务名称"></el-table-column>
@@ -49,7 +49,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <h3 style="margin-top: 50px;font-family: KaiTi; ">已完成</h3>
+    <h3 style="margin-top: 50px;font-family: KaiTi; ">已过期</h3>
     <el-table :data="historyClasses" style="width: 100%">
       <el-table-column prop="class_id" label="任务代码"></el-table-column>
       <el-table-column prop="name" label="任务名称"></el-table-column>
@@ -67,19 +67,12 @@
           label="发布者"
           :formatter="formatAdminNames">
       </el-table-column>
-      <el-table-column label="操作" width="200">
-        <template #default="scope">
-          <el-button
-              @click="startWriting(scope.row.textTitle,
-                                   scope.row.textRequirement,
-                                   scope.row.textTime,
-                                   scope.row.class_id,
-                                   scope.row.created_by,
-                                   scope.row.start_date
-                                   )"
-          >开始写作</el-button>
+
+      <el-table-column label="状态" width="200">
+
+          <el-tag type="danger">未完成</el-tag>
           <!--          <el-button type="danger" @click="onDelete(scope.row.id)">删除任务</el-button>-->
-        </template>
+
       </el-table-column>
     </el-table>
     <div v-if="isLoading" class="loading-overlay">
@@ -143,6 +136,11 @@ export default class WritingList extends Vue {
       return nowTimeStamp <= dueDateTimeStamp;
     });
 
+    this.historyClasses = response.data.filter(item => {
+      const dueDateTimeStamp = Date.parse(item.due_date);
+      return nowTimeStamp > dueDateTimeStamp;
+    });
+
     // 提取并去重所有的创建者id
     const adminIds = Array.from(new Set(this.classes.map(item => item.created_by)))
     adminIds.forEach(adminId => this.getAdminName(adminId));
@@ -151,25 +149,6 @@ export default class WritingList extends Vue {
   }
 
   async getHistoryList() {
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': this.token
-      }
-    };
-    const response = await axios.get(`${keystrokeUrl}/classes/historyList?userId=${this.userId}`, config);
-
-
-    // 获取当前时间的时间戳
-    const now = new Date();
-    const nowTimeStamp = now.getTime();
-
-    // 对数组进行过滤，仅保留未超过截止日期的任务
-    this.historyClasses = response.data.filter(item => {
-      const dueDateTimeStamp = Date.parse(item.due_date);
-      return nowTimeStamp > dueDateTimeStamp;
-    });
-
     // 提取并去重所有的创建者id
     const adminIds = Array.from(new Set(this.historyClasses.map(item => item.created_by)))
     adminIds.forEach(adminId => this.getAdminName(adminId));
@@ -250,6 +229,7 @@ export default class WritingList extends Vue {
             this.$message.error('加入失败');
           }
         await this.getWritingList();
+          await this.getHistoryList();
 
       } else {
         return false;
