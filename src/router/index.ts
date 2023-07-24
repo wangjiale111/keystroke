@@ -94,7 +94,7 @@ const routes: Array<RouteRecordRaw> = [
                 },
             },
             {
-                path: "/admin/markText/:userName",
+                path: "/admin/markText",
                 name: "markText",
                 component: markText,
                 meta: {

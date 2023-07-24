@@ -18,16 +18,16 @@
         <el-table-column prop="saveTime" label="提交时间" min-width="20"></el-table-column>
         <el-table-column label="操作">
           <template v-slot="scope">
-            <el-button type="primary" @click="downloadEventLogs(scope.row.userName)">
-              下载写作过程数据
-            </el-button>
+<!--            <el-button type="primary" @click="downloadEventLogs(scope.row.userName, scope.row.userId, scope.row.class_id)">-->
+<!--              下载写作过程数据-->
+<!--            </el-button>-->
 <!--            <el-button type="primary" @click="downloadForm(scope.row.userName)">-->
 <!--              下载调查问卷-->
 <!--            </el-button>-->
             <el-button type="success" @click="viewReplay(scope.row.userName, scope.row.userId, scope.row.class_id)">
               写作过程分析
             </el-button>
-            <el-button type="success" @click="viewText(scope.row)">
+            <el-button type="success" @click="viewText(scope.row.userName, scope.row.userId, scope.row.class_id, scope.row.textTitle)">
               写作结果分析
             </el-button>
             <el-button @click="deleteUser(scope.row)">
@@ -160,14 +160,14 @@ export default class AdminView extends Vue {
   //   }
   // }
 
-  async fetchEventLogs(userName: string){
+  async fetchEventLogs(userId, class_id) {
     try {
       const token = localStorage.getItem('adminToken'); // 从本地存储获取JWT令牌
       const config = {
         headers: {
           'Authorization': token // 将JWT令牌添加到请求头
         },
-        params: {userName}
+        params: {userId: userId, class_id: class_id}
       };
       const response = await axios.get(keystrokeUrl + '/get_event_logs', config);
       return response.data;
@@ -176,16 +176,16 @@ export default class AdminView extends Vue {
     }
   }
 
-  async downloadEventLogs(userName: string) {
+  async downloadEventLogs(userName, userId, class_id) {
     await ElMessageBox.confirm("是否下载击键记录数据?", "提示", {
       confirmButtonText: "确定",
       cancelButtonText: "取消",
       type: "warning"
     })
     .then(async () => {
-          const userEvent = await this.fetchEventLogs(userName) as any;
+          const userEvent = await this.fetchEventLogs(userId, class_id) as any;
           if (userEvent) {
-            const orderedEventLogs = userEvent.eventLogs.map(log => ({
+            const orderedEventLogs = userEvent.event_logs.map(log => ({
               index: log.index || "",
               classKey: log.classKey || "",
               text: log.text || "",
@@ -195,6 +195,7 @@ export default class AdminView extends Vue {
               IMEBuffer_length: log.IMEBuffer ? log.IMEBuffer.length : 0,
               textLength: log.text ? log.text.length : 0,
               keyValue: log.keyValue || "",
+              textPosition: log.textPosition || "",
               keyAction: log.keyAction || "",
               selector: log.selector || "",
               timeStamp: log.timeStamp || ""
@@ -253,8 +254,8 @@ export default class AdminView extends Vue {
   this.$router.push({path: `/admin/replay`, query: {userName:userName,userId:userId, class_id:class_id}});
   }
 
-  viewText(row) {
-    this.$router.push({path: `/admin/markText/${row.userName}`, query: {textTitle: row.textTitle}});
+  viewText(userName, userId, class_id, textTitle) {
+    this.$router.push({path: `/admin/markText`, query: {userName:userName,userId:userId, class_id:class_id, textTitle: textTitle}});
   }
 
   viewMistake(userName: string){

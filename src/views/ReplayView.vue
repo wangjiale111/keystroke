@@ -1,6 +1,11 @@
 <template>
   <div class="replayContent">
     <div class="username">用户名: {{ userName }}</div>
+    <div class="download">
+      <el-button type="primary" @click="downloadEventLogs()">
+        下载写作过程数据
+      </el-button>
+    </div>
     <div v-if="isLoading" class="loading-overlay">
       <div class="loading-spinner"></div>
       <div class="loading-text">正在加载数据...</div>
@@ -38,8 +43,9 @@ import {DomEventRecord} from '@/record/DomEventRecord';
 import * as echarts from 'echarts';
 import axios from 'axios';
 import {keystrokeUrl} from "@/assets/config";
-import {ElRow, ElCol, ElMenu, ElMenuItem, ElButton} from "element-plus";
+import {ElRow, ElCol, ElMenu, ElMenuItem, ElButton, ElMessageBox} from "element-plus";
 import {Message} from 'element-plus';
+import Papa from "papaparse";
 
 @Options({
   components: {ElButton}
@@ -73,8 +79,7 @@ export default class ReplayView extends mixins(Vue) {
   userId: any;
   class_id: any;
 
-  async mounted() {
-
+  async created() {
     this.userName = this.$route.query.userName;
     this.userId = this.$route.query.userId;
     this.class_id = this.$route.query.class_id;
@@ -90,7 +95,6 @@ export default class ReplayView extends mixins(Vue) {
         params: {userId: this.userId, class_id: this.class_id}
       };
       const response = await axios.get(keystrokeUrl + '/get_event_logs', config);
-      console.log(response.data)
       return response.data;
     } catch (error) {
       console.error(error);
@@ -113,7 +117,6 @@ export default class ReplayView extends mixins(Vue) {
       if(!this.stopFlag){
         this.isLoading = true;
         await this.fetchEventLogs().then((replayData) => {
-          console.log(replayData)
           this.replayData = replayData.event_logs;
         });
         this.isLoading = false;
@@ -390,6 +393,57 @@ export default class ReplayView extends mixins(Vue) {
     return result;
   }
 
+  async downloadEventLogs() {
+    await ElMessageBox.confirm("是否下载击键记录数据?", "提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning"
+    })
+        .then(async () => {
+          if (!this.replayData) {
+            this.isLoading = true;
+            await this.fetchEventLogs().then((replayData) => {
+              this.replayData = replayData.event_logs;
+            });
+            this.isLoading = false;
+          }
+          if (this.replayData) {
+            const orderedEventLogs = this.replayData.map(log => ({
+              index: log.index || "",
+              classKey: log.classKey || "",
+              text: log.text || "",
+              ChineseText: log.ChineseText || "",
+              IMEBuffer: log.IMEBuffer || "",
+              ChineseLength: log.ChineseText ? log.ChineseText.length : 0,
+              IMEBuffer_length: log.IMEBuffer ? log.IMEBuffer.length : 0,
+              textLength: log.text ? log.text.length : 0,
+              keyValue: log.keyValue || "",
+              textPosition: log.textPosition || "",
+              keyAction: log.keyAction || "",
+              selector: log.selector || "",
+              timeStamp: log.timeStamp || ""
+            }));
+
+            // console.log(orderedEventLogs)
+            const csv = Papa.unparse(orderedEventLogs);
+            const csvData = new Blob([csv], {type: "text/csv;charset=utf-8;"});
+            const csvURL = window.URL.createObjectURL(csvData);
+            const tempLink = document.createElement("a");
+            tempLink.href = csvURL;
+            tempLink.setAttribute("download", `${this.userId}_eventLogs.csv`);
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+          } else {
+            console.error("User event not found");
+          }
+
+        })
+        .catch(() => {
+          // 取消
+        });
+  }
+
   viewModelPlaBackHander(data: any) {
     this.value = data.value;
     this.writingLength = data.ChineseLength as number;
@@ -482,6 +536,16 @@ p {
   position: absolute;
   top: 0;
   left: 0;
+  font-size: 24px;
+  color: #0088cc;
+  font-weight: bold;
+}
+
+
+.download {
+  position: absolute;
+  top: 0;
+  right: 0;
   font-size: 24px;
   color: #0088cc;
   font-weight: bold;

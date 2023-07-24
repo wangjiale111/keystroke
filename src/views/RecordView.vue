@@ -18,7 +18,6 @@
               :disabled="disable"
               @input="handleInput"
               @keydown="handleKeyDown"
-              @paste="handlePaste"
               style="width: 100%; font-size: 20px; border: 1px solid #ccc; border-radius: 4px;"
           ></el-input>
         </div>
@@ -86,6 +85,7 @@ export default class WritingRecord extends Vue {
   class_id = '';
   adminId = '';
   userId = '';
+  finalText = '';
 
 
   async mounted() {
@@ -137,6 +137,7 @@ export default class WritingRecord extends Vue {
     this.domRecord = new DomEventRecord();
     this.domRecord.startRecord((log: any) => {
       if (this.writingFlag) {
+        this.finalText = log.text;
         this.writingData.push(log);
       }
     });
@@ -177,7 +178,7 @@ export default class WritingRecord extends Vue {
     })
         .then(() => {
           this.showWriting = false;
-          console.log(this.writingData);
+          console.log(this.finalText);
           this.toStop();
         })
         .catch(() => {
@@ -198,6 +199,7 @@ export default class WritingRecord extends Vue {
       console.log(log);
     });
     this.showForm = true;
+    console.log(this.finalText)
     try {
       // 将用户事件日志发送给后端保存到数据库
       axios
@@ -206,7 +208,8 @@ export default class WritingRecord extends Vue {
             userId: this.userId,
             adminId: this.adminId,
             class_id: this.class_id,
-            textTitle: this.textTitle
+            textTitle: this.textTitle,
+            finalText: this.finalText
           })
           .then(response => {
             // console.log(response.data);

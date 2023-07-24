@@ -114,11 +114,15 @@ export default class markText extends Vue {
   showMistakeFlag = false;
   $message: Message;
   ignoreFlag = false;
+  userId: any;
+  class_id: any;
 
   async created() {
-    this.userName = this.$route.params.userName;
+    this.userName = this.$route.query.userName;
+    this.userId = this.$route.query.userId;
+    this.class_id = this.$route.query.class_id;
     this.textTitle = this.$route.query.textTitle;
-    await this.fetchMistake();
+    await this.fetchMistakes();
     await this.getMarkFlag()
     this.isLoading = false;
   }
@@ -130,13 +134,13 @@ export default class markText extends Vue {
         headers: {
           'Authorization': token // 将JWT令牌添加到请求头
         },
-        params: {userName: this.userName}
+        params: {userId: this.userId, class_id: this.class_id}
       };
       const response = await axios.get(keystrokeUrl + '/get_mistake_data', config);
-      console.log(response.data)
       // console.log(response.data)
-      this.finalText = response.data[0].finalText
-      this.mistakeStr = response.data[0].mistakes;
+      // console.log(response.data)
+      this.finalText = response.data.finalText
+      this.mistakeStr = response.data.mistakes;
       // 去除字符串中的外层括号以及引号
       const formattedData = this.mistakeStr.replace(/^\[|\]$/g, '').replace(/'/g, '"');
 
@@ -160,6 +164,45 @@ export default class markText extends Vue {
       console.error(error);
     }
   }
+
+  async fetchMistakes() {
+    try {
+      const token = localStorage.getItem('adminToken'); // 从本地存储获取JWT令牌
+      const config = {
+        headers: {
+          'Authorization': token // 将JWT令牌添加到请求头
+        },
+        params: {userId: this.userId, class_id: this.class_id}
+      };
+      const response = await axios.get(keystrokeUrl + '/get_mistakes', config);
+      // console.log(response.data)
+      // console.log(response.data)
+      this.finalText = response.data.finalText
+      this.mistakeStr = response.data.mistakes;
+      // 去除字符串中的外层括号以及引号
+      const formattedData = this.mistakeStr.replace(/^\[|\]$/g, '').replace(/'/g, '"');
+
+      // 使用正则表达式匹配每个元组字符串
+      const regex = /\("(.*?)", "(.*?)", (\d+), (\d+)\)/g;
+      let match;
+
+      while ((match = regex.exec(formattedData)) !== null) {
+        const [, mistake, correct, startIndex, endIndex] = match;
+        this.mistakes.push({
+          mistake,
+          correct,
+          startIndex: parseInt(startIndex),
+          endIndex: parseInt(endIndex),
+        });
+      }
+
+      // console.log(this.mistakes);  // 打印转换后的 JSON 数组
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
 
   getHighlightedText() {
     let result = this.finalText;
@@ -222,7 +265,8 @@ export default class markText extends Vue {
       // console.log(mistakesString);
       // 向后端发送用户名和mistakes更新请求
       const data = {
-        userName: this.userName,
+        userId: this.userId,
+        class_id: this.class_id,
         mistakes: mistakesString,
       };
       const response = await axios.post(
@@ -249,7 +293,7 @@ export default class markText extends Vue {
   // 取消所欲哦更改，把删除的el-table数据进行恢复
   async cancelMistake(){
     this.mistakes = [];
-    await this.fetchMistake();
+    await this.fetchMistakes();
   }
 
 
@@ -260,11 +304,11 @@ export default class markText extends Vue {
         headers: {
           'Authorization': token // 将JWT令牌添加到请求头
         },
-        params: {userName: this.userName}
+        params: {class_id: this.class_id, userId: this.userId}
       };
       const response = await axios.get(keystrokeUrl + '/get_markTextFlag', config);
-      console.log(response.data);
-      if(response.data != '0') {
+      // console.log(response.data);
+      if(response.data != 'None') {
         this.apiResult = response.data.Result
         this.showFlag = true;
       } else {
@@ -278,15 +322,18 @@ export default class markText extends Vue {
   }
 
   async getMark() {
+    this.isLoading = true;
     try {
       const token = localStorage.getItem('adminToken'); // 从本地存储获取JWT令牌
       const config = {
         headers: {
           'Authorization': token // 将JWT令牌添加到请求头
         },
-        params: {userName: this.userName}
+        params: {class_id: this.class_id, userId: this.userId, title: this.textTitle }
       };
       const response = await axios.get(keystrokeUrl + '/get_markText', config);
+      console.log(response);
+      await this.fetchMistake();
       // console.log(response.data);
       // console.log(typeof response.data)
       // console.log(response.data.Result.scoreCollection.score)
@@ -295,6 +342,7 @@ export default class markText extends Vue {
       console.error(error);
     }
     this.showFlag = true;
+    this.isLoading = false;
   }
 
 
