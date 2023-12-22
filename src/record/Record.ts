@@ -148,6 +148,7 @@ export default class EventRecord {
             This function will parse the
 
     */
+    // 分析logEvent功能：
     logEvent = (event: any) => {
 
         function isChineseCharacter(inputValueElement: any) {

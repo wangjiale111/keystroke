@@ -64,39 +64,6 @@
           style="margin-bottom: 50px;"
       ></el-pagination>
     </div>
-<!--    <div class="table">-->
-<!--      <h3 style="margin-top: 50px;font-family: KaiTi; ">已结束</h3>-->
-<!--      <el-table :data="historyClasses">-->
-<!--        &lt;!&ndash;        <el-table-column prop="id" label="ID" width="180"></el-table-column>&ndash;&gt;-->
-<!--        <el-table-column prop="name" label="任务名称" width="80"></el-table-column>-->
-<!--        <el-table-column prop="class_id" label="任务代码" width="80"></el-table-column>-->
-<!--        &lt;!&ndash;        <el-table-column prop="created_by" label="创建者" width="180"></el-table-column>&ndash;&gt;-->
-<!--        <el-table-column prop="textTitle" label="作文标题" width="200"></el-table-column>-->
-<!--        <el-table-column prop="textRequirement" label="写作要求" width="180"></el-table-column>-->
-<!--        <el-table-column label="写作时间" width="80">-->
-<!--          <template v-slot="{row}">-->
-<!--            {{row.textTime}}分钟-->
-<!--          </template>-->
-<!--        </el-table-column>-->
-<!--        <el-table-column prop="start_date" label="开始日期" width="180"></el-table-column>-->
-<!--        <el-table-column prop="due_date" label="截止日期" width="180"></el-table-column>-->
-<!--        <el-table-column label="操作">-->
-<!--          <template #default="scope">-->
-<!--            <el-button @click="viewStudents(scope.row.class_id)">学生管理</el-button>-->
-<!--            <el-button type="danger" @click="onDelete(scope.row.id)">删除</el-button>-->
-<!--          </template>-->
-<!--        </el-table-column>-->
-<!--      </el-table>-->
-<!--      <el-pagination-->
-<!--          @size-change="handleSizeChange"-->
-<!--          @current-change="historyClassesPageChange"-->
-<!--          :current-page="historyClassesCurrentPage"-->
-<!--          :page-size="pageSize"-->
-<!--          layout="prev, pager, next"-->
-<!--          :total="totalHistoryClasses"-->
-<!--          style="margin-bottom: 100px;"-->
-<!--      ></el-pagination>-->
-<!--    </div>-->
     <div v-if="isLoading" class="loading-overlay">
       <div class="loading-spinner"></div>
     </div>
@@ -166,6 +133,7 @@ export default class ClassManage extends Vue {
   totalHistoryClasses = 0;
   currentClassesCurrentPage = 1;
   historyClassesCurrentPage = 1;
+
 
   async mounted() {
     await this.getData()

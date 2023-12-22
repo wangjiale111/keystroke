@@ -1,37 +1,60 @@
 <template>
-  <div class="replayContent">
-    <div class="username">用户名: {{ userName }}</div>
-    <div class="download">
-      <el-button type="primary" @click="downloadEventLogs()">
-        下载写作过程数据
-      </el-button>
-    </div>
-    <div v-if="isLoading" class="loading-overlay">
-      <div class="loading-spinner"></div>
-      <div class="loading-text">正在加载数据...</div>
-    </div>
-    <div class="replay">
-      <div class="writingReplay">
-        <div class="content">
-          <el-input
-              type="textarea"
-              :rows="10"
-              v-model="value"
-              :disabled="true"
-              class="text-area"
-          ></el-input>
-        </div>
-        <div class="header">
-          <div class="header-item">写作总时间:{{ time }}</div>
-          <div class="header-item">写作速度:{{ typeSpeed }}字/分钟、{{ typeSpeedSecond }}字/秒</div>
-          <div class="header-item">写作总字数:{{ writingLength }}</div>
-        </div>
-        <div class="playButton">
-          <el-button type="primary" @click="Replay">开始回放</el-button>
-<!--          <el-button type="primary" @click="continueReplay" v-show="stopFlag">继续回放</el-button>-->
-          <el-button type="danger" @click="exitReplay">暂停回放</el-button>
-        </div>
+  <div class="username">用户名: {{ userName }}</div>
+  <div class="download">
+    <el-button type="primary" @click="downloadEventLogs()">
+      下载写作过程数据
+    </el-button>
+  </div>
+  <div v-if="isLoading" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">正在加载数据...</div>
+  </div>
+  <div class="replay">
+    <div class="writingReplay">
+      <div class="content">
+        <el-input
+            type="textarea"
+            :rows="10"
+            v-model="value"
+            :disabled="true"
+            class="text-area"
+        ></el-input>
       </div>
+
+      <div class="playButton">
+        <el-button type="primary" @click="Replay">开始回放</el-button>
+        <!--          <el-button type="primary" @click="continueReplay" v-show="stopFlag">继续回放</el-button>-->
+        <el-button type="danger" @click="exitReplay" style="margin-left: 40px;">暂停回放</el-button>
+      </div>
+    </div>
+    <div class="header">
+      <div class="header-item">写作总时间:{{ time }}</div>
+      <div class="header-item">写作速度:{{ typeSpeed }}字/分钟、{{ typeSpeedSecond }}字/秒</div>
+      <div class="header-item">写作总字数:{{ writingLength }}</div>
+    </div>
+  </div>
+  <div class="replayContent">
+    <div class="processReport">
+    <span>
+  修订总数: 160 <br>
+每100字的平均修订次数: 21.45<br>
+每分钟的平均修订次数: 8.37<br>
+暂停总数: 83<br>
+平均暂停时长（秒）: 5.24<br>
+平均暂停突发长度: 8.987804878048781<br>
+平均暂停突发持续时间（秒）: 13.33<br>
+总过程时间: 00:19:07<br>
+总暂停时间: 00:07:15<br>
+总活跃写作时间: 00:11:52<br>
+思考与打字时间比: 37.92 %<br>
+最终文本长度（字数）: 649<br>
+写作过程产生的文本总长度（字数）: 746<br>
+每分钟字符数（产品）: 54.69<br>
+每分钟字符数（过程）: 39.02<br>
+产品/过程比例: 87.00%<br>
+IME输入次数: 350<br>
+IME平均输入长度: 5.83<br>
+</span>
     </div>
     <div id="chart" class="chart"></div>
   </div>
@@ -453,16 +476,42 @@ export default class ReplayView extends mixins(Vue) {
 </script>
 
 <style scoped>
+.processReport {
+  width: 30%;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.5); /* 轻微的白色边框 */
+  border-radius: 15px; /* 增加圆角 */
+  background-color: rgba(0, 0, 0, 0.7); /* 半透明的深色背景 */
+  backdrop-filter: blur(10px); /* 背景模糊效果 */
+  color: #fff; /* 白色文字 */
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* 添加阴影 */
+  overflow: auto;
+  margin-top: 40px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.processReport:hover {
+  transform: translateY(-5px); /* 悬浮时轻微上移 */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5); /* 悬浮时增强阴影 */
+}
+
+
 .replay {
   display: flex;
+  flex-direction: row;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: space-around;
   width: 100%;
+  margin-top: 20px;
 }
 
 p {
   font-size: 16px;
   line-height: 1.5;
+  color: #444;
 }
 
 .writingReplay {
@@ -472,37 +521,60 @@ p {
   justify-content: center;
   border-radius: 8px;
   background-color: #fff;
-  margin-left:0px;
-  margin-top: 30px;
+  margin: 0 20px;
   width: 80%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .content {
-  width: 80%;
+  width: 100%;
   overflow: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-start;
+  padding: 15px;
+  background-color: #eaeaea;
   margin-top: 30px;
-  margin-right: -30px;
+  border-radius: 5px;
 }
 
 .header {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px; /* 添加内边距 */
-  font-family: Arial, sans-serif; /* 修改字体 */
-  font-size: 16px; /* 修改字体大小 */
-  color: #333; /* 修改字体颜色 */
-  width: 70%;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-around;
+  background: linear-gradient(to right, #dda, #dddddd); /* 添加渐变背景 */
+  padding: 20px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  color: #fff; /* 更改字体颜色以适应背景 */
+  border-radius: 12px; /* 增加圆角 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 增加阴影以增强立体感 */
+  width: 30%;
+  margin-right: 30px;
+  transition: all 0.3s ease;
+  height: fit-content;
+  margin-top: 60px;
 }
 
+.header-item {
+  font-weight: bold;
+  margin-bottom: 15px; /* 增加底部边距 */
+  background: rgba(255, 255, 255, 0.1); /* 轻微背景色强调 */
+  padding: 10px;
+  border-radius: 8px; /* 圆角 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 细微阴影 */
+  transition: transform 0.3s ease;
+}
+
+.header-item:hover {
+  transform: scale(1.05); /* 鼠标悬浮时轻微放大 */
+  background: rgba(255, 255, 255, 0.2); /* 调整悬浮时的背景色 */
+}
 .text-area {
   width: 100%;
   resize: none;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .playButton {
@@ -514,7 +586,7 @@ p {
   width: 80%;
 }
 
-#chart{
+#chart {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -524,35 +596,34 @@ p {
   width: 70%;
   margin-left: 20px;
   padding: 20px;
-  height: 400px; /* 设置合适的高度 */
+  height: 400px;
+  background-color: #f2f2f2;
 }
 
-.replayContent{
-  position: relative;
-  margin-bottom: 200px;
+.replayContent {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 30px 0;
+}
+
+.username, .download {
+  position: absolute;
+  top: 10px;
+  font-size: 24px;
+  color: #0088cc;
+  font-weight: bold;
 }
 
 .username {
-  position: absolute;
-  top: 0;
-  left: 0;
-  font-size: 24px;
-  color: #0088cc;
-  font-weight: bold;
+  left: 20px;
 }
-
 
 .download {
-  position: absolute;
-  top: 0;
-  right: 0;
-  font-size: 24px;
-  color: #0088cc;
-  font-weight: bold;
-}
-
-.header-item {
-  font-weight: bold;
+  right: 20px;
 }
 
 .chart {
@@ -565,9 +636,8 @@ p {
   background-color: #f9f9f9;
   margin-top: 50px;
   width: 70%;
-  height: 350px; /* 设置合适的较大高度 */
+  height: 350px;
 }
-
 
 .loading-overlay {
   position: absolute;
@@ -575,7 +645,7 @@ p {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -586,28 +656,24 @@ p {
   border: 4px solid #f3f3f3;
   border-top: 4px solid #3498db;
   border-radius: 50%;
-  width: 150px;
-  height: 150px;
+  width: 50px;
+  height: 50px;
   animation: spin 1s linear infinite;
 }
 
 .loading-text {
   position: absolute;
-  top: 430px;
+  top: 70px;
   text-align: center;
   width: 100%;
   font-weight: bold;
   font-size: 16px;
-  font-family: '楷体';
+  font-family: 'Roboto', sans-serif;
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>
 

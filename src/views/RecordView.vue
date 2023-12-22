@@ -18,6 +18,7 @@
               :disabled="disable"
               @input="handleInput"
               @keydown="handleKeyDown"
+              @paste="handlePaste"
               style="width: 100%; font-size: 20px; border: 1px solid #ccc; border-radius: 4px;"
           ></el-input>
         </div>

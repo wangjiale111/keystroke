@@ -6,7 +6,7 @@
   <div class="replayContent">
     <div class="username">用户名: {{ userName }}</div>
     <div class="composition">
-      <div class="title">作文题目：{{textTitle}}</div>
+      <div class="title" style="font-size: 30px;">作文题目：{{textTitle}}</div>
       <div v-html="getHighlightedText()" class="replayText"/>
       <div class="mistakeTable">
         <el-button @click="showMistake" class="red-button">错别字分析</el-button>
@@ -30,61 +30,69 @@
   </div>
   <div v-if="showFlag" style="margin-bottom: 200px;">
 
-    <h2>得分：</h2>
-    <p>总分：{{ apiResult.scoreCollection.score }}</p>
-    <p>观点得分：</p>
-    <ul>
-      <li>情感真诚度：{{ apiResult.scoreCollection.perspectiveScore.sentimentSincerity }}</li>
-      <li>文思流畅度：{{ apiResult.scoreCollection.perspectiveScore.essayFluence }}</li>
-      <li>结构严谨度：{{ apiResult.scoreCollection.perspectiveScore.structureStrict }}</li>
-      <li>主题明确度：{{ apiResult.scoreCollection.perspectiveScore.themeExplicit }}</li>
-      <li>优秀句型：{{ apiResult.scoreCollection.perspectiveScore.goodSent }}</li>
-      <li>满足要求度：{{ apiResult.scoreCollection.perspectiveScore.satisfyRequirement }}</li>
-    </ul>
+    <div style="border: 1px solid #e1e1e1; padding: 20px; border-radius: 10px; font-family: Arial, sans-serif;">
+      <div style="margin-bottom: 20px;">
+        <h2 style="color: #666;">评分：</h2>
+        <p style="margin: 0; padding: 0;">总分：{{ apiResult.scoreCollection.score }}</p>
+        <ul style="list-style: none; padding: 0;">
+          <li>情感真诚度：{{ apiResult.scoreCollection.perspectiveScore.sentimentSincerity }}</li>
+          <li>文思流畅度：{{ apiResult.scoreCollection.perspectiveScore.essayFluence }}</li>
+          <li>结构严谨度：{{ apiResult.scoreCollection.perspectiveScore.structureStrict }}</li>
+          <li>主题明确度：{{ apiResult.scoreCollection.perspectiveScore.themeExplicit }}</li>
+          <li>优秀句型：{{ apiResult.scoreCollection.perspectiveScore.goodSent }}</li>
+          <li>满足要求度：{{ apiResult.scoreCollection.perspectiveScore.satisfyRequirement }}</li>
+        </ul>
+      </div>
 
-    <h2>评语：</h2>
-    <p>{{ apiResult.commentCollection.comment }}</p>
+      <div style="margin-bottom: 20px;">
+        <h2 style="color: #666;">评语：</h2>
+        <p style="background: #f1f1f1; padding: 10px; border-radius: 5px;">{{ apiResult.commentCollection.comment }}</p>
+      </div>
 
-    <h2>详细评价：</h2>
-    <p v-for="(evaluation, index) in apiResult.detailedEvaluation.sentenceEvaluation" :key="index">
-      <span v-if="evaluation.start <= apiResult.orgContent.length && evaluation.end <= apiResult.orgContent.length">
-        <span>{{ apiResult.orgContent.slice(evaluation.start, evaluation.end) }}</span>
-        <span>（类型：{{ evaluation.type }}）</span>
-      </span>
-    </p>
-
-    <h2>短语评价：</h2>
-    <ul>
-      <li v-for="(phrase, index) in apiResult.detailedEvaluation.phraseEvaluation" :key="index">
-        <span v-if="phrase.start <= apiResult.orgContent.length && phrase.end <= apiResult.orgContent.length">
-          <span>{{ apiResult.orgContent.slice(phrase.start, phrase.end) }}</span>
-          <span>（类型：{{ phrase.type }}，解释：{{ phrase.explanation }}）</span>
+      <div style="margin-bottom: 20px;">
+        <p v-for="(evaluation, index) in apiResult.detailedEvaluation.sentenceEvaluation" :key="index" style="background: #f1f1f1; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+        <span v-if="evaluation.start <= apiResult.orgContent.length && evaluation.end <= apiResult.orgContent.length">
+          <span>{{ apiResult.orgContent.slice(evaluation.start, evaluation.end) }}</span>
         </span>
-      </li>
-    </ul>
+        </p>
+      </div>
 
-    <h2>纠错内容：</h2>
-    <div v-for="(correction, index) in apiResult.correctedContent" :key="index" >
-      <p>
-        <span>{{ correction.orgSent }}</span>
-        <span>（原句）</span>
-      </p>
-      <p>
-        <span>{{ correction.corSent }}</span>
-        <span>（修改后句子）</span>
-      </p>
-      <ul>
-        <li v-for="(error, errorIndex) in correction.errorInfos" :key="errorIndex">
-          <span>{{ error.orgChunk }}</span>
-          <span>（原句片段）</span>
-          <span>{{ error.corChunk }}</span>
-          <span>（修改后片段）</span>
-          <span>{{ error.errorType }}</span>
-          <span>（错误类型）</span>
-        </li>
-      </ul>
+      <div style="margin-bottom: 20px;">
+        <h2 style="color: #666;">短语评价：</h2>
+        <ul style="list-style: none; padding: 0;">
+          <li v-for="(phrase, index) in apiResult.detailedEvaluation.phraseEvaluation" :key="index" style="background: #f1f1f1; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+          <span v-if="phrase.start <= apiResult.orgContent.length && phrase.end <= apiResult.orgContent.length">
+            <span>{{ apiResult.orgContent.slice(phrase.start, phrase.end) }}</span>
+            <span>：{{ phrase.explanation }}</span>
+          </span>
+          </li>
+        </ul>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <h2 style="color: #666;">纠错：</h2>
+        <div v-for="(correction, index) in apiResult.correctedContent" :key="index" style="background: #f1f1f1; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+          <p>
+            <span>原句：</span>
+            <span>{{ correction.orgSent }}</span><br>
+          </p>
+          <p>
+            <span>纠正：</span>
+            <span>{{ correction.corSent }}</span><br>
+          </p>
+          <ul style="list-style: none; padding: 0;">
+            <li v-for="(error, errorIndex) in correction.errorInfos" :key="errorIndex">
+              <span>原句：</span>
+              <span>{{ error.orgChunk }}</span><br>
+              <span>纠正：</span>
+              <span>{{ error.corChunk }}</span><br>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
+
 </template>
 <script lang="ts" name="markText">
 import {Options, Vue} from 'vue-class-component';
@@ -310,6 +318,7 @@ export default class markText extends Vue {
       // console.log(response.data);
       if(response.data != 'None') {
         this.apiResult = response.data.Result
+        console.log(this.apiResult)
         this.showFlag = true;
       } else {
         this.buttonFlag = true;
@@ -446,6 +455,93 @@ p {
     transform: rotate(360deg);
   }
 }
+
+.essay-correction {
+  border: 1px solid #e1e1e1;
+  padding: 20px;
+  border-radius: 10px;
+  font-family: Arial, sans-serif;
+  background-color: #fff;
+}
+
+.score-circle {
+  width: 80px;
+  height: 80px;
+  border: 2px solid #blue; /* You may want to use a valid color code here */
+  border-radius: 50%;
+  text-align: center;
+  line-height: 80px;
+  font-size: 24px;
+  margin: 0 auto;
+}
+
+.section {
+  border-bottom: 1px solid #e1e1e1;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.section h2 {
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.section p, .section ul {
+  background: #f1f1f1;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.section li {
+  margin-bottom: 5px;
+}
+
+.section li:last-child {
+  margin-bottom: 0;
+}
+
+/* You can add this class to each section */
+.section-title {
+  color: #666;
+  margin-bottom: 10px;
+}
+
+/* You can add this class to each paragraph within sections */
+.section-content {
+  background: #f1f1f1;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+/* You can add this class to each list within sections */
+.section-list {
+  list-style: none;
+  padding: 0;
+}
+
+.section-list li {
+  background: #f1f1f1;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+/* If you want to target the correction list specifically */
+.correction-list li {
+  background: none; /* or any other style you wish */
+}
+
 
 *{
   font-family: KaiTi;
