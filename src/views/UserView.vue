@@ -65,7 +65,7 @@ import editTitle from "@/components/editTitle.vue";
 
 @Options({
   name: 'UserView',
-  components: {editTitle},
+  components: {editTitle}
 })
 export default class AdminView extends Vue {
   userEvents: any[] = [];
@@ -83,6 +83,7 @@ export default class AdminView extends Vue {
   mounted() {
     this.getUserEvents();
   }
+
 
   async getUserEvents(page = this.currentPage, perPage = this.perPage, query = this.searchQuery) {
     try {
@@ -104,58 +105,6 @@ export default class AdminView extends Vue {
       console.error('Failed to fetch user events', error);
     }
   }
-
-  // async getUserForm(userName: string) {
-  //   try {
-  //     const token = localStorage.getItem('adminToken'); // 从本地存储获取JWT令牌
-  //     const config = {
-  //       headers: {
-  //         'Authorization': token // 将JWT令牌添加到请求头
-  //       }
-  //     };
-  //     const response = await axios.get(keystrokeUrl + `/get_form?userName=${userName}`, config);
-  //     // console.log(response.data)
-  //     return response.data;
-  //   } catch (error) {
-  //     this.$message.error('获取调查问卷失败');
-  //     console.error('Failed to fetch user form', error);
-  //   }
-  // }
-
-  // async downloadForm(userName: string) {
-  //   try {
-  //     ElMessageBox.confirm("是否下载调查问卷?", "提示", {
-  //       confirmButtonText: "确定",
-  //       cancelButtonText: "取消",
-  //       type: "warning"
-  //     })
-  //         .then(async () => {
-  //           const userForm = await this.getUserForm(userName);
-  //           if (userForm) {
-  //             // console.log(JSON.parse(JSON.stringify(userForm)))
-  //             this.submitTime = userForm.saveTime;
-  //             // console.log(this.submitTime)
-  //             const csv = Papa.unparse(JSON.parse(JSON.stringify(userForm)));
-  //             const csvData = new Blob([csv], {type: "text/csv;charset=utf-8;"});
-  //             const csvURL = window.URL.createObjectURL(csvData);
-  //             const tempLink = document.createElement("a");
-  //             tempLink.href = csvURL;
-  //             tempLink.setAttribute("download", `${userName}-调查问卷.csv`);
-  //             document.body.appendChild(tempLink);
-  //             tempLink.click();
-  //             document.body.removeChild(tempLink);
-  //           } else {
-  //             console.error('User form not found');
-  //           }
-  //         })
-  //         .catch(() => {
-  //           // 取消
-  //         });
-  //   } catch (error) {
-  //     this.$message.error('下载调查问卷失败');
-  //     console.error('Failed to download user form', error);
-  //   }
-  // }
 
   async fetchEventLogs(userName: string){
     try {

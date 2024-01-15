@@ -29,65 +29,132 @@
     </div>
   </div>
   <div v-if="showFlag" style="margin-bottom: 200px;">
+    <div style="border: 1px solid #e1e1e1; padding: 20px; border-radius: 10px; font-family: Arial, sans-serif;display: flex;flex-direction: row;">
+      <div class="leftContent">
+        <div class="scoreHead">
+          <div class="score">
+            <h2 style="color: #666;">评分：</h2>
+            <div class="score-circle">
+              <span class="total-score">{{ apiResult.scoreCollection.score }}</span>
+            </div>
+          </div>
 
-    <div style="border: 1px solid #e1e1e1; padding: 20px; border-radius: 10px; font-family: Arial, sans-serif;">
-      <div style="margin-bottom: 20px;">
-        <h2 style="color: #666;">评分：</h2>
-        <p style="margin: 0; padding: 0;">总分：{{ apiResult.scoreCollection.score }}</p>
-        <ul style="list-style: none; padding: 0;">
-          <li>情感真诚度：{{ apiResult.scoreCollection.perspectiveScore.sentimentSincerity }}</li>
-          <li>文思流畅度：{{ apiResult.scoreCollection.perspectiveScore.essayFluence }}</li>
-          <li>结构严谨度：{{ apiResult.scoreCollection.perspectiveScore.structureStrict }}</li>
-          <li>主题明确度：{{ apiResult.scoreCollection.perspectiveScore.themeExplicit }}</li>
-          <li>优秀句型：{{ apiResult.scoreCollection.perspectiveScore.goodSent }}</li>
-          <li>满足要求度：{{ apiResult.scoreCollection.perspectiveScore.satisfyRequirement }}</li>
-        </ul>
-      </div>
-
-      <div style="margin-bottom: 20px;">
-        <h2 style="color: #666;">评语：</h2>
-        <p style="background: #f1f1f1; padding: 10px; border-radius: 5px;">{{ apiResult.commentCollection.comment }}</p>
-      </div>
-
-      <div style="margin-bottom: 20px;">
-        <p v-for="(evaluation, index) in apiResult.detailedEvaluation.sentenceEvaluation" :key="index" style="background: #f1f1f1; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-        <span v-if="evaluation.start <= apiResult.orgContent.length && evaluation.end <= apiResult.orgContent.length">
-          <span>{{ apiResult.orgContent.slice(evaluation.start, evaluation.end) }}</span>
-        </span>
-        </p>
-      </div>
-
-      <div style="margin-bottom: 20px;">
-        <h2 style="color: #666;">短语评价：</h2>
-        <ul style="list-style: none; padding: 0;">
-          <li v-for="(phrase, index) in apiResult.detailedEvaluation.phraseEvaluation" :key="index" style="background: #f1f1f1; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+          <div class="detail">
+            <ul>
+              <li>
+                情感真诚度：
+                <div class="score-bar">
+                  <div class="score-value sentimentSincerity" :style="{ width: apiResult.scoreCollection.perspectiveScore.sentimentSincerity*10 + '%' }">
+                    {{ apiResult.scoreCollection.perspectiveScore.sentimentSincerity }}
+                  </div>
+                </div>
+              </li>
+              <li>
+                文思流畅度：
+                <div class="score-bar">
+                  <div class="score-value essayFluence" :style="{ width: apiResult.scoreCollection.perspectiveScore.essayFluence*10 + '%' }">
+                    {{ apiResult.scoreCollection.perspectiveScore.essayFluence }}
+                  </div>
+                </div>
+              </li>
+              <li>
+                结构严谨度：
+                <div class="score-bar">
+                  <div class="score-value structureStrict" :style="{ width: apiResult.scoreCollection.perspectiveScore.structureStrict*10 + '%' }">
+                    {{ apiResult.scoreCollection.perspectiveScore.structureStrict }}
+                  </div>
+                </div>
+              </li>
+              <li>
+                主题明确度：
+                <div class="score-bar">
+                  <div class="score-value themeExplicit" :style="{ width: apiResult.scoreCollection.perspectiveScore.themeExplicit*10 + '%' }">
+                    {{ apiResult.scoreCollection.perspectiveScore.themeExplicit }}
+                  </div>
+                </div>
+              </li>
+              <li>
+                优秀句型：
+                <div class="score-bar">
+                  <div class="score-value goodSent" :style="{ width: apiResult.scoreCollection.perspectiveScore.goodSent*10 + '%' }">
+                    {{ apiResult.scoreCollection.perspectiveScore.goodSent }}
+                  </div>
+                </div>
+              </li>
+              <li>
+                满足要求度：
+                <div class="score-bar">
+                  <div class="score-value satisfyRequirement" :style="{ width: apiResult.scoreCollection.perspectiveScore.satisfyRequirement*10 + '%' }">
+                    {{ apiResult.scoreCollection.perspectiveScore.satisfyRequirement }}
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <h2 style="color: #666;">评语：</h2>
+          <p style="background: #f1f1f1; padding: 10px; border-radius: 5px;">{{ apiResult.commentCollection.comment }}</p>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <h2 style="color: #666;">好词好句：</h2>
+          <ul style="list-style: none; padding: 0;">
+            <li v-for="(phrase, index) in apiResult.detailedEvaluation.phraseEvaluation" :key="index" style="background: #f1f1f1; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
           <span v-if="phrase.start <= apiResult.orgContent.length && phrase.end <= apiResult.orgContent.length">
             <span>{{ apiResult.orgContent.slice(phrase.start, phrase.end) }}</span>
             <span>：{{ phrase.explanation }}</span>
           </span>
-          </li>
-        </ul>
-      </div>
-
-      <div style="margin-bottom: 20px;">
-        <h2 style="color: #666;">纠错：</h2>
-        <div v-for="(correction, index) in apiResult.correctedContent" :key="index" style="background: #f1f1f1; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-          <p>
-            <span>原句：</span>
-            <span>{{ correction.orgSent }}</span><br>
-          </p>
-          <p>
-            <span>纠正：</span>
-            <span>{{ correction.corSent }}</span><br>
-          </p>
-          <ul style="list-style: none; padding: 0;">
-            <li v-for="(error, errorIndex) in correction.errorInfos" :key="errorIndex">
-              <span>原句：</span>
-              <span>{{ error.orgChunk }}</span><br>
-              <span>纠正：</span>
-              <span>{{ error.corChunk }}</span><br>
             </li>
           </ul>
+          <div style="margin-bottom: 20px;">
+            <p v-for="(evaluation, index) in apiResult.detailedEvaluation.sentenceEvaluation" :key="index" style="background: #f1f1f1; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+        <span v-if="evaluation.start <= apiResult.orgContent.length && evaluation.end <= apiResult.orgContent.length">
+          <span>{{ apiResult.orgContent.slice(evaluation.start, evaluation.end) }}</span>
+        </span>
+            </p>
+          </div>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <h2 style="color: #666;">纠错：</h2>
+          <div v-for="(correction, index) in apiResult.correctedContent" :key="index" style="background: #f1f1f1; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+            <p>
+              <span>原句：</span>
+              <span>{{ correction.orgSent }}</span><br>
+            </p>
+            <p>
+              <span>纠正：</span>
+              <span>{{ correction.corSent }}</span><br>
+            </p>
+            <ul style="list-style: none; padding: 0;">
+              <li v-for="(error, errorIndex) in correction.errorInfos" :key="errorIndex">
+                <span>原句：</span>
+                <span>{{ error.orgChunk }}</span><br>
+                <span>纠正：</span>
+                <span>{{ error.corChunk }}</span><br>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="rightContent">
+        <div style="margin-bottom: 20px;">
+          <h2 style="color: #666;">文章分析：</h2>
+          <p v-html="formatText(apiData.guidance.analysis)"></p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <h2 style="color: #666;">核心观点：</h2>
+          <p v-html="formatText(apiData.guidance.corePoint)"></p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <h2 style="color: #666;">素材：</h2>
+          <p v-html="formatText(apiData.guidance.material)"></p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <h2 style="color: #666;">段落分配：</h2>
+          <p v-html="formatText(apiData.guidance.paraAlloc)"></p>
         </div>
       </div>
     </div>
@@ -124,6 +191,7 @@ export default class markText extends Vue {
   ignoreFlag = false;
   userId: any;
   class_id: any;
+  apiData= {};
 
   async created() {
     this.userName = this.$route.query.userName;
@@ -133,6 +201,10 @@ export default class markText extends Vue {
     await this.fetchMistakes();
     await this.getMarkFlag()
     this.isLoading = false;
+  }
+
+  formatText(text) {
+    return text.replace(/\n/g, '<br>');
   }
 
   async fetchMistake() {
@@ -318,6 +390,8 @@ export default class markText extends Vue {
       // console.log(response.data);
       if(response.data != 'None') {
         this.apiResult = response.data.Result
+        this.apiData = response.data.data
+        // console.log(this.apiData)
         console.log(this.apiResult)
         this.showFlag = true;
       } else {
@@ -341,12 +415,11 @@ export default class markText extends Vue {
         params: {class_id: this.class_id, userId: this.userId, title: this.textTitle }
       };
       const response = await axios.get(keystrokeUrl + '/get_markText', config);
-      console.log(response);
+      console.log(response.data);
       await this.fetchMistake();
-      // console.log(response.data);
-      // console.log(typeof response.data)
-      // console.log(response.data.Result.scoreCollection.score)
       this.apiResult = response.data.Result
+      this.apiData = response.data.data
+      console.log(this.apiData)
     } catch (error) {
       console.error(error);
     }
@@ -362,7 +435,81 @@ export default class markText extends Vue {
 
 </script>
 <style scoped>
+.scoreHead {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+}
 
+.score {
+  width: 40%;
+  margin-top: -100px;
+}
+
+.score-circle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: #e6e6ff;
+  margin: 20px auto;
+}
+
+.total-score {
+  font-size: 2em;
+  color: #0000ff;
+}
+
+.detail {
+  width: 50%;
+  padding-left: 20px;
+}
+
+.detail ul {
+  margin: 0;
+  padding: 0;
+}
+
+.detail li {
+  margin-bottom: 10px;
+}
+
+.score-bar {
+  height: 20px;
+  background-color: #d3d3d3;
+  border-radius: 5px;
+}
+
+.score-value {
+  height: 100%;
+  border-radius: 5px;
+  color: white;
+  text-align: right;
+  padding-right: 5px;
+}
+
+/* 为每个指标设定不同的颜色 */
+.sentimentSincerity { background-color: #ff6666; }
+.essayFluence { background-color: #ffcc66; }
+.structureStrict { background-color: #66ccff; }
+.themeExplicit { background-color: #66ff66; }
+.goodSent { background-color: #cc66ff; }
+.satisfyRequirement { background-color: #66cccc; }
+
+
+.leftContent{
+  width: 40%;
+  margin: 0 10px 0 10px;
+}
+
+.rightContent{
+  width: 60%;
+  margin: 0 10px 0 10px;
+}
 p {
   font-size: 16px;
   line-height: 1.5;
@@ -462,27 +609,6 @@ p {
   border-radius: 10px;
   font-family: Arial, sans-serif;
   background-color: #fff;
-}
-
-.score-circle {
-  width: 80px;
-  height: 80px;
-  border: 2px solid #blue; /* You may want to use a valid color code here */
-  border-radius: 50%;
-  text-align: center;
-  line-height: 80px;
-  font-size: 24px;
-  margin: 0 auto;
-}
-
-.section {
-  border-bottom: 1px solid #e1e1e1;
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-}
-
-.section:last-child {
-  border-bottom: none;
 }
 
 .section h2 {

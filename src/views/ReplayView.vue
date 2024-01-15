@@ -35,26 +35,30 @@
   </div>
   <div class="replayContent">
     <div class="processReport">
-    <span>
-  修订总数: 160 <br>
-每100字的平均修订次数: 21.45<br>
-每分钟的平均修订次数: 8.37<br>
-暂停总数: 83<br>
-平均暂停时长（秒）: 5.24<br>
-平均暂停突发长度: 8.987804878048781<br>
-平均暂停突发持续时间（秒）: 13.33<br>
-总过程时间: 00:19:07<br>
-总暂停时间: 00:07:15<br>
-总活跃写作时间: 00:11:52<br>
-思考与打字时间比: 37.92 %<br>
-最终文本长度（字数）: 649<br>
-写作过程产生的文本总长度（字数）: 746<br>
-每分钟字符数（产品）: 54.69<br>
-每分钟字符数（过程）: 39.02<br>
-产品/过程比例: 87.00%<br>
-IME输入次数: 350<br>
-IME平均输入长度: 5.83<br>
-</span>
+      <h2>写作分析报告</h2>
+      <div v-if="writingAnalysis">
+        <p>IME输入次数: {{ writingAnalysis.ime_input_count }}</p>
+        <p>IME平均输入长度: {{ writingAnalysis.average_ime_input_length.toFixed(2) }}</p>
+        <p>修订总数: {{ writingAnalysis.revision_count }}</p>
+        <p>每100字的平均修订次数: {{ writingAnalysis.average_revisions_per_100_characters.toFixed(2) }}</p>
+        <p>每分钟的平均修订次数: {{ writingAnalysis.average_revisions_per_minute.toFixed(2) }}</p>
+        <p>暂停总数: {{ writingAnalysis.pause_count }}</p>
+        <p>平均暂停时长（秒）: {{ writingAnalysis.average_pause_duration.toFixed(2) }}</p>
+        <p>平均暂停突发长度: {{ writingAnalysis.average_burst_length.toFixed(2) }}</p>
+        <p>平均暂停突发持续时间（秒）: {{ writingAnalysis.average_burst_duration.toFixed(2) }}</p>
+        <p>总过程时间: {{ writingAnalysis.total_process_time }}</p>
+        <p>总暂停时间: {{ writingAnalysis.total_pausing_time }}</p>
+        <p>总活跃写作时间: {{ writingAnalysis.total_active_writing_time }}</p>
+        <p>思考与打字时间比: {{ writingAnalysis.thinking_typing_ratio.toFixed(2) }} %</p>
+        <p>最终文本长度（字数）: {{ writingAnalysis.final_text_length }}</p>
+        <p>写作过程产生的文本总长度（字数）: {{ writingAnalysis.generated_text_length }}</p>
+        <p>每分钟字符数（作品）: {{ writingAnalysis.characters_per_minute_product.toFixed(2) }}</p>
+        <p>每分钟字符数（过程）: {{ writingAnalysis.characters_per_minute_process.toFixed(2) }}</p>
+        <p>作品/过程比例: {{ writingAnalysis.product_process_ratio.toFixed(2) *100 }} %</p>
+      </div>
+      <div v-else>
+        <p>正在加载数据...</p>
+      </div>
     </div>
     <div id="chart" class="chart"></div>
   </div>
@@ -101,11 +105,19 @@ export default class ReplayView extends mixins(Vue) {
   viewModelPlaybackDone = false;
   userId: any;
   class_id: any;
+  writingAnalysis: any;
 
   async created() {
     this.userName = this.$route.query.userName;
     this.userId = this.$route.query.userId;
     this.class_id = this.$route.query.class_id;
+    this.fetchWritingAnalysis().then(data => {
+      console.log(data)
+      this.writingAnalysis = data; // 将获取到的数据保存到writingAnalysis中
+    }).catch(error => {
+      console.error('Error fetching writing analysis:', error);
+      // 可以根据需要处理错误情况
+    });
   }
 
   async fetchEventLogs() {
@@ -123,6 +135,21 @@ export default class ReplayView extends mixins(Vue) {
       console.error(error);
     }
   }
+
+  async fetchWritingAnalysis() {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const config = {
+        headers: { 'Authorization': token },
+        params: { userId: this.userId, class_id: this.class_id }
+      };
+      const response = await axios.get(keystrokeUrl + '/analyze_writing', config);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
 
   /**
    * 获取回放数据
@@ -481,7 +508,7 @@ export default class ReplayView extends mixins(Vue) {
   padding: 20px;
   border: 1px solid rgba(255, 255, 255, 0.5); /* 轻微的白色边框 */
   border-radius: 15px; /* 增加圆角 */
-  background-color: rgba(0, 0, 0, 0.7); /* 半透明的深色背景 */
+  background-color: rgba(2, 3, 5, 0.3); /* 半透明的深色背景 */
   backdrop-filter: blur(10px); /* 背景模糊效果 */
   color: #fff; /* 白色文字 */
   font-family: 'Roboto', sans-serif;
@@ -495,7 +522,7 @@ export default class ReplayView extends mixins(Vue) {
 
 .processReport:hover {
   transform: translateY(-5px); /* 悬浮时轻微上移 */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5); /* 悬浮时增强阴影 */
+  box-shadow: 0 6px 12px rgba(3, 3, 3, 0.5); /* 悬浮时增强阴影 */
 }
 
 

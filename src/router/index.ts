@@ -12,6 +12,7 @@ import classManage from "@/components/admins/classManage.vue";
 import UserViews from "@/components/admins/UserView.vue";
 import writingList from "@/components/students/writingList.vue";
 import historyList from "@/components/admins/historyList.vue";
+import historyList2 from "@/components/students/historyList.vue";
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -95,7 +96,7 @@ const routes: Array<RouteRecordRaw> = [
             },
             {
                 path: "/admin/markText",
-                name: "markText",
+                name: "adminMarkText",
                 component: markText,
                 meta: {
                     key: "dash",
@@ -105,7 +106,7 @@ const routes: Array<RouteRecordRaw> = [
             },
             {
                 path: '/admin/replay',
-                name: "replay",
+                name: "adminReplay",
                 component: ReplayView,
                 meta: {
                     key: "replay",
@@ -146,6 +147,26 @@ const routes: Array<RouteRecordRaw> = [
         },
         children: [
             {
+                path: "/student/markText",
+                name: "studentMarkText",
+                component: markText,
+                meta: {
+                    key: "dash",
+                    label: "作文分析", // 添加label属性
+                    role: "student",
+                },
+            },
+            {
+                path: '/student/replay',
+                name: "studentReplay",
+                component: ReplayView,
+                meta: {
+                    key: "replay",
+                    label: "写作过程分析", // 添加label属性
+                    role: "student",
+                },
+            },
+            {
                 path: "",
                 name: "writingList",
                 component: writingList,
@@ -168,7 +189,7 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: "/student/historyList",
                 name: "historyList",
-                component: historyList,
+                component: historyList2,
                 meta: {
                     key: "historyList",
                     label: "我的成绩", // 添加label属性
@@ -213,17 +234,15 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+    const userRole = getUserRole(); // 假设你有一个函数来获取当前用户的角色
 
     if(requiresAuth) {
-        if(localStorage.getItem('adminToken')) {
-            if(to.meta.role === 'admin') {
+        if(userRole === 'admin' || userRole === 'student') {
+            // 如果是 markText 或 replay 页面，则允许任意持token的用户访问
+            if(to.path.endsWith('markText') || to.path.endsWith('replay')) {
                 next();
-            } else {
-                console.log("你没有权限访问这个页面");
-                next({ name: "login" });
-            }
-        } else if(localStorage.getItem('studentToken')) {
-            if(to.meta.role === 'student') {
+            } else if (userRole === to.meta.role) {
+                // 用户角色需和 meta.role 相匹配
                 next();
             } else {
                 console.log("你没有权限访问这个页面");
@@ -237,6 +256,16 @@ router.beforeEach((to, from, next) => {
         next();
     }
 });
+
+// 用来获取用户角色的函数，这里简化处理，实际应用可能需要更复杂的逻辑
+function getUserRole() {
+    if (localStorage.getItem('adminToken')) {
+        return 'admin';
+    } else if (localStorage.getItem('studentToken')) {
+        return 'student';
+    }
+    return null;
+}
 
 router.afterEach((to, from) => {
     const adminToken = localStorage.getItem("adminToken");

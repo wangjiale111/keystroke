@@ -88,6 +88,7 @@ export default class LoginDialog extends Vue {
               const token = response.data.token;
               const adminId = response.data.adminId;
               localStorage.setItem("adminId", adminId)
+              localStorage.setItem("adminName", this.form.username);
               localStorage.setItem("adminToken", token);
               axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
               this.$router.push({name: "classManage"});
@@ -105,6 +106,7 @@ export default class LoginDialog extends Vue {
               const token = response.data.token;
               const userId = response.data.userId;
               localStorage.setItem("userId", userId);
+              localStorage.setItem("studentName", this.form.username);
               localStorage.setItem("studentToken", token);
               axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
               this.$router.push({name: "writingList"});

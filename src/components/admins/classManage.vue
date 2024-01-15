@@ -270,7 +270,6 @@ export default class ClassManage extends Vue {
 
   async viewStudents(class_id) {
     this.$router.push({path: `/admin/users/${class_id}`, query: {class_id: class_id}});
-
   }
 
    formatDate = (datetime: any) => {
