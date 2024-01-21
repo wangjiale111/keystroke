@@ -38,7 +38,7 @@
       </div>
     </div>
     <div class="app-layout">
-      <el-container>
+      <el-container style="height:900px;">
         <el-aside
             :style="{ display: sidebarVisible ? 'block' : 'none', width: '120px', height: '100%' }"
             class="aside"
