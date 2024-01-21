@@ -1,1 +1,1 @@
-export const keystrokeUrl = 'http://121.40.58.21:8690/api';
+export const keystrokeUrl = process.env.VUE_APP_API_URL;

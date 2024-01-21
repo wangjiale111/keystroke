@@ -5,7 +5,7 @@
       <div
           class="sidebar-header"
       >
-        <img src="@/assets/logo.png" alt="" style="width: 5em; height: 5em; margin-left: 30px">
+<!--        <img src="@/assets/logo.png" alt="" style="width: 5em; height: 5em; margin-left: 30px">-->
         <div class="toggle-button">
           <el-button @click="toggleSidebar" style="width: 2em; height: 2em;">
             <Expand style="width: 2em; height: 2em;" v-if="!sidebarVisible"/>
@@ -16,13 +16,17 @@
       <div class="right-header">
         <h1>在线写作分析平台</h1>
         <div class="logo">
-          <div class="full"><FullScreen style="width: 1.5em; height: 1.5em;  cursor: pointer; margin-right: 30px;" @click="fullScreen"/></div>
+          <div style="margin-right: 5px;">
+            你好，{{ studentName }}!
+          </div>
           <el-dropdown @command="handleCommand">
             <div class="el-dropdown-link">
               <User style="width: 2.5em; height: 2.5em; cursor: pointer;"></User>
             </div>
             <template #dropdown>
               <el-dropdown-menu>
+                <el-dropdown-item command="fullScreen">全屏</el-dropdown-item>
+                <el-dropdown-item command="changeInfo">修改信息</el-dropdown-item>
                 <el-dropdown-item command="changePassword">修改密码</el-dropdown-item>
                 <el-dropdown-item command="logout">退出登录</el-dropdown-item>
               </el-dropdown-menu>
@@ -30,12 +34,13 @@
           </el-dropdown>
         </div>
         <passwordChangeDialog ref="passwordDialog"></passwordChangeDialog>
+        <changeInfoDialog ref="infomDialog"></changeInfoDialog>
       </div>
     </div>
     <div class="app-layout">
       <el-container>
         <el-aside
-            :style="{ display: sidebarVisible ? 'block' : 'none', width: '150px', height: '100%' }"
+            :style="{ display: sidebarVisible ? 'block' : 'none', width: '120px', height: '100%' }"
             class="aside"
         >
           <el-menu class="el-menu" default-active="1">
@@ -104,6 +109,9 @@ import {
 } from 'element-plus';
 import {Message} from 'element-plus';
 import passwordChangeDialog from '@/components/passwordChangeDialog.vue';
+import changeInfoDialog from "@/components/changeInfoDialog.vue";
+import axios from "axios";
+import {keystrokeUrl} from "@/assets/config";
 
 @Options({
   components: {
@@ -119,7 +127,8 @@ import passwordChangeDialog from '@/components/passwordChangeDialog.vue';
     ElTooltip,
     ElTabs,
     ElTabPane,
-    passwordChangeDialog
+    passwordChangeDialog,
+    changeInfoDialog,
   },
 })
 export default class AppLayout extends Vue {
@@ -127,6 +136,7 @@ export default class AppLayout extends Vue {
   tabsStore = useTabsStore();
   activeTabIndex = '0';
   $messgae: Message;
+  studentName = '';
 
   mounted() {
     this.calculateWidths();
@@ -137,6 +147,7 @@ export default class AppLayout extends Vue {
       this.sidebarVisible = false;
     }
 
+    this.getStudentName()
   }
 
   switchTab(path: string, query: any) {
@@ -161,6 +172,15 @@ export default class AppLayout extends Vue {
 
   handleCommand(command: string) {
     switch (command) {
+      case 'fullScreen':
+        this.fullScreen();
+        break;
+      case 'changeInfo':
+        (this.$refs.infomDialog as any).open();
+        this.$nextTick(() => {
+          this.getStudentName();
+        });
+        break;
       case 'changePassword':
         // 引用 PasswordChangeDialog 组件的 open 方法
         (this.$refs.passwordDialog as any).open();
@@ -181,6 +201,8 @@ export default class AppLayout extends Vue {
   // }
 
   created() {
+    this.token = localStorage.getItem('studentToken')
+    this.userId = localStorage.getItem('userId')
     // 监听路由变化并添加新选项卡到 store
     this.$watch(
         () => ({path: this.$route.path, query: this.$route.query}),
@@ -201,8 +223,24 @@ export default class AppLayout extends Vue {
         },
         {immediate: true, deep: true}
     );
-
+    this.getStudentName();
   }
+
+  token = ''
+  userId = ''
+
+  async getStudentName() {
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': this.token
+      }
+    };
+    // Corrected to use 'userId' as the query parameter
+    const response = await axios.get(`${keystrokeUrl}/getStudentName?userId=${this.userId}`, config);
+    this.studentName = response.data.studentName;
+  }
+
 
   closeTab(path: string) {
     const currentViewIndex = this.tabsStore.tabs.findIndex(
@@ -262,9 +300,9 @@ export default class AppLayout extends Vue {
 
 .sidebar-header {
   width: 150px;
-  height: 80px;
+  height: 42px;
   position: relative;
-  background-color: #faefef;
+  background-color: #f1efef;
   top:0px;
   left:0px;
 }
@@ -290,6 +328,7 @@ export default class AppLayout extends Vue {
 
 .app-layout {
   display: flex;
+  height: 100%;
 }
 
 /* 选中状态背景颜色 */
@@ -377,10 +416,14 @@ h1 {
   cursor: pointer;
 }
 
+.el-container{
+  height: 100%;
+}
+
 .logo{
   position: absolute;
-  right: 30px;
-  top: 30px;
+  right: 36px;
+  top: 3px;
   display: flex;
   align-items: center;
   justify-content: center;

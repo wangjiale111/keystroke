@@ -13,26 +13,36 @@
         <el-button type="primary" @click="searchUserEvents">搜索</el-button>
       </div>
       <el-table :data="userEvents" border>
-        <el-table-column prop="userName" label="姓名" min-width="20"></el-table-column>
+        <el-table-column prop="studentId" label="学号" min-width="20"></el-table-column>
+        <el-table-column prop="studentName" label="姓名" min-width="20"></el-table-column>
         <el-table-column prop="textTitle" label="作文题目" min-width="30"></el-table-column>
         <el-table-column prop="saveTime" label="提交时间" min-width="20"></el-table-column>
         <el-table-column label="操作">
           <template v-slot="scope">
-            <el-button type="success" @click="viewReplay(scope.row.userName, scope.row.userId, scope.row.class_id)">
+            <!-- 写作过程分析和写作结果分析按钮始终显示 -->
+            <el-button type="primary" @click="viewReplay(scope.row.userName, scope.row.userId, scope.row.class_id)">
               写作过程分析
             </el-button>
-            <el-button type="success" @click="viewText(scope.row.userName, scope.row.userId, scope.row.class_id, scope.row.textTitle)">
+            <el-button type="primary" @click="viewText(scope.row.userName, scope.row.userId, scope.row.class_id, scope.row.textTitle)">
               写作结果分析
             </el-button>
-            <el-button @click="openScoreDialog(scope.row)">
+
+            <!-- 根据 scoreFlag 显示评分或重新评分按钮 -->
+            <el-button type="success" v-if="scope.row.scoreFlag === '1'" @click="openScoreDialog(scope.row)">
+              重新评分
+            </el-button>
+            <el-button v-else @click="openScoreDialog(scope.row)">
               评分
             </el-button>
+
+            <!-- 删除按钮 -->
             <el-button @click="deleteUser(scope.row)">
               删除
             </el-button>
           </template>
         </el-table-column>
       </el-table>
+
       <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
@@ -151,9 +161,10 @@ export default class AdminView extends Vue {
       };
       const response = await axios.post(keystrokeUrl + '/submit_score', data, config);
       if (response.status === 200) {
-        this.$message.success('评分提交成功');
+        this.$message.success('评分成功');
+        this.getUserEvents(); // 重新获取用户列表
       } else {
-        this.$message.error('评分提交失败');
+        this.$message.error('评分失败');
       }
     } catch (error) {
       console.error('Failed to submit score', error);
@@ -167,7 +178,7 @@ export default class AdminView extends Vue {
       this.adminId = localStorage.getItem('adminId');
       const token = localStorage.getItem('adminToken'); // 从本地存储获取JWT令牌
       this.class_id = this.$route.params.classId as string; // 从路由查询参数获取class_id
-      console.log(this.class_id)
+      // console.log(this.class_id)
       // console.log('class:'+class_id)
       const config = {
         headers: {
@@ -175,8 +186,9 @@ export default class AdminView extends Vue {
         }
       };
       const response = await axios.get(keystrokeUrl + '/get_all_user_event', { ...config, params: { page, perPage, query, adminId: this.adminId, class_id: this.class_id } }); // 在请求参数中添加新的class_id字段
-      console.log(response.data)
+
       this.userEvents = response.data.data;
+      console.log(this.userEvents)
       this.total = response.data.total;
       this.isLoading = false;
     } catch (error) {

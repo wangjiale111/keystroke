@@ -2,10 +2,8 @@
 
   <div class="layout-container">
     <div class="header">
-      <div
-          class="sidebar-header"
-      >
-        <img src="@/assets/logo.png" alt="" style="width: 4em; height: 4em; margin-left: 30px;margin-top:10px;">
+      <div class="sidebar-header">
+<!--        <img src="@/assets/logo.png" alt="" style="width: 4em; height: 4em; margin-left: 30px;margin-top:10px;">-->
         <div class="toggle-button">
           <el-button @click="toggleSidebar" style="width: 2em; height: 2em;">
             <Expand style="width: 2em; height: 2em;" v-if="!sidebarVisible"/>
@@ -16,13 +14,20 @@
       <div class="right-header">
         <h1>在线写作分析平台</h1>
         <div class="logo">
-          <div class="full"><FullScreen style="width: 1.5em; height: 1.5em;  cursor: pointer; margin-right: 30px;" @click="fullScreen"/></div>
+          <div style="margin-right: 5px;">
+            你好，{{ adminName }}!
+          </div>
+<!--          <div class="full">-->
+<!--            <FullScreen style="width: 1.5em; height: 1.5em;  cursor: pointer; margin-right: 30px;" @click="fullScreen"/>-->
+<!--          </div>-->
           <el-dropdown @command="handleCommand">
             <div class="el-dropdown-link">
               <User style="width: 2.5em; height: 2.5em; cursor: pointer;"></User>
             </div>
             <template #dropdown>
               <el-dropdown-menu>
+                <el-dropdown-item command="fullScreen">全屏</el-dropdown-item>
+                <el-dropdown-item command="changeInfo">修改信息</el-dropdown-item>
                 <el-dropdown-item command="changePassword">修改密码</el-dropdown-item>
                 <el-dropdown-item command="logout">退出登录</el-dropdown-item>
               </el-dropdown-menu>
@@ -30,12 +35,13 @@
           </el-dropdown>
         </div>
         <passwordChangeDialog ref="passwordDialog"></passwordChangeDialog>
+        <infoChangeDialog ref="infoDialog"></infoChangeDialog>
       </div>
     </div>
     <div class="app-layout">
-      <el-container>
+      <el-container style="height: 900px;">
         <el-aside
-            :style="{ display: sidebarVisible ? 'block' : 'none', width: '150px', height: '100%' }"
+            :style="{ display: sidebarVisible ? 'block' : 'none', width: '120px', height: '100%' }"
             class="aside"
         >
           <el-menu class="el-menu" default-active="1">
@@ -108,6 +114,9 @@ import {
   Message,
 } from 'element-plus';
 import passwordChangeDialog from '@/components/passwordChangeDialog.vue';
+import infoChangeDialog from '@/components/infoChangeDialog.vue';
+import axios from "axios";
+import {keystrokeUrl} from "@/assets/config";
 
 @Options({
   components: {
@@ -123,7 +132,8 @@ import passwordChangeDialog from '@/components/passwordChangeDialog.vue';
     ElTooltip,
     ElTabs,
     ElTabPane,
-    passwordChangeDialog
+    passwordChangeDialog,
+    infoChangeDialog,
   },
 })
 export default class AppLayout extends Vue {
@@ -132,6 +142,7 @@ export default class AppLayout extends Vue {
   activeTabIndex = '0';
   $messgae: Message;
   adminId = '';
+  adminName = '';
 
   mounted() {
     this.calculateWidths();
@@ -141,7 +152,29 @@ export default class AppLayout extends Vue {
     if (window.innerWidth < 800) {
       this.sidebarVisible = false;
     }
+
+    this.getAdminName();
   }
+
+  // 从接口getAdminName获取管理员名字
+  async getAdminName() {
+    // Retrieve adminId from local storage
+    this.adminId = localStorage.getItem('adminId');
+    const token = localStorage.getItem('adminToken');
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token
+      }
+    };
+
+    // Append the adminId as a query parameter in the request
+    const response = await axios.get(`${keystrokeUrl}/getAdminName?adminId=${this.adminId}`, config);
+    console.log(response.data.adminName)
+    this.adminName = response.data.adminName;
+  }
+
 
   switchTab(path: string, query: any) {
     this.$router.push({path: path, query: query});
@@ -165,6 +198,13 @@ export default class AppLayout extends Vue {
 
   handleCommand(command: string) {
     switch (command) {
+      case 'fullScreen':
+        this.fullScreen();
+        break;
+      case 'changeInfo':
+        (this.$refs.infoDialog as any).open();
+        this.getAdminName();
+        break;
       case 'changePassword':
         // 引用 PasswordChangeDialog 组件的 open 方法
         (this.$refs.passwordDialog as any).open();
@@ -183,6 +223,10 @@ export default class AppLayout extends Vue {
   // handleCommand = (command: string | number | object) => {
   //   this.$messgae.info(`click on item ${command}`)
   // }
+
+  changeInform() {
+    console.log('11')
+  }
 
   beforeUnmount() {
     window.removeEventListener('resize', this.calculateWidths);
@@ -230,15 +274,15 @@ export default class AppLayout extends Vue {
     }
   }
 
-  calculateWidths() {
-      // 添加页面宽度改变时的折叠状态
-      if (window.innerWidth < 800) {
-        this.sidebarVisible = false;
-      } else {
-        this.sidebarVisible = true;
-      }
+    calculateWidths() {
+        // 添加页面宽度改变时的折叠状态
+        if (window.innerWidth < 800) {
+          this.sidebarVisible = false;
+        } else {
+          this.sidebarVisible = true;
+        }
 
-  }
+    }
 
   toggleSidebar() {
     this.sidebarVisible = !this.sidebarVisible;
@@ -271,7 +315,7 @@ export default class AppLayout extends Vue {
 
 .sidebar-header {
   width: 150px;
-  height: 60px;
+  height: 42px;
   position: relative;
   background-color: #faefef;
   top:0px;

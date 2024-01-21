@@ -1,12 +1,13 @@
 <template>
-  <el-button @click="getMark" v-if="buttonFlag">点击调用有道API(一次一毛)</el-button>
+  <el-button @click="getMark" v-if="buttonFlag">写作过程分析</el-button>
   <div v-if="isLoading" class="loading-overlay">
     <div class="loading-spinner"></div>
   </div>
   <div class="replayContent">
-    <div class="username">用户名: {{ userName }}</div>
+    <div class="username">学生名: {{ userName }}</div>
     <div class="composition">
       <div class="title" style="font-size: 30px;">作文题目：{{textTitle}}</div>
+      <div class="title" style="font-size: 20px;margin-top: 20px;margin-left: -60px;">{{requirement}}</div>
       <div v-html="getHighlightedText()" class="replayText"/>
       <div class="mistakeTable">
         <el-button @click="showMistake" class="red-button">错别字分析</el-button>
@@ -192,6 +193,7 @@ export default class markText extends Vue {
   userId: any;
   class_id: any;
   apiData= {};
+  requirement = ''
 
   async created() {
     this.userName = this.$route.query.userName;
@@ -259,6 +261,7 @@ export default class markText extends Vue {
       // console.log(response.data)
       this.finalText = response.data.finalText
       this.mistakeStr = response.data.mistakes;
+      this.requirement = response.data.textRequirement;
       // 去除字符串中的外层括号以及引号
       const formattedData = this.mistakeStr.replace(/^\[|\]$/g, '').replace(/'/g, '"');
 

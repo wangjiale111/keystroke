@@ -236,29 +236,31 @@ router.beforeEach((to, from, next) => {
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
     const userRole = getUserRole(); // 假设你有一个函数来获取当前用户的角色
 
-    if(requiresAuth) {
-        if(userRole === 'admin' || userRole === 'student') {
+    if (requiresAuth) {
+        if (userRole === 'admin' || userRole === 'student') {
             // 如果是 markText 或 replay 页面，则允许任意持token的用户访问
-            if(to.path.endsWith('markText') || to.path.endsWith('replay')) {
+            if (to.path.endsWith('markText') || to.path.endsWith('replay')) {
                 next();
             } else if (userRole === to.meta.role) {
                 // 用户角色需和 meta.role 相匹配
-                next();
+                next();  // 如果已经有权限访问，直接next
             } else {
                 console.log("你没有权限访问这个页面");
                 next({ name: "login" });
             }
         } else {
             console.log("未登录");
-            next('/login');
+            next('/login');  // 如果未登录，重定向到登录页
         }
     } else {
-        next();
+        next();  // 如果不需要权限验证，直接next
     }
 });
 
+
 // 用来获取用户角色的函数，这里简化处理，实际应用可能需要更复杂的逻辑
 function getUserRole() {
+
     if (localStorage.getItem('adminToken')) {
         return 'admin';
     } else if (localStorage.getItem('studentToken')) {

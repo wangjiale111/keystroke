@@ -26,22 +26,44 @@
         </el-form-item>
 
         <div class="footer">
-          <el-button type="primary" native-type="submit" @click="login">登录</el-button>
+          <el-button type="primary" native-type="button" @click="login">登录</el-button>
           <el-button @click="showRegisterForm">注册</el-button>
         </div>
       </el-form>
 
 
       <el-form v-if="showRegister" :model="registerForm" ref="register" label-width="80px">
-          <el-form-item label="教师账号" prop="username" v-if="userType == 'admin'">
-            <el-input v-model="registerForm.username" autocomplete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="学生账号" prop="username" v-if="userType == 'student'">
-            <el-input v-model="registerForm.username" autocomplete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="密码" prop="password">
-            <el-input type="password" v-model="registerForm.password" autocomplete="off"></el-input>
-          </el-form-item>
+        <!-- 教师账号注册 -->
+        <!-- 教师姓名 -->
+        <el-form-item label="姓名" prop="name" v-if="userType == 'admin'">
+          <el-input v-model="registerForm.teacher_name" autocomplete="off"></el-input>
+        </el-form-item>
+        <!-- 教师工号 -->
+        <el-form-item label="工号" prop="employeeId" v-if="userType == 'admin'">
+          <el-input v-model="registerForm.employeeId" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="教师账号" prop="admin_name" v-if="userType == 'admin'">
+          <el-input v-model="registerForm.admin_name" autocomplete="off"></el-input>
+        </el-form-item>
+
+        <!-- 学生账号注册 -->
+
+        <!-- 学生姓名 -->
+        <el-form-item label="姓名" prop="name" v-if="userType == 'student'">
+          <el-input v-model="registerForm.student_name" autocomplete="off"></el-input>
+        </el-form-item>
+        <!-- 学生学号 -->
+        <el-form-item label="学号" prop="studentId" v-if="userType == 'student'">
+          <el-input v-model="registerForm.studentId" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="学生账号" prop="username" v-if="userType == 'student'">
+          <el-input v-model="registerForm.username" autocomplete="off"></el-input>
+        </el-form-item>
+
+        <!-- 通用字段：密码、手机号、电子邮箱 -->
+        <el-form-item label="密码" prop="password">
+          <el-input type="password" v-model="registerForm.password" autocomplete="off"></el-input>
+        </el-form-item>
 
 
         <div class="footer">
@@ -49,6 +71,7 @@
           <el-button @click="showLoginForm">返回登录</el-button>
         </div>
       </el-form>
+
 
     </div>
   </div>
@@ -63,13 +86,19 @@ import {keystrokeUrl} from "@/assets/config";
 export default class LoginDialog extends Vue {
   form = {
     username: '',
-    password: ''
+    password: '',
+
   };
 
   userType = 'student';
   registerForm = {
+    teacher_name: '', // 教师姓名
+    employeeId: '',   // 教师工号
+    student_name: '', // 学生姓名
+    studentId: '',    // 学生学号
     username: '',
-    password: ''
+    password: '',
+    admin_name: ''
   };
   showRegister = false;
 
@@ -123,6 +152,7 @@ export default class LoginDialog extends Vue {
         // 表单验证不通过的处理逻辑
       }
     });
+    return false;
   }
 
   showRegisterForm() {
@@ -134,39 +164,50 @@ export default class LoginDialog extends Vue {
   }
 
   async register() {
-    if (this.userType === 'student') {
-      try {
-        const response = await axios.post(keystrokeUrl + "/register", {
-          username: this.registerForm.username,
-          password: this.registerForm.password
-        });
+    this.$refs.register.validate(async valid => {
+      if (valid) {
+        if (this.userType === 'student') {
+          try {
+            console.log(this.registerForm)
+            const response = await axios.post(keystrokeUrl + "/register", {
+              student_name: this.registerForm.student_name, // 学生姓名
+              studentId: this.registerForm.studentId,       // 学生学号
+              username: this.registerForm.username,
+              password: this.registerForm.password
+            });
 
-        if (response.status === 201) {
-          this.$message.success('注册成功');
-        } else {
-          this.$message.error('注册失败');
-        }
-      } catch (error) {
-        console.error('注册请求出错', error);
-        this.$message.error(error.response.data);
-      }
-    } else if (this.userType === 'admin') {
-      try {
-        const response = await axios.post(keystrokeUrl + "/add_admin", {
-          admin_name: this.registerForm.username,
-          password: this.registerForm.password
-        });
+            if (response.status === 201) {
+              this.$message.success('注册成功');
+              this.showLoginForm();
+            } else {
+              this.$message.error('注册失败');
+            }
+          } catch (error) {
+            console.error('注册请求出错', error);
+            this.$message.error(error.response.data);
+          }
+        } else if (this.userType === 'admin') {
+          try {
+            const response = await axios.post(keystrokeUrl + "/add_admin", {
+              teacher_name: this.registerForm.teacher_name, // 教师姓名
+              employeeId: this.registerForm.employeeId,     // 教师工号
+              admin_name: this.registerForm.admin_name,
+              password: this.registerForm.password
+            });
 
-        if (response.status === 201) {
-          this.$message.success('注册成功');
-        } else {
-          this.$message.error('注册失败');
+            if (response.status === 201) {
+              this.$message.success('注册成功');
+              this.showLoginForm();
+            } else {
+              this.$message.error('注册失败');
+            }
+          } catch (error) {
+            console.error('注册请求出错', error);
+            this.$message.error(error.response.data);
+          }
         }
-      } catch (error) {
-        console.error('注册请求出错', error);
-        this.$message.error(error.response.data);
       }
-    }
+    });
   }
 }
 </script>

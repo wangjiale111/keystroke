@@ -1,55 +1,109 @@
 <template>
-  <div class="username">用户名: {{ userName }}</div>
-  <div class="download">
-    <el-button type="primary" @click="downloadEventLogs()">
-      下载写作过程数据
-    </el-button>
-  </div>
-  <div v-if="isLoading" class="loading-overlay">
-    <div class="loading-spinner"></div>
-    <div class="loading-text">正在加载数据...</div>
-  </div>
-  <div class="replay">
-    <div class="writingReplay">
-      <div class="content">
-        <el-input
-            type="textarea"
-            :rows="10"
-            v-model="value"
-            :disabled="true"
-            class="text-area"
-        ></el-input>
-      </div>
+  <div class="page-container">
+    <div class="username">{{ studentName }}</div>
+    <div class="download">
+      <el-button type="primary" @click="downloadEventLogs()">
+        下载写作过程数据
+      </el-button>
+    </div>
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">正在加载数据...</div>
+    </div>
 
-      <div class="playButton">
-        <el-button type="primary" @click="Replay">开始回放</el-button>
-        <!--          <el-button type="primary" @click="continueReplay" v-show="stopFlag">继续回放</el-button>-->
-        <el-button type="danger" @click="exitReplay" style="margin-left: 40px;">暂停回放</el-button>
+    <div class="row chart-row" style="margin-top: 30px; display: flex;">
+      <div class="chart" id="chart-4-1-1">
+        <div class="writingReplay">
+          <div class="content">
+            <el-input
+                type="textarea"
+                :rows="10"
+                v-model="value"
+                :disabled="true"
+                class="text-area"
+            ></el-input>
+          </div>
+          <div class="playButton">
+            <el-button type="primary" @click="Replay">开始回放</el-button>
+            <!--          <el-button type="primary" @click="continueReplay" v-show="stopFlag">继续回放</el-button>-->
+            <el-button type="danger" @click="exitReplay" style="margin-left: 40px;">暂停回放</el-button>
+          </div>
+        </div>
+      </div>
+      <div class="header">
+        <div class="header-item">写作总时间:{{ time }}</div>
+        <div class="header-item">写作速度:{{ typeSpeed }}字/分钟、{{ typeSpeedSecond }}字/秒</div>
+        <div class="header-item">写作总字数:{{ writingLength }}</div>
       </div>
     </div>
-    <div class="header">
-      <div class="header-item">写作总时间:{{ time }}</div>
-      <div class="header-item">写作速度:{{ typeSpeed }}字/分钟、{{ typeSpeedSecond }}字/秒</div>
-      <div class="header-item">写作总字数:{{ writingLength }}</div>
+
+    <div class="row chart-row">
+        <div id="chart" class="chart"></div>
+      <div class="description">
+      <!-- Description for 4-1-1 -->
+      <p>该动态折线图以时间为横坐标，写作速度为纵坐标，随着回放的进行动态展示了写作过程中速度的波动与变化。图表揭示了写作节奏的具体模式，如速度的加快可能暗示了思维的流畅与信息的迅速转录，而速度的减慢则可能反映出深思或遇到难题。</p>
+    </div>
+    </div>
+
+
+
+    <div class="row chart-row">
+      <div class="chart" id="stacked-bar-chart" >
+      </div>
+      <div class="chart" id="pie-chart" >
+      </div>
+      <div class="description">
+        <p>图表4-1-1的描述...</p>
+      </div>
+    </div>
+
+
+
+    <div class="row chart-row">
+
+      <div class="description">
+        <p>图表4-1-1的描述...</p>
+      </div>
+    </div>
+
+
+
+
+
+    <div class="row text-row">
+      <div class="text-content">
+        <p>注意: 更多的说明性的文字内容...</p>
+      </div>
     </div>
   </div>
+
+
+
   <div class="replayContent">
     <div class="processReport">
       <h2>写作分析报告</h2>
       <div v-if="writingAnalysis">
         <p>IME输入次数: {{ writingAnalysis.ime_input_count }}</p>
         <p>IME平均输入长度: {{ writingAnalysis.average_ime_input_length.toFixed(2) }}</p>
+
+
         <p>修订总数: {{ writingAnalysis.revision_count }}</p>
         <p>每100字的平均修订次数: {{ writingAnalysis.average_revisions_per_100_characters.toFixed(2) }}</p>
         <p>每分钟的平均修订次数: {{ writingAnalysis.average_revisions_per_minute.toFixed(2) }}</p>
+
+
         <p>暂停总数: {{ writingAnalysis.pause_count }}</p>
         <p>平均暂停时长（秒）: {{ writingAnalysis.average_pause_duration.toFixed(2) }}</p>
         <p>平均暂停突发长度: {{ writingAnalysis.average_burst_length.toFixed(2) }}</p>
         <p>平均暂停突发持续时间（秒）: {{ writingAnalysis.average_burst_duration.toFixed(2) }}</p>
+
+
         <p>总过程时间: {{ writingAnalysis.total_process_time }}</p>
         <p>总暂停时间: {{ writingAnalysis.total_pausing_time }}</p>
         <p>总活跃写作时间: {{ writingAnalysis.total_active_writing_time }}</p>
-        <p>思考与打字时间比: {{ writingAnalysis.thinking_typing_ratio.toFixed(2) }} %</p>
+        <p>思考与打字时间比: {{ writingAnalysis.thinking_typing_ratio.toFixed(2) }}</p>
+
+
         <p>最终文本长度（字数）: {{ writingAnalysis.final_text_length }}</p>
         <p>写作过程产生的文本总长度（字数）: {{ writingAnalysis.generated_text_length }}</p>
         <p>每分钟字符数（作品）: {{ writingAnalysis.characters_per_minute_product.toFixed(2) }}</p>
@@ -60,7 +114,7 @@
         <p>正在加载数据...</p>
       </div>
     </div>
-    <div id="chart" class="chart"></div>
+
   </div>
 </template>
 
@@ -105,19 +159,201 @@ export default class ReplayView extends mixins(Vue) {
   viewModelPlaybackDone = false;
   userId: any;
   class_id: any;
-  writingAnalysis: any;
+  writingAnalysis: any = null; // 给定一个初始值
+  studentName = '';
+  stackedBarChart: echarts.ECharts;
+  pieChart: echarts.ECharts;
 
   async created() {
     this.userName = this.$route.query.userName;
     this.userId = this.$route.query.userId;
     this.class_id = this.$route.query.class_id;
+    this.getStudentName()
+    // await this.fetchEventLogs().then((replayData) => {
+    //   this.replayData = replayData.event_logs;
+    // });
     this.fetchWritingAnalysis().then(data => {
-      console.log(data)
       this.writingAnalysis = data; // 将获取到的数据保存到writingAnalysis中
+      console.log(this.writingAnalysis)
+      this.$nextTick(() => {
+        this.initializeChart();
+        this.timeChart();
+      });
     }).catch(error => {
       console.error('Error fetching writing analysis:', error);
       // 可以根据需要处理错误情况
     });
+  }
+
+  convertTimeToMinutes(timeStr: string): number {
+    const parts = timeStr.split(':');
+    const hours = parseInt(parts[0]);
+    const minutes = parseInt(parts[1]);
+    const seconds = parseInt(parts[2]);
+    const totalMinutes = hours * 60 + minutes + seconds / 60;
+    console.log(parseFloat(totalMinutes.toFixed(2)))
+    return parseFloat(totalMinutes.toFixed(2));
+  }
+
+
+  timeChart(){
+    // Convert time strings to minutes
+    const totalPausingTimeMinutes = this.convertTimeToMinutes(this.writingAnalysis.total_pausing_time);
+    const totalActiveWritingTimeMinutes = this.convertTimeToMinutes(this.writingAnalysis.total_active_writing_time);
+    const totalProcessTimeMinutes = this.convertTimeToMinutes(this.writingAnalysis.total_process_time);
+
+
+    // 堆叠条形图
+    this.stackedBarChart = echarts.init(document.getElementById('stacked-bar-chart'));
+    this.stackedBarChart.setOption({
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow'
+        }
+      },
+      legend: {
+        data: ['总暂停时间', '活跃写作时间','总过程时间']
+      },
+      xAxis: {
+        type: 'value'
+      },
+      yAxis: {
+        type: 'category',
+        data: ['时间分布']
+      },
+      series: [
+        {
+          name: '暂停时间',
+          type: 'bar',
+          stack: '总量',
+          label: {
+            show: true,
+            position: 'insideRight'
+          },
+          data: [totalPausingTimeMinutes]
+        },
+        {
+          name: '活跃写作时间',
+          type: 'bar',
+          stack: '总量',
+          label: {
+            show: true,
+            position: 'insideRight'
+          },
+          data: [totalActiveWritingTimeMinutes]
+        },
+        {
+          name: '总过程时间',
+          type: 'bar',
+          stack: '总量',
+          label: {
+            show: true,
+            position: 'insideRight'
+          },
+          data: [totalProcessTimeMinutes]
+        }
+      ]
+    });
+
+    // 饼图
+    this.pieChart = echarts.init(document.getElementById('pie-chart'));
+    this.pieChart.setOption({
+      tooltip: {
+        trigger: 'item'
+      },
+      legend: {
+        top: '5%',
+        left: 'center'
+      },
+      series: [
+        {
+          name: '时间比例',
+          type: 'pie',
+          radius: '50%',
+          data: [
+            { value: totalPausingTimeMinutes, name: '思考时间' },
+            { value: totalActiveWritingTimeMinutes, name: '打字时间' }
+          ],
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          }
+        }
+      ]
+    });
+  }
+
+
+  initializeChart() {
+    // 初始化图表
+      this.chart = echarts.init(document.getElementById('chart'));
+    // console.log(this.chart)
+      // 提供默认值以显示基本的坐标轴
+      this.timeArray = this.timeArray.length ? this.timeArray : ['0'];
+      this.speedArray = this.speedArray.length ? this.speedArray : [60];
+      this.chart.setOption({
+        title: {
+          text: '写作速度',
+        },
+        tooltip: {
+          trigger: 'axis',
+        },
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: this.timeArray,
+          axisLabel: {
+            formatter: '{value} 秒',
+          },
+        },
+        yAxis: {
+          type: 'value',
+          axisLabel: {
+            formatter: '{value} 字/分钟',
+          },
+        },
+        series: [
+          {
+            name: '速度',
+            type: 'line',
+            data: this.speedArray,
+          },
+        ],
+      });
+
+  }
+
+
+  form = {
+    userId: '',
+  };
+
+  getStudentName(){
+    try {
+      this.form.userId = this.$route.query.userId as string;
+      axios
+          .post(keystrokeUrl + '/getStudentInfo', this.form)
+          .then((response) => {
+            this.studentName = response.data.studentName;
+          })
+          .catch((error) => {
+            console.error(error);
+            this.$message({
+              message: '信息获取失败，请检查网络连接',
+              type: 'error',
+            });
+          });
+    } catch (error) {
+      this.$message({
+        message: '信息获取失败，请联系管理员',
+        type: 'error',
+      });
+      console.log(error);
+    }
   }
 
   async fetchEventLogs() {
@@ -150,7 +386,6 @@ export default class ReplayView extends mixins(Vue) {
     }
   }
 
-
   /**
    * 获取回放数据
    */
@@ -164,7 +399,7 @@ export default class ReplayView extends mixins(Vue) {
       return;
     } else {
       this.replayFlag = true;
-      if(!this.stopFlag){
+      if(!this.stopFlag && this.replayData == null){
         this.isLoading = true;
         await this.fetchEventLogs().then((replayData) => {
           this.replayData = replayData.event_logs;
@@ -183,6 +418,7 @@ export default class ReplayView extends mixins(Vue) {
             await this.viewModelPlaBackHander(data);
           });
         }
+        this.speedArray = [];
         this.timing = setInterval(async () => {
           if (this.numSecond >= this.writingLength) {
             this.typeSpeedSecond = 0;
@@ -381,21 +617,6 @@ export default class ReplayView extends mixins(Vue) {
   }
 
   /**
-   * 继续回放
-   */
-  // continueReplay() {
-  //   if(this.replayFlag){
-  //     this.$message({
-  //       message: '回放正在进行！',
-  //       type: 'warning'
-  //     });
-  //     return;
-  //   } else {
-  //
-  //   }
-  // }
-
-  /**
    * 暂停回放
    */
   exitReplay() {
@@ -474,7 +695,7 @@ export default class ReplayView extends mixins(Vue) {
               timeStamp: log.timeStamp || ""
             }));
 
-            // console.log(orderedEventLogs)
+
             const csv = Papa.unparse(orderedEventLogs);
             const csvData = new Blob([csv], {type: "text/csv;charset=utf-8;"});
             const csvURL = window.URL.createObjectURL(csvData);
@@ -503,6 +724,100 @@ export default class ReplayView extends mixins(Vue) {
 </script>
 
 <style scoped>
+.chart {
+  width: 100%;
+  height: 300px;
+  margin: 10px 10px 10px 10px;
+}
+
+.page-container {
+  padding: 20px 30px; /* 20px top and bottom, 30px left and right */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 20px; /* 20px between rows */
+}
+
+.row {
+  background-color: #e6f7ff; /* Pale blue background */
+  display: flex; /* Enable flex layout for rows */
+  align-items: stretch; /* Align the items vertically */
+  gap: 20px; /* Gap between chart and description */
+  margin-bottom: 20px;
+}
+
+.chart-row {
+  background-color: #e6f7ff; /* Pale blue background */
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.chart {
+  flex-grow: 2; /* Chart takes more space */
+  padding: 10px;
+  width: 80%;
+}
+
+
+.text-row {
+  padding: 10px;
+}
+
+.description {
+  flex-grow: 1;
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center; /* This will vertically center the content */
+  justify-content: center; /* This will horizontally center the content */
+  margin: 10px 10px 10px 10px;
+  font-family: 'KaiTi', 'STKaiti', serif; /* Kai font */
+  text-align: justify; /* Justify text for better readability */
+  width: 20%;
+}
+
+.description p {
+  font-size: 20px;
+  /* Rest of your styles */
+}
+
+
+.text-content {
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  height: 100%;
+  /* Additional styling for text content as needed */
+}
+
+/* Responsive design adjustments */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 10px; /* Smaller padding on smaller screens */
+  }
+
+  .row {
+    flex-direction: column; /* Stack them on top of each other on smaller screens */
+    gap: 10px; /* Smaller gap on smaller screens */
+  }
+
+  .chart{
+    width: 800%; /* Full width on smaller screens */
+    flex-grow: 0; /* Disable flex-grow on smaller screens */
+  }
+
+  .description {
+    width: 20%; /* Full width on smaller screens */
+    flex-grow: 0; /* Disable flex-grow on smaller screens */
+  }
+}
+
+
+
+
 .processReport {
   width: 30%;
   padding: 20px;
@@ -546,20 +861,12 @@ p {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  background-color: #fff;
-  margin: 0 20px;
-  width: 80%;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 90%;
 }
 
 .content {
   width: 100%;
-  overflow: auto;
-  padding: 15px;
   background-color: #eaeaea;
-  margin-top: 30px;
-  border-radius: 5px;
 }
 
 .header {
@@ -613,20 +920,6 @@ p {
   width: 80%;
 }
 
-#chart {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 70%;
-  margin-left: 20px;
-  padding: 20px;
-  height: 400px;
-  background-color: #f2f2f2;
-}
-
 .replayContent {
   display: flex;
   flex-direction: row;
@@ -661,7 +954,7 @@ p {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background-color: #f9f9f9;
-  margin-top: 50px;
+  margin-top: 10px;
   width: 70%;
   height: 350px;
 }
