@@ -13,7 +13,7 @@
         <el-radio-button label="admin">教师注册</el-radio-button>
       </el-radio-group>
 
-      <el-form v-if="!showRegister" :model="form" ref="loginForm" label-width="80px">
+      <el-form v-if="!showRegister" :model="form" ref="loginForm" label-width="80px" @keyup.enter="login">
 
         <el-form-item label="教师账号" prop="username" v-if="userType == 'admin'">
           <el-input v-model="form.username" autocomplete="off"></el-input>
@@ -32,7 +32,7 @@
       </el-form>
 
 
-      <el-form v-if="showRegister" :model="registerForm" ref="register" label-width="80px">
+      <el-form v-if="showRegister" :model="registerForm" ref="register" label-width="80px" >
         <!-- 教师账号注册 -->
         <!-- 教师姓名 -->
         <el-form-item label="姓名" prop="name" v-if="userType == 'admin'">

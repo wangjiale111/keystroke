@@ -36,7 +36,7 @@
             </el-button>
 
             <!-- 删除按钮 -->
-            <el-button @click="deleteUser(scope.row)">
+            <el-button @click="deleteUser(scope.row.userId)">
               删除
             </el-button>
           </template>
@@ -259,7 +259,7 @@ export default class AdminView extends Vue {
         });
   }
 
-  async deleteUser(userName: string) {
+  async deleteUser(userId: string) {
     ElMessageBox.confirm("是否删除学生数据?", "提示", {
       confirmButtonText: "确定",
       cancelButtonText: "取消",
@@ -273,7 +273,7 @@ export default class AdminView extends Vue {
                 'Authorization': token // 将JWT令牌添加到请求头
               }
             };
-            const response = await axios.post(keystrokeUrl + '/delete_user_events', {userName}, config);
+            const response = await axios.post(keystrokeUrl + '/delete_user_events', {userId}, config);
             if (response.status === 200) {
               await this.getUserEvents();
             }

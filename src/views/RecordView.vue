@@ -3,9 +3,9 @@
     <div class="writing">
       <div class="title">
         <span style="  font-size: 20px;">{{ textTitle }}</span>
-        <span style="  font-size: 15px;margin-top: 10px; width:800px;">要求：{{ requirements }}</span>
+        <span style="  font-size: 15px;margin-top: 10px; width:800px;margin-bottom: 5px;">要求：{{ requirements }}</span>
       </div>
-      <div class="header">
+      <div class="header" style="margin-bottom: 10px;">
         <div>时间:{{ timeFormat }}</div>
         <div style="margin-left: 60px">字数:{{ wordNum }}</div>
       </div>
@@ -13,7 +13,7 @@
         <div class="recordText">
           <el-input
               type="textarea"
-              :rows="8"
+              :rows="12"
               v-model="value"
               :disabled="disable"
               @input="handleInput"
@@ -286,8 +286,7 @@ export default class WritingRecord extends Vue {
 
 <style scoped>
 .content {
-  width: 80%;
-  overflow: auto;
+  width: 90%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -339,8 +338,9 @@ export default class WritingRecord extends Vue {
   justify-content: center;
   padding: 40px;
   border-radius: 8px;
-  width: 100%;
+  width: 90%;
   height: 100%;
+  box-sizing: border-box;
   margin: 0 auto;
 }
 
@@ -353,7 +353,7 @@ export default class WritingRecord extends Vue {
 }
 
 .recordText {
-  width: 80%;
+  width: 90%;
   margin: 0 auto;
 }
 
