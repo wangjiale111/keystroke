@@ -211,7 +211,10 @@ export default class markText extends Vue {
 
   async fetchMistake() {
     try {
-      const token = localStorage.getItem('adminToken'); // 从本地存储获取JWT令牌
+      let token = localStorage.getItem('adminToken')
+      if (!token) {
+        token = localStorage.getItem('studentToken');
+      }
       const config = {
         headers: {
           'Authorization': token // 将JWT令牌添加到请求头
@@ -249,7 +252,10 @@ export default class markText extends Vue {
 
   async fetchMistakes() {
     try {
-      const token = localStorage.getItem('adminToken'); // 从本地存储获取JWT令牌
+      let token = localStorage.getItem('adminToken')
+      if (!token) {
+        token = localStorage.getItem('studentToken');
+      } // 从本地存储获取JWT令牌
       const config = {
         headers: {
           'Authorization': token // 将JWT令牌添加到请求头
@@ -330,7 +336,10 @@ export default class markText extends Vue {
   async submitMistake() {
     this.ignoreFlag = false;
     try {
-      const token = localStorage.getItem("adminToken"); // 从本地存储获取JWT令牌
+      let token = localStorage.getItem('adminToken')
+      if (!token) {
+        token = localStorage.getItem('studentToken');
+      } // 从本地存储获取JWT令牌
       const config = {
         headers: {
           "Content-Type": "application/json",
@@ -382,7 +391,10 @@ export default class markText extends Vue {
 
   async getMarkFlag() {
     try {
-      const token = localStorage.getItem('adminToken'); // 从本地存储获取JWT令牌
+      let token = localStorage.getItem('adminToken')
+      if (!token) {
+        token = localStorage.getItem('studentToken');
+      } // 从本地存储获取JWT令牌
       const config = {
         headers: {
           'Authorization': token // 将JWT令牌添加到请求头
@@ -410,7 +422,10 @@ export default class markText extends Vue {
   async getMark() {
     this.isLoading = true;
     try {
-      const token = localStorage.getItem('adminToken'); // 从本地存储获取JWT令牌
+      let token = localStorage.getItem('adminToken')
+      if (!token) {
+        token = localStorage.getItem('studentToken');
+      } // 从本地存储获取JWT令牌
       const config = {
         headers: {
           'Authorization': token // 将JWT令牌添加到请求头

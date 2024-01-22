@@ -89,7 +89,6 @@ export default class historyList extends Vue {
     this.token = localStorage.getItem('studentToken')
     this.userId = localStorage.getItem('userId')
     this.studentName = localStorage.getItem('studentName')
-    console.log(this.studentName)
     this.isLoading = true;
     this.fetchData();
     this.isLoading = false;
@@ -166,10 +165,12 @@ export default class historyList extends Vue {
   }
 
   viewReplay(class_id) {
+    // console.log({userName:this.studentName,userId:this.userId, class_id:class_id})
     this.$router.push({path: `/student/replay`, query: {userName:this.studentName,userId:this.userId, class_id:class_id}});
   }
 
   viewText(class_id, textTitle) {
+    // console.log({userName:this.studentName,userId:this.userId, class_id:class_id, textTitle: textTitle})
     this.$router.push({path: `/student/markText`, query: {userName:this.studentName,userId:this.userId, class_id:class_id, textTitle: textTitle}});
   }
 

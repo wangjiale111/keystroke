@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <div class="username">{{ studentName }}</div>
+    <div class="username" style="z-index: 999">{{ studentName }}</div>
     <div class="download">
       <el-button type="primary" @click="downloadEventLogs()">
         下载写作过程数据
@@ -39,7 +39,7 @@
 
     <div class="row chart-row">
         <div id="chart" class="chart"></div>
-      <div class="description">
+      <div class="description" style="width: 25%">
       <!-- Description for 4-1-1 -->
       <p>该动态折线图以时间为横坐标，写作速度为纵坐标，随着回放的进行动态展示了写作过程中速度的波动与变化。图表揭示了写作节奏的具体模式，如速度的加快可能暗示了思维的流畅与信息的迅速转录，而速度的减慢则可能反映出深思或遇到难题。</p>
     </div>
@@ -48,74 +48,100 @@
 
 
     <div class="row chart-row">
-      <div class="chart" id="stacked-bar-chart" >
+      <div class="chart" id="stacked-bar-chart" style="width: 40%;">
       </div>
-      <div class="chart" id="pie-chart" >
+      <div class="chart" id="pie-chart" style="width: 35%;">
       </div>
-      <div class="description">
-        <p>图表4-1-1的描述...</p>
+      <div class="description" style="width: 28%">
+        <p>总过程时间展示了完成写作任务的全时段，总暂停时间显示了思考和计划的时间，而总活跃写作时间则是实际用于打字的时长。
+          通过分析打字时间和思考时间的比例来评估学生在写作过程中的思考和打字速度。比如，一个高的打字/思考比率可能表示学生在写作时更多依赖于直觉，而较低的比率则可能意味着他们在写作时更加深思熟虑。</p>
       </div>
     </div>
 
 
 
     <div class="row chart-row">
+      <div class="chart" id="radar-chart" style="width: 45%;">
+      </div>
+      <div class="chart" id="bar-chart" style="width: 30%;">
+      </div>
+      <div class="description" style="width: 28%">
+        <p>提供了写作时认知努力的见解，报告了暂停的次数、平均暂停时长、暂停突发长度和持续时间。暂停行为分析可以揭示学生在写作过程中的思考模式。例如，频繁的短暂停可能表明快速思考或文本的微调，而较长的暂停可能表明对更复杂问题的深入思考。</p>
+      </div>
+    </div>
 
+    <div class="row chart-row">
+      <div class="chart" id="combo-chart" style="width: 45%;">
+      </div>
+      <div class="chart" id="gauge-chart" style="width: 30%;">
+      </div>
+      <div class="description" style="width: 28%">
+        <p>
+          提供了被删除和插入文本的程度的信息，包括总的修订次数、每100字和每分钟的平均修订次数，以及平均修订突发长度。
+          通过分析修订行为，可以了解学生在写作过程中的修改习惯。较多的修订次数可能表明更高的自我批评能力或不断完善文本的愿望。
+        </p>
+      </div>
+    </div>
+    <div class="row chart-row">
+      <div class="chart" id="radar-chart2" >
+      </div>
       <div class="description">
-        <p>图表4-1-1的描述...</p>
+      <p>
+        描述了最终产品中的文本量与写作过程中产生的总文本量（包括复制的文本）的关系。还基于产品和过程数据计算了每分钟字符数。
+        这一部分关注于写作过程中文本的量化分析，如学生实际写下了多少字，以及这些文字中有多少是最终作品的一部分。通过比较最终文本和过程中产生的总文本量，可以了解学生在写作中的编辑和修改程度。
+      </p>
       </div>
     </div>
 
 
 
 
-
-    <div class="row text-row">
-      <div class="text-content">
-        <p>注意: 更多的说明性的文字内容...</p>
-      </div>
-    </div>
+<!--    <div class="row text-row">-->
+<!--      <div class="text-content">-->
+<!--        <p>注意: 更多的说明性的文字内容...</p>-->
+<!--      </div>-->
+<!--    </div>-->
   </div>
 
 
 
-  <div class="replayContent">
-    <div class="processReport">
-      <h2>写作分析报告</h2>
-      <div v-if="writingAnalysis">
-        <p>IME输入次数: {{ writingAnalysis.ime_input_count }}</p>
-        <p>IME平均输入长度: {{ writingAnalysis.average_ime_input_length.toFixed(2) }}</p>
+<!--  <div class="replayContent">-->
+<!--    <div class="processReport">-->
+<!--      <h2>写作分析报告</h2>-->
+<!--      <div v-if="writingAnalysis">-->
+<!--&lt;!&ndash;        <p>IME输入次数: {{ writingAnalysis.ime_input_count }}</p>&ndash;&gt;-->
+<!--&lt;!&ndash;        <p>IME平均输入长度: {{ writingAnalysis.average_ime_input_length.toFixed(2) }}</p>&ndash;&gt;-->
 
 
-        <p>修订总数: {{ writingAnalysis.revision_count }}</p>
-        <p>每100字的平均修订次数: {{ writingAnalysis.average_revisions_per_100_characters.toFixed(2) }}</p>
-        <p>每分钟的平均修订次数: {{ writingAnalysis.average_revisions_per_minute.toFixed(2) }}</p>
+<!--&lt;!&ndash;        <p>修订总数: {{ writingAnalysis.revision_count }}</p>&ndash;&gt;-->
+<!--&lt;!&ndash;        <p>每100字的平均修订次数: {{ writingAnalysis.average_revisions_per_100_characters.toFixed(2) }}</p>&ndash;&gt;-->
+<!--&lt;!&ndash;        <p>每分钟的平均修订次数: {{ writingAnalysis.average_revisions_per_minute.toFixed(2) }}</p>&ndash;&gt;-->
 
 
-        <p>暂停总数: {{ writingAnalysis.pause_count }}</p>
-        <p>平均暂停时长（秒）: {{ writingAnalysis.average_pause_duration.toFixed(2) }}</p>
-        <p>平均暂停突发长度: {{ writingAnalysis.average_burst_length.toFixed(2) }}</p>
-        <p>平均暂停突发持续时间（秒）: {{ writingAnalysis.average_burst_duration.toFixed(2) }}</p>
+<!--&lt;!&ndash;        <p>暂停总数: {{ writingAnalysis.pause_count }}</p>&ndash;&gt;-->
+<!--&lt;!&ndash;        <p>平均暂停时长（秒）: {{ writingAnalysis.average_pause_duration.toFixed(2) }}</p>&ndash;&gt;-->
+<!--&lt;!&ndash;        <p>平均暂停突发长度: {{ writingAnalysis.average_burst_length.toFixed(2) }}</p>&ndash;&gt;-->
+<!--&lt;!&ndash;        <p>平均暂停突发持续时间（秒）: {{ writingAnalysis.average_burst_duration.toFixed(2) }}</p>&ndash;&gt;-->
 
 
-        <p>总过程时间: {{ writingAnalysis.total_process_time }}</p>
-        <p>总暂停时间: {{ writingAnalysis.total_pausing_time }}</p>
-        <p>总活跃写作时间: {{ writingAnalysis.total_active_writing_time }}</p>
-        <p>思考与打字时间比: {{ writingAnalysis.thinking_typing_ratio.toFixed(2) }}</p>
+<!--&lt;!&ndash;        <p>总过程时间: {{ writingAnalysis.total_process_time }}</p>&ndash;&gt;-->
+<!--&lt;!&ndash;        <p>总暂停时间: {{ writingAnalysis.total_pausing_time }}</p>&ndash;&gt;-->
+<!--&lt;!&ndash;        <p>总活跃写作时间: {{ writingAnalysis.total_active_writing_time }}</p>&ndash;&gt;-->
+<!--&lt;!&ndash;        <p>思考与打字时间比: {{ writingAnalysis.thinking_typing_ratio.toFixed(2) }}</p>&ndash;&gt;-->
 
 
-        <p>最终文本长度（字数）: {{ writingAnalysis.final_text_length }}</p>
-        <p>写作过程产生的文本总长度（字数）: {{ writingAnalysis.generated_text_length }}</p>
-        <p>每分钟字符数（作品）: {{ writingAnalysis.characters_per_minute_product.toFixed(2) }}</p>
-        <p>每分钟字符数（过程）: {{ writingAnalysis.characters_per_minute_process.toFixed(2) }}</p>
-        <p>作品/过程比例: {{ writingAnalysis.product_process_ratio.toFixed(2) *100 }} %</p>
-      </div>
-      <div v-else>
-        <p>正在加载数据...</p>
-      </div>
-    </div>
+<!--&lt;!&ndash;        <p>最终文本长度（字数）: {{ writingAnalysis.final_text_length }}</p>&ndash;&gt;-->
+<!--&lt;!&ndash;        <p>写作过程产生的文本总长度（字数）: {{ writingAnalysis.generated_text_length }}</p>&ndash;&gt;-->
+<!--&lt;!&ndash;        <p>每分钟字符数（作品）: {{ writingAnalysis.characters_per_minute_product.toFixed(2) }}</p>&ndash;&gt;-->
+<!--&lt;!&ndash;        <p>每分钟字符数（过程）: {{ writingAnalysis.characters_per_minute_process.toFixed(2) }}</p>&ndash;&gt;-->
+<!--&lt;!&ndash;        <p>作品/过程比例: {{ writingAnalysis.product_process_ratio.toFixed(2) *100 }} %</p>&ndash;&gt;-->
+<!--      </div>-->
+<!--      <div v-else>-->
+<!--        <p>正在加载数据...</p>-->
+<!--      </div>-->
+<!--    </div>-->
 
-  </div>
+<!--  </div>-->
 </template>
 
 <script lang="ts" name="ReplayView">
@@ -163,6 +189,11 @@ export default class ReplayView extends mixins(Vue) {
   studentName = '';
   stackedBarChart: echarts.ECharts;
   pieChart: echarts.ECharts;
+  barChart: echarts.ECharts;
+  radarChart: echarts.ECharts;
+  comboChart: echarts.ECharts;
+  gaugeChart: echarts.ECharts;
+  radarChart2: echarts.ECharts;
 
   async created() {
     this.userName = this.$route.query.userName;
@@ -178,6 +209,11 @@ export default class ReplayView extends mixins(Vue) {
       this.$nextTick(() => {
         this.initializeChart();
         this.timeChart();
+        this.generateBarChart();
+        this.generateRadarChart();
+        this.generateComboChart();
+        this.generateGaugeChart();
+        this.generateRadarChart2();
       });
     }).catch(error => {
       console.error('Error fetching writing analysis:', error);
@@ -193,6 +229,240 @@ export default class ReplayView extends mixins(Vue) {
     const totalMinutes = hours * 60 + minutes + seconds / 60;
     console.log(parseFloat(totalMinutes.toFixed(2)))
     return parseFloat(totalMinutes.toFixed(2));
+  }
+
+  generateRadarChart2() {
+    // 获取数据
+    const finalTextLength = this.writingAnalysis.final_text_length;
+    const generatedTextLength = this.writingAnalysis.generated_text_length;
+    const charactersPerMinuteProduct = parseFloat(this.writingAnalysis.characters_per_minute_product.toFixed(2));
+    const charactersPerMinuteProcess = parseFloat(this.writingAnalysis.characters_per_minute_process.toFixed(2));
+    const productProcessRatio = parseFloat(this.writingAnalysis.product_process_ratio.toFixed(2))*100; // 转换为百分比
+
+    // 初始化 ECharts 实例
+    this.radarChart2 = echarts.init(document.getElementById('radar-chart2'));
+    this.radarChart2.setOption({
+      tooltip: {},
+      // legend: {
+      //   data: ['写作分析']
+      // },
+      radar: {
+        name: {
+          textStyle: {
+            color: '#fff',
+            backgroundColor: '#999',
+            borderRadius: 3,
+            padding: [3, 5]
+          }
+        },
+        indicator: [
+          { name: '最终文本长度', max: Math.max(finalTextLength, 1000) }, // 调整max值以适应数据
+          { name: '写作过程文本长度', max: Math.max(generatedTextLength, 1000) }, // 调整max值以适应数据
+          { name: '每分钟字符数（作品）', max: Math.max(charactersPerMinuteProduct, 100) }, // 调整max值以适应数据
+          { name: '每分钟字符数（过程）', max: Math.max(charactersPerMinuteProcess, 100) }, // 调整max值以适应数据
+          { name: '作品/过程比例 (%)', max: 100 } // 百分比
+        ]
+      },
+      series: [{
+        name: '写作分析',
+        type: 'radar',
+        data: [
+          {
+            value: [finalTextLength, generatedTextLength, charactersPerMinuteProduct, charactersPerMinuteProcess, productProcessRatio],
+            name: '指标值'
+          }
+        ]
+      }]
+    });
+  }
+
+
+  generateComboChart() {
+    // 获取数据
+    const revisionCount = this.writingAnalysis.revision_count;
+    const averageRevisionsPer100Words = parseFloat(this.writingAnalysis.average_revisions_per_100_characters.toFixed(2));
+    const averageRevisionsPerMinute = parseFloat(this.writingAnalysis.average_revisions_per_minute.toFixed(2));
+
+    // 初始化 ECharts 实例
+    this.comboChart = echarts.init(document.getElementById('combo-chart'));
+    this.comboChart.setOption({
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'cross',
+          crossStyle: {
+            color: '#999'
+          }
+        }
+      },
+      legend: {
+        data: ['修订总数', '每100字的平均修订次数', '每分钟的平均修订次数']
+      },
+      xAxis: [
+        {
+          type: 'category',
+          data: ['修订统计'],
+          axisPointer: {
+            type: 'shadow'
+          }
+        }
+      ],
+      yAxis: [
+        {
+          type: 'value',
+          name: '修订次数',
+          min: 0,
+          position: 'left',
+          axisLabel: {
+            formatter: '{value}'
+          }
+        },
+        {
+          type: 'value',
+          name: '平均次数/分钟',
+          min: 0,
+          position: 'right',
+          axisLabel: {
+            formatter: '{value}'
+          }
+        }
+      ],
+      series: [
+        {
+          name: '修订总数',
+          type: 'bar',
+          data: [revisionCount]
+        },
+        {
+          name: '每100字的平均修订次数',
+          type: 'bar',
+          data: [averageRevisionsPer100Words]
+        },
+        {
+          name: '每分钟的平均修订次数',
+          type: 'line',
+          yAxisIndex: 1,
+          data: [averageRevisionsPerMinute]
+        }
+      ]
+    });
+  }
+
+  generateGaugeChart() {
+    // 获取数据
+    const averageRevisionsPerMinute = parseFloat(this.writingAnalysis.average_revisions_per_minute.toFixed(2));
+
+    // 初始化 ECharts 实例
+    this.gaugeChart = echarts.init(document.getElementById('gauge-chart'));
+    this.gaugeChart.setOption({
+      tooltip: {
+        formatter: '{a} <br/>{b} : {c}%'
+      },
+      series: [
+        {
+          name: '修订指标',
+          type: 'gauge',
+          detail: {formatter: '{value}'},
+          data: [{value: averageRevisionsPerMinute, name: '每分钟平均修订次数'}]
+        }
+      ]
+    });
+  }
+
+
+  generateBarChart() {
+    // 获取数据
+    const pauseCount = this.writingAnalysis.pause_count;
+    const averagePauseDuration = this.writingAnalysis.average_pause_duration.toFixed(2);
+    const averageBurstLength = this.writingAnalysis.average_burst_length.toFixed(2);
+    const averageBurstDuration = this.writingAnalysis.average_burst_duration.toFixed(2);
+    console.log(pauseCount, averagePauseDuration, averageBurstLength, averageBurstDuration)
+
+    // 初始化 ECharts 实例
+    this.barChart = echarts.init(document.getElementById('bar-chart'));
+    this.barChart.setOption({
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow'
+        }
+      },
+      legend: {
+        data: ['暂停总数', '平均暂停时长', '平均突发长度', '平均突发持续时间']
+      },
+      xAxis: {
+        type: 'category',
+        data: ['指标']
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [
+        {
+          name: '暂停总数',
+          type: 'bar',
+          data: [pauseCount]
+        },
+        {
+          name: '平均暂停时长',
+          type: 'bar',
+          data: [averagePauseDuration]
+        },
+        {
+          name: '平均突发长度',
+          type: 'bar',
+          data: [averageBurstLength]
+        },
+        {
+          name: '平均突发持续时间',
+          type: 'bar',
+          data: [averageBurstDuration]
+        }
+      ]
+    });
+  }
+
+  generateRadarChart() {
+    // 获取数据
+    const pauseCount = this.writingAnalysis.pause_count;
+    const averagePauseDuration = this.writingAnalysis.average_pause_duration.toFixed(2);
+    const averageBurstLength = this.writingAnalysis.average_burst_length.toFixed(2);
+    const averageBurstDuration = this.writingAnalysis.average_burst_duration.toFixed(2);
+    console.log(pauseCount, averagePauseDuration, averageBurstLength, averageBurstDuration)
+
+    // 初始化 ECharts 实例
+    this.radarChart = echarts.init(document.getElementById('radar-chart'));
+    this.radarChart.setOption({
+      tooltip: {},
+      radar: {
+        // shape: 'circle',
+        name: {
+          textStyle: {
+            color: '#fff',
+            backgroundColor: '#999',
+            borderRadius: 3,
+            padding: [3, 5]
+          },
+          rotate: 90 // 旋转90度
+        },
+        indicator: [
+          { name: '暂停总数', max: Math.max(pauseCount, 100)},
+          { name: '平均暂停时长', max: Math.max(averagePauseDuration, 10)},
+          { name: '平均突发长度', max: Math.max(averageBurstLength, 1000)},
+          { name: '平均突发持续时间', max: Math.max(averageBurstDuration, 10)}
+        ]
+      },
+      series: [{
+        name: '写作分析',
+        type: 'radar',
+        data : [
+          {
+            value : [pauseCount, averagePauseDuration, averageBurstLength, averageBurstDuration],
+            name : '实际值'
+          }
+        ]
+      }]
+    });
   }
 
 
@@ -212,6 +482,12 @@ export default class ReplayView extends mixins(Vue) {
           type: 'shadow'
         }
       },
+      grid: {
+        left: '20%', // 或更多，根据需要调整
+        right: '10%',
+        bottom: '3%',
+        containLabel: true
+      },
       legend: {
         data: ['总暂停时间', '活跃写作时间','总过程时间']
       },
@@ -220,7 +496,12 @@ export default class ReplayView extends mixins(Vue) {
       },
       yAxis: {
         type: 'category',
-        data: ['时间分布']
+        data: ['时间分布'],
+        // 宽度
+        axisLabel: {
+          rotate: 90, // 如果需要，可以旋转标签
+          interval: 0 // 显示所有标签
+        }
       },
       series: [
         {
@@ -724,11 +1005,19 @@ export default class ReplayView extends mixins(Vue) {
 </script>
 
 <style scoped>
+/* 通用样式 */
 .chart {
-  width: 100%;
   height: 300px;
-  margin: 10px 10px 10px 10px;
+  margin: 10px;
+  padding: 10px;
+  flex-grow: 2; /* 保持原有的弹性布局属性 */
+  flex-grow: 2; /* Chart takes more space */
+  padding: 10px;
+  width: 80%;
 }
+
+/* 其他样式保持不变 */
+
 
 .page-container {
   padding: 20px 30px; /* 20px top and bottom, 30px left and right */
@@ -751,13 +1040,6 @@ export default class ReplayView extends mixins(Vue) {
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
-.chart {
-  flex-grow: 2; /* Chart takes more space */
-  padding: 10px;
-  width: 80%;
-}
-
 
 .text-row {
   padding: 10px;
