@@ -1,10 +1,10 @@
 <template>
-  <el-button @click="getMark" v-if="buttonFlag">写作过程分析</el-button>
+  <el-button @click="getMark" v-if="buttonFlag">有道智云分析</el-button>
   <div v-if="isLoading" class="loading-overlay">
     <div class="loading-spinner"></div>
   </div>
   <div class="replayContent">
-    <div class="username">学生名: {{ userName }}</div>
+    <div class="username">{{ studentName }}</div>
     <div class="composition">
       <div class="title" style="font-size: 30px;">作文题目：{{textTitle}}</div>
       <div class="title" style="font-size: 20px;margin-top: 20px;margin-left: -60px;">{{requirement}}</div>
@@ -194,15 +194,45 @@ export default class markText extends Vue {
   class_id: any;
   apiData= {};
   requirement = ''
+  studentName = '';
 
   async created() {
     this.userName = this.$route.query.userName;
     this.userId = this.$route.query.userId;
     this.class_id = this.$route.query.class_id;
     this.textTitle = this.$route.query.textTitle;
+    await this.getStudentName();
     await this.fetchMistakes();
     await this.getMarkFlag()
     this.isLoading = false;
+  }
+
+  form = {
+    userId: '',
+  };
+
+  getStudentName(){
+    try {
+      this.form.userId = this.$route.query.userId as string;
+      axios
+          .post(keystrokeUrl + '/getStudentInfo', this.form)
+          .then((response) => {
+            this.studentName = response.data.studentName;
+          })
+          .catch((error) => {
+            console.error(error);
+            this.$message({
+              message: '信息获取失败，请检查网络连接',
+              type: 'error',
+            });
+          });
+    } catch (error) {
+      this.$message({
+        message: '信息获取失败，请联系管理员',
+        type: 'error',
+      });
+      console.log(error);
+    }
   }
 
   formatText(text) {

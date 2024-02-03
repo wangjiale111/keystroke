@@ -16,7 +16,7 @@
         <el-table-column prop="studentId" label="学号" min-width="20"></el-table-column>
         <el-table-column prop="studentName" label="姓名" min-width="20"></el-table-column>
         <el-table-column prop="textTitle" label="作文题目" min-width="30"></el-table-column>
-        <el-table-column prop="saveTime" label="提交时间" min-width="20"></el-table-column>
+        <el-table-column prop="saveTime" label="提交时间" min-width="30"></el-table-column>
         <el-table-column label="操作">
           <template v-slot="scope">
             <!-- 写作过程分析和写作结果分析按钮始终显示 -->

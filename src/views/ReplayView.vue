@@ -972,7 +972,6 @@ export default class ReplayView extends mixins(Vue) {
               keyValue: log.keyValue || "",
               textPosition: log.textPosition || "",
               keyAction: log.keyAction || "",
-              selector: log.selector || "",
               timeStamp: log.timeStamp || ""
             }));
 
@@ -982,7 +981,7 @@ export default class ReplayView extends mixins(Vue) {
             const csvURL = window.URL.createObjectURL(csvData);
             const tempLink = document.createElement("a");
             tempLink.href = csvURL;
-            tempLink.setAttribute("download", `${this.userId}_eventLogs.csv`);
+            tempLink.setAttribute("download", `${this.userName}.csv`);
             document.body.appendChild(tempLink);
             tempLink.click();
             document.body.removeChild(tempLink);

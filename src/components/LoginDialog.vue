@@ -13,7 +13,7 @@
         <el-radio-button label="admin">教师注册</el-radio-button>
       </el-radio-group>
 
-      <el-form v-if="!showRegister" :model="form" ref="loginForm" label-width="80px" @keyup.enter="login">
+      <el-form v-if="!showRegister" :model="form" ref="loginForm" label-width="80px">
 
         <el-form-item label="教师账号" prop="username" v-if="userType == 'admin'">
           <el-input v-model="form.username" autocomplete="off"></el-input>
@@ -26,7 +26,7 @@
         </el-form-item>
 
         <div class="footer">
-          <el-button type="primary" native-type="button" @click="login">登录</el-button>
+          <el-button type="primary" native-type="button" @click.prevent="login">登录</el-button>
           <el-button @click="showRegisterForm">注册</el-button>
         </div>
       </el-form>
@@ -67,7 +67,7 @@
 
 
         <div class="footer">
-          <el-button type="primary" native-type="submit" @click="register">确认注册</el-button>
+          <el-button type="primary" native-type="submit" @click.prevent="register">确认注册</el-button>
           <el-button @click="showLoginForm">返回登录</el-button>
         </div>
       </el-form>
@@ -104,6 +104,7 @@ export default class LoginDialog extends Vue {
 
   login() {
     this.$refs.loginForm.validate(async valid => {
+      console.log('开始登录');
       if (valid) {
         try {
           if (this.userType === 'admin') {
