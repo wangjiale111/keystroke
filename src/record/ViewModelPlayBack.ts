@@ -36,7 +36,8 @@ export class ViewModelPlayBack {
                 if (currentTime > ((this.userViewModelLog as any)[0].timeStamp + timeStartedPlayback)) {
                     do {
                         // 将timetemp为0的处理完后，回调取消loading，开始正常回放
-                        if ((this.userViewModelLog as any)[0].timeStamp >= 1000 && finish && typeof (finish) == 'function') {
+                        if ((this.userViewModelLog as any)[0].timeStamp >= 1000 && finish &&
+                            typeof (finish) == 'function') {
                             finish();
                             finish = null;
                         }
@@ -54,7 +55,8 @@ export class ViewModelPlayBack {
                             timeStamp: userEvent.timeStamp,
                             ChineseLength: userEvent.ChineseLength
                         });
-                    } while (userEventLength > 0 && ((currentTime + 50) > ((this.userViewModelLog as any)[0].timeStamp + timeStartedPlayback)));
+                    } while (userEventLength > 0 &&
+                    ((currentTime + 50) > ((this.userViewModelLog as any)[0].timeStamp + timeStartedPlayback)));
                 }
             }
             /* // 当前无回放回放数据取消loading

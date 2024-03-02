@@ -45,8 +45,6 @@
     </div>
     </div>
 
-
-
     <div class="row chart-row">
       <div class="chart" id="stacked-bar-chart" style="width: 40%;">
       </div>
@@ -58,12 +56,11 @@
       </div>
     </div>
 
-
-
     <div class="row chart-row">
-      <div class="chart" id="radar-chart" style="width: 45%;">
-      </div>
+
       <div class="chart" id="bar-chart" style="width: 30%;">
+      </div>
+      <div class="chart" id="radar-chart" style="width: 45%;">
       </div>
       <div class="description" style="width: 28%">
         <p>提供了写作时认知努力的见解，报告了暂停的次数、平均暂停时长、暂停突发长度和持续时间。暂停行为分析可以揭示学生在写作过程中的思考模式。例如，频繁的短暂停可能表明快速思考或文本的微调，而较长的暂停可能表明对更复杂问题的深入思考。</p>
@@ -82,6 +79,7 @@
         </p>
       </div>
     </div>
+
     <div class="row chart-row">
       <div class="chart" id="radar-chart2" >
       </div>
@@ -716,7 +714,8 @@ export default class ReplayView extends mixins(Vue) {
             for (let i = 0; i < this.allTime; i++) {
               sum = sum + this.lengthArray[i];
             }
-            // 每秒的打字数乘以60，得到每分钟的打字数, 首先判断this.allTime是否为0，若为0，则this.typeSpeed为0
+            // 每秒的打字数乘以60，得到每分钟的打字数,
+            // 首先判断this.allTime是否为0，若为0，则this.typeSpeed为0
             if (this.allTime == 0) {
               this.typeSpeed = 0;
             } else {
@@ -724,7 +723,7 @@ export default class ReplayView extends mixins(Vue) {
               this.typeSpeed = Math.round(sum);
             }
           } else {
-            // 对这一秒内的打字数求和，除以60，得到每秒的打字数
+            // 对此刻向前一分钟内的打字数量求和，再除以60，得到平均每秒的打字速度
             let sum = 0;
             for (let i = this.allTime - 60; i < this.allTime; i++) {
               sum = sum + this.lengthArray[i];
