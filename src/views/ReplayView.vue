@@ -91,8 +91,45 @@
       </div>
     </div>
 
+    <div class="row chart-row">
+        <img :src="imageUrls[0]" alt="User Image" class="image" />
+      <div class="description">
+        <p>
+          删除状态图揭示了学生在整个写作过程中进行删除按键的频率变化，当图形呈现波动状时，即代表了学生在撰写文本时不断的进行修订与调整。
+          频繁的删除操作可能表明学生对写作内容不满意或者写作思路在不停地转变。通过这个概率图能够识别出学生哪些环节最经常进行修改以及哪些部分需要更多的前期规划或草拟练习。
+        </p>
+      </div>
+    </div>
 
+    <div class="row chart-row">
+      <img :src="imageUrls[1]" alt="User Image" class="image" />
+      <div class="description">
+        <p>
+          写作卡顿图反映了整个写作过程中学生写作卡顿状态的出现概率变化。图中的波峰代表了学生在这些时间点上遇到了思维的障碍或者一些写作的困难，需要一边构思一边进行写作，进展较为缓慢。
+          如果图中波峰较多，可能意味着学生需要在构思和组织结构上投入更多的努力，或者需要更多的写作练习来提高写作的流畅性。
+        </p>
+      </div>
+    </div>
 
+    <div class="row chart-row">
+      <img :src="imageUrls[2]" alt="User Image" class="image" />
+      <div class="description">
+        <p>
+          暂停状态图显示了学生在整个写作过程中暂停的概率变化。这些时段可能表示写作者在写作过程中遇到了困难，或者在寻找思路。
+          这种状态可能是由于作者在某个点上不确定如何进一步阐述观点，或者在尝试解决某个写作难题时遇到了阻碍。这样的暂停可能是思考过程的一部分，但如果过于频繁或过长，可能意味着作者需要在构思、组织思路或写作策略上有所提高。
+        </p>
+      </div>
+    </div>
+
+    <div class="row chart-row">
+      <img :src="imageUrls[3]" alt="User Image" class="image" />
+      <div class="description">
+        <p>
+          文本生成状态图展示了学生在整个写作过程中流利写作的状态变化。图中的波峰则代表了学生在该时间点写作非常高效，文本输入迅速，在这些时段内学生可能有比较清晰的思路以及写作目标。
+          通过识别出这种高效写作模式的状态变化，有助于了解学生什么条件下能够进行高效写作，从而在未来的写作中进行注意。
+        </p>
+      </div>
+    </div>
 
 <!--    <div class="row text-row">-->
 <!--      <div class="text-content">-->
@@ -192,6 +229,7 @@ export default class ReplayView extends mixins(Vue) {
   comboChart: echarts.ECharts;
   gaugeChart: echarts.ECharts;
   radarChart2: echarts.ECharts;
+  imageUrls: string[] = [];
 
   async created() {
     this.userName = this.$route.query.userName;
@@ -201,6 +239,7 @@ export default class ReplayView extends mixins(Vue) {
     // await this.fetchEventLogs().then((replayData) => {
     //   this.replayData = replayData.event_logs;
     // });
+    this.fetchImageUrls();
     this.fetchWritingAnalysis().then(data => {
       this.writingAnalysis = data; // 将获取到的数据保存到writingAnalysis中
       console.log(this.writingAnalysis)
@@ -651,6 +690,24 @@ export default class ReplayView extends mixins(Vue) {
     }
   }
 
+  // 调用接口获取图片URLs
+  async fetchImageUrls (){
+    try {
+      const token = localStorage.getItem('adminToken'); // 从本地存储获取JWT令牌
+      const config = {
+        headers: {
+          'Authorization': `Bearer ${token}` // 将JWT令牌添加到请求头
+        },
+        params: {userId: this.userId, class_id: this.class_id}
+      };
+      const response = await axios.get(keystrokeUrl + '/get_img', config);
+      this.imageUrls= response.data.img_urls;
+      console.log(this.imageUrls)
+    } catch (error) {
+      console.error('Error fetching image URLs:', error);
+    }
+  };
+
   async fetchWritingAnalysis() {
     try {
       const token = localStorage.getItem('adminToken');
@@ -1003,6 +1060,23 @@ export default class ReplayView extends mixins(Vue) {
 </script>
 
 <style scoped>
+.image {
+  width: auto; /* 根据需要调整，也可以设置为固定宽度 */
+  max-width: 100%; /* 确保图像不会超出其容器的宽度 */
+  height: auto; /* 保持图像的原始宽高比 */
+  margin: 10px; /* 设置图像具有上下左右的间距 */
+}
+
+.chart-row img {
+  width: 600px; /* 或者你可以使用max-width来确保图形宽度不超过容器宽度 */
+  height: auto; /* 保持图像原始宽高比 */
+}
+
+/* 如果你想在最后一个图形下面没有边距，可以使用:not(:last-child) */
+.row:not(:last-child) {
+  margin-bottom: 20px;
+}
+
 /* 通用样式 */
 .chart {
   height: 300px;
