@@ -2,7 +2,7 @@
   <div class="record">
     <div class="writing">
       <div class="title">
-        <span style="  font-size: 20px;">{{ textTitle }}</span>
+        <span class="textTitle">{{ textTitle }}</span>
         <span style="  font-size: 15px;margin-top: 10px; width:800px;margin-bottom: 5px;">要求：{{ requirements }}</span>
       </div>
       <div class="header" style="margin-bottom: 10px;">
@@ -200,7 +200,8 @@ export default class WritingRecord extends Vue {
       console.log(log);
     });
     this.showForm = true;
-    console.log(this.finalText)
+    console.log("data:")
+    console.log(this.writingData)
     try {
       // 将用户事件日志发送给后端保存到数据库
       axios
@@ -285,6 +286,97 @@ export default class WritingRecord extends Vue {
 </script>
 
 <style scoped>
+
+.title .textTitle {
+  display: block; /* 改为 block 以支持宽度和居中 */
+  font-size: 20px;
+  font-weight: bold;
+  background-color: #f0f4f8;
+  color: #333;
+  padding: 10px 20px;
+  margin: 10px auto; /* 自动外边距实现居中 */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+  max-width: 58%; /* 最大宽度调整为 80%，您可以根据需要进一步调整 */
+  text-align: center; /* 文本居中 */
+}
+
+.title .textTitle:hover {
+  transform: scale(1.05);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.title .textTitle {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+/* 基础颜色和字体调整 */
+:root {
+  --primary-color: #5b8def; /* 主色调 */
+  --danger-color: #e74c3c; /* 警告色调 */
+  --text-color: #333; /* 文本颜色 */
+  --background-color: #f7f7f7; /* 背景颜色 */
+  --font-family: "Segoe UI", Arial, sans-serif; /* 默认字体 */
+}
+
+body {
+  background-color: var(--background-color);
+  font-family: var(--font-family);
+}
+
+/* 按钮样式 */
+.el-button {
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.el-button-primary {
+  background-color: var(--primary-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.el-button-danger {
+  background-color: var(--danger-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.el-button:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.el-button:active {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 输入框美化 */
+.el-input[type="textarea"] {
+  border: 1px solid #ccc;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.el-input[type="textarea"]:focus {
+  border-color: var(--primary-color);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 加载指示器小改动 */
+.loading-spinner {
+  border: 4px solid rgba(255, 255, 255, 0.8);
+  border-top-color: var(--primary-color);
+}
+
+
 .content {
   width: 90%;
   display: flex;

@@ -1,8 +1,8 @@
 <template>
   <div class="container">
-    <div class="table">
-      <h3 style="margin-top: 50px;font-family: KaiTi; ">历史任务</h3>
-      <el-table :data="historyClasses">
+    <div class="table" >
+      <h3 style="margin-top: 50px;font-family: KaiTi; margin-left: 30px;">历史任务</h3>
+      <el-table :data="historyClasses" >
         <!--        <el-table-column prop="id" label="ID" width="180"></el-table-column>-->
         <el-table-column prop="name" label="任务名称" width="80"></el-table-column>
         <el-table-column prop="class_id" label="任务代码" width="80"></el-table-column>

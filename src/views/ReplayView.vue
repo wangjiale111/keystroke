@@ -44,7 +44,7 @@
       <p>该动态折线图以时间为横坐标，写作速度为纵坐标，随着回放的进行动态展示了写作过程中速度的波动与变化。图表揭示了写作节奏的具体模式，如速度的加快可能暗示了思维的流畅与信息的迅速转录，而速度的减慢则可能反映出深思或遇到难题。</p>
     </div>
     </div>
-
+    <h2>时间特征</h2>
     <div class="row chart-row">
       <div class="chart" id="stacked-bar-chart" style="width: 40%;">
       </div>
@@ -55,7 +55,7 @@
           通过分析打字时间和思考时间的比例来评估学生在写作过程中的思考和打字速度。比如，一个高的打字/思考比率可能表示学生在写作时更多依赖于直觉，而较低的比率则可能意味着他们在写作时更加深思熟虑。</p>
       </div>
     </div>
-
+    <h2>暂停特征</h2>
     <div class="row chart-row">
 
       <div class="chart" id="bar-chart" style="width: 30%;">
@@ -66,7 +66,7 @@
         <p>提供了写作时认知努力的见解，报告了暂停的次数、平均暂停时长、暂停突发长度和持续时间。暂停行为分析可以揭示学生在写作过程中的思考模式。例如，频繁的短暂停可能表明快速思考或文本的微调，而较长的暂停可能表明对更复杂问题的深入思考。</p>
       </div>
     </div>
-
+    <h2>修订特征</h2>
     <div class="row chart-row">
       <div class="chart" id="combo-chart" style="width: 45%;">
       </div>
@@ -79,7 +79,7 @@
         </p>
       </div>
     </div>
-
+    <h2>打字特征</h2>
     <div class="row chart-row">
       <div class="chart" id="radar-chart2" >
       </div>
@@ -90,43 +90,43 @@
       </p>
       </div>
     </div>
-
+    <h2>写作状态一</h2>
     <div class="row chart-row">
+      <img :src="imageUrls[4]" alt="User Image" class="image" />
         <img :src="imageUrls[0]" alt="User Image" class="image" />
-      <div class="description">
-        <p>
-          删除状态图揭示了学生在整个写作过程中进行删除按键的频率变化，当图形呈现波动状时，即代表了学生在撰写文本时不断的进行修订与调整。
-          频繁的删除操作可能表明学生对写作内容不满意或者写作思路在不停地转变。通过这个概率图能够识别出学生哪些环节最经常进行修改以及哪些部分需要更多的前期规划或草拟练习。
+      <div class="description" style="width: 25%">
+        <p>如左图所示，在该状态下学生删除动作的概率为：{{betaData[0][0].toFixed(2) }}，插入动作的概率为：{{betaData[0][1].toFixed(2) }}
+          ，删除动作的概率为：{{betaData[0][2].toFixed(2) }}，而右图则是在该状态下的时间序列图，横轴为写作时间，纵轴为学生在该状态下的概率。
         </p>
       </div>
     </div>
-
+    <h2>写作状态二</h2>
     <div class="row chart-row">
+      <img :src="imageUrls[5]" alt="User Image" class="image" />
       <img :src="imageUrls[1]" alt="User Image" class="image" />
-      <div class="description">
-        <p>
-          写作卡顿图反映了整个写作过程中学生写作卡顿状态的出现概率变化。图中的波峰代表了学生在这些时间点上遇到了思维的障碍或者一些写作的困难，需要一边构思一边进行写作，进展较为缓慢。
-          如果图中波峰较多，可能意味着学生需要在构思和组织结构上投入更多的努力，或者需要更多的写作练习来提高写作的流畅性。
+      <div class="description" style="width: 25%">
+        <p>如左图所示，在该状态下学生删除动作的概率为：{{betaData[1][0].toFixed(2) }}，插入动作的概率为：{{betaData[1][1].toFixed(2) }}
+          ，删除动作的概率为：{{betaData[1][2].toFixed(2) }}，而右图则是在该状态下的时间序列图，横轴为写作时间，纵轴为学生在该状态下的概率。
         </p>
       </div>
     </div>
-
+    <h2>写作状态三</h2>
     <div class="row chart-row">
+      <img :src="imageUrls[6]" alt="User Image" class="image" />
       <img :src="imageUrls[2]" alt="User Image" class="image" />
-      <div class="description">
-        <p>
-          暂停状态图显示了学生在整个写作过程中暂停的概率变化。这些时段可能表示写作者在写作过程中遇到了困难，或者在寻找思路。
-          这种状态可能是由于作者在某个点上不确定如何进一步阐述观点，或者在尝试解决某个写作难题时遇到了阻碍。这样的暂停可能是思考过程的一部分，但如果过于频繁或过长，可能意味着作者需要在构思、组织思路或写作策略上有所提高。
+      <div class="description" style="width: 25%">
+        <p>如左图所示，在该状态下学生删除动作的概率为：{{betaData[2][0].toFixed(2) }}，插入动作的概率为：{{betaData[2][1].toFixed(2) }}
+          ，删除动作的概率为：{{betaData[2][2].toFixed(2) }}，而右图则是在该状态下的时间序列图，横轴为写作时间，纵轴为学生在该状态下的概率。
         </p>
       </div>
     </div>
-
+    <h2>写作状态四</h2>
     <div class="row chart-row">
+      <img :src="imageUrls[7]" alt="User Image" class="image" />
       <img :src="imageUrls[3]" alt="User Image" class="image" />
-      <div class="description">
-        <p>
-          文本生成状态图展示了学生在整个写作过程中流利写作的状态变化。图中的波峰则代表了学生在该时间点写作非常高效，文本输入迅速，在这些时段内学生可能有比较清晰的思路以及写作目标。
-          通过识别出这种高效写作模式的状态变化，有助于了解学生什么条件下能够进行高效写作，从而在未来的写作中进行注意。
+      <div class="description" style="width: 25%">
+        <p>如左图所示，在该状态下学生删除动作的概率为：{{betaData[3][0].toFixed(2) }}，插入动作的概率为：{{betaData[3][1].toFixed(2) }}
+          ，删除动作的概率为：{{betaData[3][2].toFixed(2) }}，而右图则是在该状态下的时间序列图，横轴为写作时间，纵轴为学生在该状态下的概率。
         </p>
       </div>
     </div>
@@ -230,6 +230,12 @@ export default class ReplayView extends mixins(Vue) {
   gaugeChart: echarts.ECharts;
   radarChart2: echarts.ECharts;
   imageUrls: string[] = [];
+  betaData: number[][] = [
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0]
+  ];
 
   async created() {
     this.userName = this.$route.query.userName;
@@ -684,6 +690,7 @@ export default class ReplayView extends mixins(Vue) {
         params: {userId: this.userId, class_id: this.class_id}
       };
       const response = await axios.get(keystrokeUrl + '/get_event_logs', config);
+      console.log('success')
       return response.data;
     } catch (error) {
       console.error(error);
@@ -701,8 +708,10 @@ export default class ReplayView extends mixins(Vue) {
         params: {userId: this.userId, class_id: this.class_id}
       };
       const response = await axios.get(keystrokeUrl + '/get_img', config);
+      console.log(response)
       this.imageUrls= response.data.img_urls;
-      console.log(this.imageUrls)
+      this.betaData = response.data.keystrokeUrl;
+
     } catch (error) {
       console.error('Error fetching image URLs:', error);
     }
@@ -1068,8 +1077,8 @@ export default class ReplayView extends mixins(Vue) {
 }
 
 .chart-row img {
-  width: 600px; /* 或者你可以使用max-width来确保图形宽度不超过容器宽度 */
-  height: auto; /* 保持图像原始宽高比 */
+  width: auto; /* 或者你可以使用max-width来确保图形宽度不超过容器宽度 */
+  height: 300px; /* 保持图像原始宽高比 */
 }
 
 /* 如果你想在最后一个图形下面没有边距，可以使用:not(:last-child) */
@@ -1102,7 +1111,8 @@ export default class ReplayView extends mixins(Vue) {
 .row {
   background-color: #e6f7ff; /* Pale blue background */
   display: flex; /* Enable flex layout for rows */
-  align-items: stretch; /* Align the items vertically */
+  align-items: stretch; /* Stretch items vertically */
+
   gap: 20px; /* Gap between chart and description */
   margin-bottom: 20px;
 }

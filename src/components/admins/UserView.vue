@@ -1,7 +1,7 @@
 <template>
   <div class="user">
-    <div class="main">
-      <div class="header">
+    <div class="main" style="margin-left: 30px;">
+      <div class="header" >
         <div style="margin-top: 5px;">搜索用户：</div>
         <el-input
             class="search-input"
@@ -12,12 +12,12 @@
         ></el-input>
         <el-button type="primary" @click="searchUserEvents">搜索</el-button>
       </div>
-      <el-table :data="userEvents" border>
+      <el-table :data="userEvents" border >
         <el-table-column prop="studentId" label="学号" min-width="20"></el-table-column>
         <el-table-column prop="studentName" label="姓名" min-width="20"></el-table-column>
         <el-table-column prop="textTitle" label="作文题目" min-width="30"></el-table-column>
         <el-table-column prop="saveTime" label="提交时间" min-width="30"></el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" >
           <template v-slot="scope">
             <!-- 写作过程分析和写作结果分析按钮始终显示 -->
             <el-button type="primary" @click="viewReplay(scope.row.userName, scope.row.userId, scope.row.class_id)">
@@ -208,6 +208,7 @@ export default class AdminView extends Vue {
         params: {userId: userId, class_id: class_id}
       };
       const response = await axios.get(keystrokeUrl + '/get_event_logs', config);
+      console.log('111')
       return response.data;
     } catch (error) {
       console.error(error);

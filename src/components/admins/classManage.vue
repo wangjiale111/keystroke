@@ -1,12 +1,30 @@
 <template>
   <div class="container">
-    <el-button type="primary" @click="showDialog = true" style="margin-left: 10px;">发布任务</el-button>
+    <el-button type="primary" @click="showDialog = true" style="margin-left: 30px;">发布任务</el-button>
     <div class="modal" v-show="showDialog">
       <div style="margin: 10px 0 -10px 20px">
         <span>发布任务</span>
       </div>
       <el-divider></el-divider>
       <el-form :model="newClassForm" ref="newClass" label-width="120px" :rules="rules" style="margin: 30px 40px 20px 10px;">
+        <el-form-item label="年级"  required>
+          <el-select v-model="grade" placeholder="请选择年级">
+            <!-- 一年级到六年级选项 -->
+            <el-option label="一年级" value="一年级"></el-option>
+            <el-option label="二年级" value="二年级"></el-option>
+            <el-option label="三年级" value="三年级"></el-option>
+            <el-option label="四年级" value="四年级"></el-option>
+            <el-option label="五年级" value="五年级"></el-option>
+            <el-option label="六年级" value="六年级"></el-option>
+            <!-- 初一到高三选项 -->
+            <el-option label="初一" value="初一"></el-option>
+            <el-option label="初二" value="初二"></el-option>
+            <el-option label="初三" value="初三"></el-option>
+            <el-option label="高一" value="高一"></el-option>
+            <el-option label="高二" value="高二"></el-option>
+            <el-option label="高三" value="高三"></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="任务名称" prop="name">
           <el-input v-model="newClassForm.name"></el-input>
         </el-form-item>
@@ -31,15 +49,15 @@
         <el-button type="primary" @click="onSubmit">确认</el-button>
       </div>
     </div>
-    <div class="table">
+    <div class="table" style="margin-left: 30px;">
       <h3 style="margin-top: 50px;font-family: KaiTi; ">当前任务</h3>
       <el-table :data="classes">
 <!--        <el-table-column prop="id" label="ID" width="180"></el-table-column>-->
         <el-table-column prop="name" label="任务名称" width="80"></el-table-column>
         <el-table-column prop="class_id" label="任务代码" width="80"></el-table-column>
 <!--        <el-table-column prop="created_by" label="创建者" width="180"></el-table-column>-->
-        <el-table-column prop="textTitle" label="作文标题" width="200"></el-table-column>
-        <el-table-column prop="textRequirement" label="写作要求" width="180"></el-table-column>
+        <el-table-column prop="textTitle" label="作文标题" width="80"></el-table-column>
+        <el-table-column prop="textRequirement" label="写作要求" width="400"></el-table-column>
         <el-table-column label="写作时间" width="80">
           <template v-slot="{row}">
             {{row.textTime}}分钟
@@ -93,6 +111,7 @@ export default class ClassManage extends Vue {
     start_date: null,
     due_date: null
   }
+  grade = '';
   rules = {
     name: [{required: true, message: '任务名称不能为空', trigger: 'blur'}],
     textTitle: [{required: true, message: '作文标题不能为空', trigger: 'blur'}],
