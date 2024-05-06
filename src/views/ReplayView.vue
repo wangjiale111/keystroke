@@ -2,8 +2,17 @@
   <div class="page-container">
     <div class="username" style="z-index: 999">{{ studentName }}</div>
     <div class="download">
-      <el-button type="primary" @click="downloadEventLogs()">
-        下载写作过程数据
+      <el-button type="primary" @click="isReport()" :plain="!isReportFlag">
+        写作过程分析
+      </el-button>
+      <el-button type="primary" @click="isReplay()" plain>
+        写作过程回放
+      </el-button>
+      <el-button type="primary" @click="isPgm()" plain>
+        概率图模型分析
+      </el-button>
+      <el-button type="primary" @click="downloadEventLogs()" plain>
+        下载键盘记录数据
       </el-button>
     </div>
     <div v-if="isLoading" class="loading-overlay">
@@ -11,172 +20,136 @@
       <div class="loading-text">正在加载数据...</div>
     </div>
 
-    <div class="row chart-row" style="margin-top: 30px; display: flex;">
-      <div class="chart" id="chart-4-1-1">
-        <div class="writingReplay">
-          <div class="content">
-            <el-input
-                type="textarea"
-                :rows="10"
-                v-model="value"
-                :disabled="true"
-                class="text-area"
-            ></el-input>
-          </div>
-          <div class="playButton">
-            <el-button type="primary" @click="Replay">开始回放</el-button>
-            <!--          <el-button type="primary" @click="continueReplay" v-show="stopFlag">继续回放</el-button>-->
-            <el-button type="danger" @click="exitReplay" style="margin-left: 40px;">暂停回放</el-button>
-          </div>
+    <!--    写作过程回放-->
+    <div class="row chart-row" style="margin-top: 30px; display: flex;margin-bottom: 0px;" v-show="isReplayFlag">
+      <div class="writingReplay">
+        <div class="content">
+          <el-input
+              type="textarea"
+              :rows="10"
+              v-model="value"
+              :disabled="true"
+              class="text-area"
+          ></el-input>
         </div>
       </div>
       <div class="header">
         <div class="header-item">写作总时间:{{ time }}</div>
         <div class="header-item">写作速度:{{ typeSpeed }}字/分钟、{{ typeSpeedSecond }}字/秒</div>
         <div class="header-item">写作总字数:{{ writingLength }}</div>
+        <div class="playButton">
+          <el-button type="primary" @click="Replay">开始回放</el-button>
+          <!--          <el-button type="primary" @click="continueReplay" v-show="stopFlag">继续回放</el-button>-->
+          <el-button type="danger" @click="exitReplay" style="margin-left: 40px;">暂停回放</el-button>
+        </div>
       </div>
     </div>
 
-    <div class="row chart-row">
-        <div id="chart" class="chart"></div>
-      <div class="description" style="width: 25%">
+    <div class="row chart-row" style="padding:0;height: 300px;margin-top: 0;" v-show="isReplayFlag">
+        <div id="chart" class="chart" style="height: 260px; z-index: 999;width: 100%;"></div>
+      <div class="description" style="width: 35%;margin-bottom: 5px">
       <!-- Description for 4-1-1 -->
-      <p>该动态折线图以时间为横坐标，写作速度为纵坐标，随着回放的进行动态展示了写作过程中速度的波动与变化。图表揭示了写作节奏的具体模式，如速度的加快可能暗示了思维的流畅与信息的迅速转录，而速度的减慢则可能反映出深思或遇到难题。</p>
+      <p>该动态折线图以时间为横坐标，写作速度为纵坐标，随着回放的进行动态展示了写作速度的波动与变化。揭示了写作过程的节奏模式，如速度的加快可能表示思维的流畅与信息的迅速转录，而速度减慢则可能是在深思或遇到问题。</p>
     </div>
     </div>
-    <h2>时间特征</h2>
-    <div class="row chart-row">
-      <div class="chart" id="stacked-bar-chart" style="width: 40%;">
-      </div>
-      <div class="chart" id="pie-chart" style="width: 35%;">
-      </div>
-      <div class="description" style="width: 28%">
-        <p>总过程时间展示了完成写作任务的全时段，总暂停时间显示了思考和计划的时间，而总活跃写作时间则是实际用于打字的时长。
-          通过分析打字时间和思考时间的比例来评估学生在写作过程中的思考和打字速度。比如，一个高的打字/思考比率可能表示学生在写作时更多依赖于直觉，而较低的比率则可能意味着他们在写作时更加深思熟虑。</p>
-      </div>
-    </div>
-    <h2>暂停特征</h2>
-    <div class="row chart-row">
 
-      <div class="chart" id="bar-chart" style="width: 30%;">
-      </div>
-      <div class="chart" id="radar-chart" style="width: 45%;">
-      </div>
-      <div class="description" style="width: 28%">
-        <p>提供了写作时认知努力的见解，报告了暂停的次数、平均暂停时长、暂停突发长度和持续时间。暂停行为分析可以揭示学生在写作过程中的思考模式。例如，频繁的短暂停可能表明快速思考或文本的微调，而较长的暂停可能表明对更复杂问题的深入思考。</p>
-      </div>
+<!--写作过程报告-->
+
+<div v-show="isReportFlag">
+  <h2 style="margin-bottom: 10px;">时间特征</h2>
+  <div class="row chart-row">
+    <div class="chart" id="stacked-bar-chart" style="width: 40%;">
     </div>
-    <h2>修订特征</h2>
-    <div class="row chart-row">
-      <div class="chart" id="combo-chart" style="width: 45%;">
-      </div>
-      <div class="chart" id="gauge-chart" style="width: 30%;">
-      </div>
-      <div class="description" style="width: 28%">
-        <p>
-          提供了被删除和插入文本的程度的信息，包括总的修订次数、每100字和每分钟的平均修订次数，以及平均修订突发长度。
-          通过分析修订行为，可以了解学生在写作过程中的修改习惯。较多的修订次数可能表明更高的自我批评能力或不断完善文本的愿望。
-        </p>
-      </div>
+    <div class="chart" id="pie-chart" style="width: 35%;">
     </div>
-    <h2>打字特征</h2>
-    <div class="row chart-row">
-      <div class="chart" id="radar-chart2" >
-      </div>
-      <div class="description">
+    <div class="description" style="width: 28%">
+      <p>总过程时间展示了完成写作任务的全时段，总暂停时间显示了思考和计划的时间，而总活跃写作时间则是实际用于打字的时长。
+        通过分析打字时间和思考时间的比例来评估学生在写作过程中的思考和打字速度。比如，一个高的打字/思考比率可能表示学生在写作时更多依赖于直觉，而较低的比率则可能意味着他们在写作时更加深思熟虑。</p>
+    </div>
+  </div>
+  <h2 style="margin-bottom: 10px;">暂停特征</h2>
+  <div class="row chart-row">
+
+    <div class="chart" id="bar-chart" style="width: 30%;">
+    </div>
+    <div class="chart" id="radar-chart" style="width: 45%;">
+    </div>
+    <div class="description" style="width: 28%">
+      <p>提供了写作时认知努力的见解，报告了暂停的次数、平均暂停时长、暂停突发长度和持续时间。暂停行为分析可以揭示学生在写作过程中的思考模式。例如，频繁的短暂停可能表明快速思考或文本的微调，而较长的暂停可能表明对更复杂问题的深入思考。</p>
+    </div>
+  </div>
+  <h2 style="margin-bottom: 10px;">修订特征</h2>
+  <div class="row chart-row">
+    <div class="chart" id="combo-chart" style="width: 45%;">
+    </div>
+    <div class="chart" id="gauge-chart" style="width: 30%;">
+    </div>
+    <div class="description" style="width: 28%">
+      <p>
+        提供了被删除和插入文本的程度的信息，包括总的修订次数、每100字和每分钟的平均修订次数，以及平均修订突发长度。
+        通过分析修订行为，可以了解学生在写作过程中的修改习惯。较多的修订次数可能表明更高的自我批评能力或不断完善文本的愿望。
+      </p>
+    </div>
+  </div>
+  <h2 style="margin-bottom: 10px;">打字特征</h2>
+  <div class="row chart-row">
+    <div class="chart" id="radar-chart2" >
+    </div>
+    <div class="description">
       <p>
         描述了最终产品中的文本量与写作过程中产生的总文本量（包括复制的文本）的关系。还基于产品和过程数据计算了每分钟字符数。
         这一部分关注于写作过程中文本的量化分析，如学生实际写下了多少字，以及这些文字中有多少是最终作品的一部分。通过比较最终文本和过程中产生的总文本量，可以了解学生在写作中的编辑和修改程度。
       </p>
-      </div>
     </div>
-    <h2>写作状态一</h2>
-    <div class="row chart-row">
-      <img :src="imageUrls[4]" alt="User Image" class="image" />
-        <img :src="imageUrls[0]" alt="User Image" class="image" />
-      <div class="description" style="width: 25%">
-        <p>如左图所示，在该状态下学生删除动作的概率为：{{betaData[0][0].toFixed(2) }}，插入动作的概率为：{{betaData[0][1].toFixed(2) }}
-          ，删除动作的概率为：{{betaData[0][2].toFixed(2) }}，而右图则是在该状态下的时间序列图，横轴为写作时间，纵轴为学生在该状态下的概率。
-        </p>
-      </div>
-    </div>
-    <h2>写作状态二</h2>
-    <div class="row chart-row">
-      <img :src="imageUrls[5]" alt="User Image" class="image" />
-      <img :src="imageUrls[1]" alt="User Image" class="image" />
-      <div class="description" style="width: 25%">
-        <p>如左图所示，在该状态下学生删除动作的概率为：{{betaData[1][0].toFixed(2) }}，插入动作的概率为：{{betaData[1][1].toFixed(2) }}
-          ，删除动作的概率为：{{betaData[1][2].toFixed(2) }}，而右图则是在该状态下的时间序列图，横轴为写作时间，纵轴为学生在该状态下的概率。
-        </p>
-      </div>
-    </div>
-    <h2>写作状态三</h2>
-    <div class="row chart-row">
-      <img :src="imageUrls[6]" alt="User Image" class="image" />
-      <img :src="imageUrls[2]" alt="User Image" class="image" />
-      <div class="description" style="width: 25%">
-        <p>如左图所示，在该状态下学生删除动作的概率为：{{betaData[2][0].toFixed(2) }}，插入动作的概率为：{{betaData[2][1].toFixed(2) }}
-          ，删除动作的概率为：{{betaData[2][2].toFixed(2) }}，而右图则是在该状态下的时间序列图，横轴为写作时间，纵轴为学生在该状态下的概率。
-        </p>
-      </div>
-    </div>
-    <h2>写作状态四</h2>
-    <div class="row chart-row">
-      <img :src="imageUrls[7]" alt="User Image" class="image" />
-      <img :src="imageUrls[3]" alt="User Image" class="image" />
-      <div class="description" style="width: 25%">
-        <p>如左图所示，在该状态下学生删除动作的概率为：{{betaData[3][0].toFixed(2) }}，插入动作的概率为：{{betaData[3][1].toFixed(2) }}
-          ，删除动作的概率为：{{betaData[3][2].toFixed(2) }}，而右图则是在该状态下的时间序列图，横轴为写作时间，纵轴为学生在该状态下的概率。
-        </p>
-      </div>
-    </div>
+  </div>
+</div>
 
-<!--    <div class="row text-row">-->
-<!--      <div class="text-content">-->
-<!--        <p>注意: 更多的说明性的文字内容...</p>-->
-<!--      </div>-->
-<!--    </div>-->
+<!--    概率图模型分析-->
+<div v-show="isPgmFlag">
+  <h2 style="margin-bottom: 10px;">写作状态一</h2>
+  <div class="row chart-row">
+    <img :src="imageUrls[4]" alt="User Image" class="image" />
+    <img :src="imageUrls[0]" alt="User Image" class="image" />
+    <div class="description" style="width: 25%">
+      <p>如左图所示，在该状态下学生删除动作的概率为：{{betaData[0][0].toFixed(2) }}，插入动作的概率为：{{betaData[0][1].toFixed(2) }}
+        ，删除动作的概率为：{{betaData[0][2].toFixed(2) }}，而右图则是在该状态下的时间序列图，横轴为写作时间，纵轴为学生在该状态下的概率。
+      </p>
+    </div>
+  </div>
+  <h2 style="margin-bottom: 10px;">写作状态二</h2>
+  <div class="row chart-row">
+    <img :src="imageUrls[5]" alt="User Image" class="image" />
+    <img :src="imageUrls[1]" alt="User Image" class="image" />
+    <div class="description" style="width: 25%">
+      <p>如左图所示，在该状态下学生删除动作的概率为：{{betaData[1][0].toFixed(2) }}，插入动作的概率为：{{betaData[1][1].toFixed(2) }}
+        ，删除动作的概率为：{{betaData[1][2].toFixed(2) }}，而右图则是在该状态下的时间序列图，横轴为写作时间，纵轴为学生在该状态下的概率。
+      </p>
+    </div>
+  </div>
+  <h2 style="margin-bottom: 10px;">写作状态三</h2>
+  <div class="row chart-row">
+    <img :src="imageUrls[6]" alt="User Image" class="image" />
+    <img :src="imageUrls[2]" alt="User Image" class="image" />
+    <div class="description" style="width: 25%">
+      <p>如左图所示，在该状态下学生删除动作的概率为：{{betaData[2][0].toFixed(2) }}，插入动作的概率为：{{betaData[2][1].toFixed(2) }}
+        ，删除动作的概率为：{{betaData[2][2].toFixed(2) }}，而右图则是在该状态下的时间序列图，横轴为写作时间，纵轴为学生在该状态下的概率。
+      </p>
+    </div>
+  </div>
+  <h2 style="margin-bottom: 10px;">写作状态四</h2>
+  <div class="row chart-row">
+    <img :src="imageUrls[7]" alt="User Image" class="image" />
+    <img :src="imageUrls[3]" alt="User Image" class="image" />
+    <div class="description" style="width: 25%">
+      <p>如左图所示，在该状态下学生删除动作的概率为：{{betaData[3][0].toFixed(2) }}，插入动作的概率为：{{betaData[3][1].toFixed(2) }}
+        ，删除动作的概率为：{{betaData[3][2].toFixed(2) }}，而右图则是在该状态下的时间序列图，横轴为写作时间，纵轴为学生在该状态下的概率。
+      </p>
+    </div>
+  </div>
+</div>
+
   </div>
 
-
-
-<!--  <div class="replayContent">-->
-<!--    <div class="processReport">-->
-<!--      <h2>写作分析报告</h2>-->
-<!--      <div v-if="writingAnalysis">-->
-<!--&lt;!&ndash;        <p>IME输入次数: {{ writingAnalysis.ime_input_count }}</p>&ndash;&gt;-->
-<!--&lt;!&ndash;        <p>IME平均输入长度: {{ writingAnalysis.average_ime_input_length.toFixed(2) }}</p>&ndash;&gt;-->
-
-
-<!--&lt;!&ndash;        <p>修订总数: {{ writingAnalysis.revision_count }}</p>&ndash;&gt;-->
-<!--&lt;!&ndash;        <p>每100字的平均修订次数: {{ writingAnalysis.average_revisions_per_100_characters.toFixed(2) }}</p>&ndash;&gt;-->
-<!--&lt;!&ndash;        <p>每分钟的平均修订次数: {{ writingAnalysis.average_revisions_per_minute.toFixed(2) }}</p>&ndash;&gt;-->
-
-
-<!--&lt;!&ndash;        <p>暂停总数: {{ writingAnalysis.pause_count }}</p>&ndash;&gt;-->
-<!--&lt;!&ndash;        <p>平均暂停时长（秒）: {{ writingAnalysis.average_pause_duration.toFixed(2) }}</p>&ndash;&gt;-->
-<!--&lt;!&ndash;        <p>平均暂停突发长度: {{ writingAnalysis.average_burst_length.toFixed(2) }}</p>&ndash;&gt;-->
-<!--&lt;!&ndash;        <p>平均暂停突发持续时间（秒）: {{ writingAnalysis.average_burst_duration.toFixed(2) }}</p>&ndash;&gt;-->
-
-
-<!--&lt;!&ndash;        <p>总过程时间: {{ writingAnalysis.total_process_time }}</p>&ndash;&gt;-->
-<!--&lt;!&ndash;        <p>总暂停时间: {{ writingAnalysis.total_pausing_time }}</p>&ndash;&gt;-->
-<!--&lt;!&ndash;        <p>总活跃写作时间: {{ writingAnalysis.total_active_writing_time }}</p>&ndash;&gt;-->
-<!--&lt;!&ndash;        <p>思考与打字时间比: {{ writingAnalysis.thinking_typing_ratio.toFixed(2) }}</p>&ndash;&gt;-->
-
-
-<!--&lt;!&ndash;        <p>最终文本长度（字数）: {{ writingAnalysis.final_text_length }}</p>&ndash;&gt;-->
-<!--&lt;!&ndash;        <p>写作过程产生的文本总长度（字数）: {{ writingAnalysis.generated_text_length }}</p>&ndash;&gt;-->
-<!--&lt;!&ndash;        <p>每分钟字符数（作品）: {{ writingAnalysis.characters_per_minute_product.toFixed(2) }}</p>&ndash;&gt;-->
-<!--&lt;!&ndash;        <p>每分钟字符数（过程）: {{ writingAnalysis.characters_per_minute_process.toFixed(2) }}</p>&ndash;&gt;-->
-<!--&lt;!&ndash;        <p>作品/过程比例: {{ writingAnalysis.product_process_ratio.toFixed(2) *100 }} %</p>&ndash;&gt;-->
-<!--      </div>-->
-<!--      <div v-else>-->
-<!--        <p>正在加载数据...</p>-->
-<!--      </div>-->
-<!--    </div>-->
-
-<!--  </div>-->
 </template>
 
 <script lang="ts" name="ReplayView">
@@ -236,6 +209,9 @@ export default class ReplayView extends mixins(Vue) {
     [0, 0, 0],
     [0, 0, 0]
   ];
+  isReplayFlag = false;
+  isReportFlag = true;
+  isPgmFlag = false;
 
   async created() {
     this.userName = this.$route.query.userName;
@@ -250,7 +226,7 @@ export default class ReplayView extends mixins(Vue) {
       this.writingAnalysis = data; // 将获取到的数据保存到writingAnalysis中
       console.log(this.writingAnalysis)
       this.$nextTick(() => {
-        this.initializeChart();
+        // this.initializeChart();
         this.timeChart();
         this.generateBarChart();
         this.generateRadarChart();
@@ -1010,6 +986,27 @@ export default class ReplayView extends mixins(Vue) {
     return result;
   }
 
+  isReplay() {
+    this.isReplayFlag = true;
+    this.isReportFlag = false;
+    this.isPgmFlag = false;
+    this.$nextTick(() => {
+      this.initializeChart();
+    });
+  }
+
+  isReport() {
+    this.isReplayFlag = false;
+    this.isReportFlag = true;
+    this.isPgmFlag = false;
+  }
+
+  isPgm() {
+    this.isReplayFlag = false;
+    this.isReportFlag = false;
+    this.isPgmFlag = true;
+  }
+
   async downloadEventLogs() {
     await ElMessageBox.confirm("是否下载击键记录数据?", "提示", {
       confirmButtonText: "确定",
@@ -1105,7 +1102,7 @@ export default class ReplayView extends mixins(Vue) {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 20px; /* 20px between rows */
+  gap: 5px; /* 20px between rows */
 }
 
 .row {
@@ -1222,7 +1219,7 @@ p {
 
 .writingReplay {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   width: 90%;
@@ -1231,6 +1228,8 @@ p {
 .content {
   width: 100%;
   background-color: #eaeaea;
+  margin-right: 30px;
+  margin-left: 10px;
 }
 
 .header {
@@ -1246,10 +1245,10 @@ p {
   border-radius: 12px; /* 增加圆角 */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 增加阴影以增强立体感 */
   width: 30%;
-  margin-right: 30px;
+
   transition: all 0.3s ease;
   height: fit-content;
-  margin-top: 60px;
+
 }
 
 .header-item {
@@ -1308,6 +1307,7 @@ p {
 
 .download {
   right: 20px;
+  z-index: 999;
 }
 
 .chart {
